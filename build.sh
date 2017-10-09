@@ -1,1 +1,0 @@
-go build -ldflags "-X main.Version=0.0.6 -X main.BuildDate=`date '+%Y-%m-%d_%k:%M:%S'` -X main.Change=correct_bug"

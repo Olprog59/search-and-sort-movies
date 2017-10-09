@@ -22,9 +22,11 @@ func init() {
 }
 
 var (
-	Version   string
-	BuildDate string
-	Change    string
+	BuildVersion string
+	BuildHash    string
+	BuildDate    string
+	BuildClean   string
+	Name         = "search-and-sort-movies"
 )
 
 func main() {
@@ -35,9 +37,14 @@ func main() {
 
 	if *vers {
 		// flag.PrintDefaults()
-		fmt.Printf("App Version : %s\nBuildStamp : %s\n", Version, BuildDate)
-		fmt.Printf("Change : %s\n", Change)
-		os.Exit(0)
+		fmt.Printf("Name: %s\n", Name)
+		fmt.Printf("Version: %s\n", BuildVersion)
+		fmt.Printf("Git Commit Hash: %s\n", BuildHash)
+		fmt.Printf("Build Date: %s\n", BuildDate)
+		fmt.Printf("Built from clean source tree: %s\n", BuildClean)
+		fmt.Printf("OS: %s\n", runtime.GOOS)
+		fmt.Printf("Architecture: %s\n", runtime.GOARCH)
+		os.Exit(1)
 	}
 
 	if *scan {
