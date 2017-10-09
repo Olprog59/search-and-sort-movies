@@ -35,7 +35,7 @@ func start(file string) {
 		nameClean := name[:len(name)-len(filepath.Ext(name))]
 		movie, _ := dbMovies(false, nameClean, strconv.Itoa(year))
 		if len(movie.Results) > 0 {
-			moveOrRenameFile(dlna+"/"+file, movies+"/"+name)
+			moveOrRenameFile(dlna+string(os.PathSeparator)+file, movies+string(os.PathSeparator)+name)
 		} else {
 			log.Println(nameClean + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + nameClean + ".\n Test manuellement si tu le trouves ;-)")
 		}
@@ -66,9 +66,9 @@ func checkFolderSerie(file, name, serieName string, season int) (string, string)
 	if !exist {
 		createFolder(series + newFolder)
 	}
-	fmt.Println(dlna+"/"+file, series+newFolder+"/"+name)
-	moveOrRenameFile(dlna+"/"+file, series+newFolder+"/"+name)
-	return dlna + "/" + file, series + newFolder + "/" + name
+	fmt.Println(dlna+string(os.PathSeparator)+file, series+newFolder+string(os.PathSeparator)+name)
+	moveOrRenameFile(dlna+string(os.PathSeparator)+file, series+newFolder+string(os.PathSeparator)+name)
+	return dlna + string(os.PathSeparator) + file, series + newFolder + string(os.PathSeparator) + name
 }
 
 /*

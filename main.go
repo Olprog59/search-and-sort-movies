@@ -11,8 +11,10 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
-	"searchAndSort/controllers"
+	"search-and-sort-movies/controllers"
 	"strings"
+
+	"github.com/gonutz/w32"
 )
 
 func init() {
@@ -33,6 +35,7 @@ func main() {
 
 	vers := flag.Bool("v", false, "Indique la version de l'application")
 	scan := flag.Bool("scan", false, "Lancer le scan au démarrage de l'application")
+	windows := flag.Bool("windows", false, "Lancer l'application sans l'invite de commandes")
 	flag.Parse()
 
 	if *vers {
@@ -49,6 +52,16 @@ func main() {
 
 	if *scan {
 		startScan(true)
+	}
+
+	if *windows {
+		console := w32.GetConsoleWindow()
+		if console != 0 {
+			_, consoleProcID := w32.GetWindowThreadProcessId(console)
+			if w32.GetCurrentProcessId() == consoleProcID {
+				w32.ShowWindowAsync(console, w32.SW_HIDE)
+			}
+		}
 	}
 
 	// Write log to file : log_SearchAndSort

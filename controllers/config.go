@@ -18,7 +18,7 @@ type Config struct {
 
 const (
 	// ConfigFile :
-	ConfigFile = "./.config.json"
+	ConfigFile = ".config.json"
 )
 
 // GetEnv :
