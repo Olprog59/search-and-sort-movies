@@ -47,17 +47,24 @@ func slugFile(file string) (name, serieName, serieNumberReturn string, year int)
 		}
 
 		// Si on trouve l'année avant la saison et son épisode on passe à l'élement suivant
+		var itsSerie bool
 		if ifSerie && yearReg.MatchString(v) {
 			if k < len(str)-1 {
-				v = str[k+1]
+				itsSerie = true
 			}
+		} else {
+			name += v
 		}
 
-		name += v
-
-		if yearReg.MatchString(v) && !ifSerie {
+		if yearReg.MatchString(v) && !itsSerie {
 			year, _ = strconv.Atoi(v)
 			name = name[:len(name)-len(v)]
+			break
+		} else if yearReg.MatchString(v) && itsSerie {
+			name += "-" + str[k+1]
+			serieName = name[:len(name)-len(strings.Join(serie.FindAllString(name, -1), ""))] + v
+			serieNumberReturn = serie.FindAllString(file, -1)[0]
+			year, _ = strconv.Atoi(v)
 			break
 		} else if serie.MatchString(v) {
 			serieName = name[:len(name)-len(strings.Join(serie.FindAllString(name, -1), ""))]

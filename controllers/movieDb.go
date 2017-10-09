@@ -53,7 +53,7 @@ const (
 	apiV3 = "ea8779638f078f25daa3913e80fe46eb"
 )
 
-func checkMovieDB(tv, lang bool, name string) string {
+func checkMovieDB(tv, lang bool, name string, date ...string) string {
 	// TODO : https://api.themoviedb.org/3/search/tv?api_key=ea8779638f078f25daa3913e80fe46eb&language=fr-FR&query=demain%20nous&page=1
 
 	var language string
@@ -67,19 +67,28 @@ func checkMovieDB(tv, lang bool, name string) string {
 		tvOrMovie = "tv"
 	}
 
-	url := "https://api.themoviedb.org/3/search/" + tvOrMovie + "?api_key=" + apiV3 + language + "&query=" + name
+	var year string
+	if len(date) > 0 {
+		if tvOrMovie == "movie" {
+			year = "&primary_release_year=" + date[0]
+		} else {
+			year = "&first_air_date_year=" + date[0]
+		}
+	}
+
+	url := "https://api.themoviedb.org/3/search/" + tvOrMovie + "?api_key=" + apiV3 + language + "&query=" + name + year
 
 	return url
 
 }
 
-func dbSeries(lang bool, name string) (movieDBTv, error) {
-	url := checkMovieDB(true, lang, name)
+func dbSeries(lang bool, name, date string) (movieDBTv, error) {
+	url := checkMovieDB(true, lang, name, date)
 	return readJSONFromUrl_TV(url)
 }
 
-func dbMovies(lang bool, name string) (movieDBMovie, error) {
-	url := checkMovieDB(false, lang, name)
+func dbMovies(lang bool, name, date string) (movieDBMovie, error) {
+	url := checkMovieDB(false, lang, name, date)
 	return readJSONFromUrl_Movie(url)
 }
 

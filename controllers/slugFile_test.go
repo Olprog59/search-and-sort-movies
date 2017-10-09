@@ -49,6 +49,14 @@ func Test_slugFile(t *testing.T) {
 			"s01e04",
 			0,
 		},
+		{"slugFile", args{
+			"MacGyver.2016.S02E01.FASTSUB.VOSTFR.720p.HDTV.x264-ZT.WwW.Zone-Telechargement.mkv",
+		},
+			"macgyver-s02e01.mkv",
+			"macgyver-2016",
+			"s02e01",
+			2016,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
