@@ -54,7 +54,6 @@ const (
 )
 
 func checkMovieDB(tv, lang bool, name string, date ...string) string {
-	// TODO : https://api.themoviedb.org/3/search/tv?api_key=ea8779638f078f25daa3913e80fe46eb&language=fr-FR&query=demain%20nous&page=1
 
 	var language string
 	var tvOrMovie = "movie"
