@@ -26,7 +26,7 @@ func Process(file string) {
 }
 
 func start(file string) {
-	name, serieName, serieNumber, _ := slugFile(file)
+	name, serieName, serieNumber, year := slugFile(file)
 
 	moveOrRenameFile(dlna+"/"+file, dlna+"/"+name)
 
@@ -35,7 +35,7 @@ func start(file string) {
 	// Si c'est un film
 	if serieName == "" {
 		nameClean := name[:len(name)-len(filepath.Ext(name))]
-		movie, _ := dbMovies(false, nameClean)
+		movie, _ := dbMovies(false, nameClean, strconv.Itoa(year))
 		if len(movie.Results) > 0 {
 			moveOrRenameFile(dlna+"/"+file, movies+"/"+name)
 		} else {
@@ -56,7 +56,7 @@ func start(file string) {
 		} */
 
 	} else {
-		movie, _ := dbSeries(false, serieName)
+		movie, _ := dbSeries(false, serieName, strconv.Itoa(year))
 
 		if len(movie.Results) > 0 {
 			season, _ := slugSerieSeasonEpisode(serieNumber)
