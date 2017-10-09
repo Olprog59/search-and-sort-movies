@@ -190,6 +190,7 @@ func boucleFiles(files []os.FileInfo) {
 	log.Println("Démarrage du tri !")
 	for _, f := range files {
 		if !f.IsDir() {
+			log.Println("Movies : " + f.Name())
 			controllers.Process(f.Name())
 		}
 	}
