@@ -13,7 +13,6 @@ func Watcher(location string) {
 	}
 	defer watcher.Close()
 
-	var tmp string
 	done := make(chan bool)
 	go func() {
 		for {
@@ -21,10 +20,7 @@ func Watcher(location string) {
 			case event := <-watcher.Events:
 				if event.Op&fsnotify.Create == fsnotify.Create {
 					log.Println("Détection du fichier : ", event.Name)
-					if tmp != event.Name {
-						Process(event.Name)
-					}
-					tmp = event.Name
+					Process(event.Name)
 				}
 			case err := <-watcher.Errors:
 				log.Println("error:", err)

@@ -28,7 +28,7 @@ func Process(file string) {
 func start(file string) {
 	name, serieName, serieNumber, year := slugFile(file)
 
-	moveOrRenameFile(dlna+"/"+file, dlna+"/"+name)
+	// moveOrRenameFile(dlna+"/"+file, dlna+"/"+name)
 
 	//TODO : Check name to tvdb
 
@@ -56,11 +56,11 @@ func start(file string) {
 		} */
 
 	} else {
-		movie, _ := dbSeries(false, serieName, strconv.Itoa(year))
+		serie, _ := dbSeries(false, serieName, strconv.Itoa(year))
 
-		if len(movie.Results) > 0 {
+		if len(serie.Results) > 0 {
 			season, _ := slugSerieSeasonEpisode(serieNumber)
-			checkFolderSerie(name, serieName, season)
+			checkFolderSerie(file, name, serieName, season)
 		} else {
 			log.Println(serieName + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + serieName + ".\n Test manuellement si tu le trouves ;-)")
 		}
@@ -89,21 +89,21 @@ func folderExist(folder string) (bool, error) {
 	return true, err
 }
 
-func checkFolderSerie(file, name string, season int) {
-	// log.Println("in checkFolderSerie")
-	ok, err := folderExist(series + "/" + name)
+func checkFolderSerie(file, name, serieName string, season int) (string, string) {
+	ok, err := folderExist(series + "/" + serieName)
+	newFolder := "/" + serieName + "/season-" + strconv.Itoa(season)
 	if ok && err == nil {
-		ok, err := folderExist(dlna + "/" + name + "/season-" + strconv.Itoa(season))
+		ok, err := folderExist(dlna + newFolder)
 		if !ok || err != nil {
-			createFolder(series + "/" + name + "/season-" + strconv.Itoa(season))
+			createFolder(series + newFolder)
 		}
 
 	} else {
-		// TODO : Create folder serieName && season && move file
-		createFolder(series + "/" + name + "/season-" + strconv.Itoa(season))
+		createFolder(series + newFolder)
 	}
 
-	moveOrRenameFile(dlna+"/"+file, series+"/"+name+"/season-"+strconv.Itoa(season)+"/"+file)
+	moveOrRenameFile(dlna+"/"+file, series+newFolder+"/"+name)
+	return dlna + "/" + file, series + newFolder + "/" + name
 }
 
 func createFolder(folder string) {
