@@ -1,11 +1,13 @@
 package controllers
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"path/filepath"
 	"regexp"
 	"strconv"
+	"strings"
 )
 
 var (
@@ -28,10 +30,6 @@ func Process(file string) {
 func start(file string) {
 	name, serieName, serieNumber, year := slugFile(file)
 
-	// moveOrRenameFile(dlna+"/"+file, dlna+"/"+name)
-
-	//TODO : Check name to tvdb
-
 	// Si c'est un film
 	if serieName == "" {
 		nameClean := name[:len(name)-len(filepath.Ext(name))]
@@ -41,19 +39,6 @@ func start(file string) {
 		} else {
 			log.Println(nameClean + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + nameClean + ".\n Test manuellement si tu le trouves ;-)")
 		}
-		/* TODO : Code qui fonctionne. Juste un petit soucis avec certain caractère lors de la comparaison
-		ex : Young & Hungry (sur movieDB) et Young and Hungry (sur le serveur)
-
-		for _, v := range movie.Results {
-			v.Title, _, _, _ = slugFile(v.Title)
-			v.Title = strings.Replace(v.Title, "-", " ", -1)
-			nameClean = strings.Replace(nameClean, "-", " ", -1)
-			log.Println(v.Title, nameClean)
-			if strings.ToLower(v.Title) == nameClean {
-				moveOrRenameFile(dlna+"/"+file, movies+"/"+name)
-				return
-			}
-		} */
 
 	} else {
 		serie, _ := dbSeries(false, serieName, strconv.Itoa(year))
@@ -64,48 +49,89 @@ func start(file string) {
 		} else {
 			log.Println(serieName + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + serieName + ".\n Test manuellement si tu le trouves ;-)")
 		}
-		/* TODO : Code qui fonctionne. Juste un petit soucis avec certain caractère lors de la comparaison
-		ex : Young & Hungry (sur movieDB) et Young and Hungry (sur le serveur)
-
-		for _, v := range movie.Results {
-			log.Println(v.Name)
-			if strings.ToLower(v.Name) == strings.Replace(serieName, "-", " ", -1) {
-				season, _ := slugSerieSeasonEpisode(serieNumber)
-				checkFolderSerie(name, serieName, season)
-				return
-			}
-		}*/
 	}
 }
 
-func folderExist(folder string) (bool, error) {
-	_, err := os.Stat(folder)
-	if err == nil {
-		return true, nil
+func folderExist(folder, serieName string) (string, bool) {
+	name := searchSimilarFolder(folder, serieName)
+	if name == "" {
+		return serieName, false
 	}
-	if os.IsNotExist(err) {
-		return false, err
-	}
-	return true, err
+	return name, true
 }
 
 func checkFolderSerie(file, name, serieName string, season int) (string, string) {
-	ok, err := folderExist(series + "/" + serieName)
-	newFolder := "/" + serieName + "/season-" + strconv.Itoa(season)
-	if ok && err == nil {
-		ok, err := folderExist(dlna + newFolder)
-		if !ok || err != nil {
-			createFolder(series + newFolder)
-		}
-
-	} else {
+	serieName, exist := folderExist(series, serieName)
+	newFolder := string(os.PathSeparator) + serieName + string(os.PathSeparator) + "season-" + strconv.Itoa(season)
+	if !exist {
 		createFolder(series + newFolder)
 	}
-
+	fmt.Println(dlna+"/"+file, series+newFolder+"/"+name)
 	moveOrRenameFile(dlna+"/"+file, series+newFolder+"/"+name)
 	return dlna + "/" + file, series + newFolder + "/" + name
 }
 
+/*
+	TODO :
+	Vérifier si un dossier qui ne ressemble pas au nom
+*/
+func calculatePercentDiffFolder(serieName, folderExist string) float32 {
+	folderExist = strings.Replace(folderExist, "-", "", -1)
+	serieName = strings.Replace(serieName, "-", "", -1)
+
+	t1 := make(map[string]int)
+	t2 := make(map[string]int)
+
+	for _, v := range serieName {
+		t1[string(v)] = t1[string(v)] + 1
+	}
+
+	for _, v := range folderExist {
+		t2[string(v)] = t2[string(v)] + 1
+	}
+
+	var count float32
+	for k, v := range t1 {
+		for l, w := range t2 {
+			if k == l {
+				if v == w {
+					count = count + 1.0
+				} else if v > w {
+					count = count + (float32(w) / float32(v))
+				} else if w > v {
+					count = count + (float32(v) / float32(w))
+				}
+			}
+		}
+	}
+
+	var percent float32
+
+	if len(t1) > len(t2) {
+		percent = (count / float32(len(t1))) * 100
+	} else if len(t1) < len(t2) {
+		percent = (count / float32(len(t2))) * 100
+	} else {
+		percent = (count / float32(len(t1))) * 100
+
+	}
+
+	return percent
+}
+
+func searchSimilarFolder(currentPath, newFolder string) string {
+	var name string
+	filepath.Walk(currentPath, func(path string, f os.FileInfo, err error) error {
+		if f.IsDir() {
+			if calculatePercentDiffFolder(newFolder, f.Name()) > 65 {
+				name = f.Name()
+			}
+		}
+		return nil
+	})
+
+	return name
+}
 func createFolder(folder string) {
 	err := os.MkdirAll(folder, os.ModePerm)
 	if err != nil {

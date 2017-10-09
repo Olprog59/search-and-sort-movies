@@ -16,10 +16,6 @@ func slugFile(file string) (name, serieName, serieNumberReturn string, year int)
 	file = strings.ToLower(file[:len(file)-len(ext)])
 	file = slugify.Slugify(file)
 
-	/* TODO : Problem serie si année et avant saison et episode
-	ex : MacGyver.2016.S02E01.FASTSUB.VOSTFR.720p.HDTV.x264-ZT.WwW.Zone-Telechargement.Ws.mkv
-	*/
-
 	video := regexp.MustCompile(`^dvdrip$|^dvd-r$|^bluray$|^bdrip$|^brrip$|^cam$|^ts$|^tc$|^vcd$|^md$|^ld$|^r[0-9]{1}$|^xvid$|^divx$|^scr$|^dvdscr$|^repack$|^hdlight$`)
 	yearReg := regexp.MustCompile(`^[0-9]{4}$`)
 
@@ -28,9 +24,6 @@ func slugFile(file string) (name, serieName, serieNumberReturn string, year int)
 	serieNumber := regexp.MustCompile(`[0-9]{1,3}`)
 
 	str = strings.Split(file, "-")
-
-	// On vérifie si le fichier est une série malgré une date devant le numéro de saison et série
-	// ex : MacGyver.2016.S02E01.FASTSUB.VOSTFR.720p.HDTV.x264-ZT.WwW.Zone-Telechargement.Ws.mkv
 
 	var ifSerie = false
 
