@@ -77,7 +77,7 @@ func main() {
 		firstConfig()
 	} else {
 		for {
-			if controllers.GetEnv("dlna") == "" {
+			if controllers.GetEnv("dlna") == "" || controllers.GetEnv("movies") == "" || controllers.GetEnv("series") == "" {
 				firstConfig()
 			} else {
 				break
