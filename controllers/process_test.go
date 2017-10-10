@@ -4,54 +4,6 @@ import (
 	"testing"
 )
 
-func Test_searchSimilarFolder(t *testing.T) {
-	type args struct {
-		currentPath string
-		newFolder   string
-	}
-	tests := []struct {
-		name string
-		args args
-		want string
-	}{
-		{
-			"searchSimilarFolder", args{
-				"/home/sam/go/src/searchAndSort/dlna/Series",
-				"colony",
-			},
-			"colony",
-		},
-		{
-			"searchSimilarFolder", args{
-				"/home/sam/go/src/searchAndSort/dlna/Series",
-				"macgyver-2016",
-			},
-			"macgyver",
-		},
-		{
-			"searchSimilarFolder", args{
-				"/home/sam/go/src/searchAndSort/dlna/Series",
-				"young-&-hungry",
-			},
-			"young-and-hungry",
-		},
-		{
-			"searchSimilarFolder", args{
-				"/home/sam/go/src/searchAndSort/dlna/Series",
-				"star-trek-discovery",
-			},
-			"star-trek",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if got := searchSimilarFolder(tt.args.currentPath, tt.args.newFolder); got != tt.want {
-				t.Errorf("searchSimilarFolder() = %v, want %v", got, tt.want)
-			}
-		})
-	}
-}
-
 func Test_folderExist(t *testing.T) {
 	type args struct {
 		folder    string
@@ -155,6 +107,54 @@ func Test_start(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			start(tt.args.file)
+		})
+	}
+}
+
+func Test_searchSimilarFolder(t *testing.T) {
+	type args struct {
+		currentPath string
+		newFolder   string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		// {
+		// 	"searchSimilarFolder", args{
+		// 		"/home/sam/go/src/searchAndSort/dlna/Series",
+		// 		"colony",
+		// 	},
+		// 	"colony",
+		// },
+		// {
+		// 	"searchSimilarFolder", args{
+		// 		"/home/sam/go/src/searchAndSort/dlna/Series",
+		// 		"macgyver-2016",
+		// 	},
+		// 	"macgyver",
+		// },
+		// {
+		// 	"searchSimilarFolder", args{
+		// 		"/home/sam/go/src/searchAndSort/dlna/Series",
+		// 		"young-&-hungry",
+		// 	},
+		// 	"young-and-hungry",
+		// },
+		{
+			"searchSimilarFolder", args{
+				"C:\\Users\\kamel\\go\\src\\search-and-sort-movies\\dlna",
+				"star-trek-discovery",
+			},
+			"star-trek-discovery",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := searchSimilarFolder(tt.args.currentPath, tt.args.newFolder); got != tt.want {
+				t.Errorf("searchSimilarFolder() = %v, want %v", got, tt.want)
+			}
 		})
 	}
 }

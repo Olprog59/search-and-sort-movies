@@ -125,7 +125,6 @@ func calculatePercentDiffFolder(serieName, folderExist string) float32 {
 		percent = (count / float32(len(t1))) * 100
 
 	}
-
 	return percent
 }
 
@@ -133,7 +132,7 @@ func searchSimilarFolder(currentPath, newFolder string) string {
 	var name string
 	filepath.Walk(currentPath, func(path string, f os.FileInfo, err error) error {
 		if f.IsDir() {
-			if calculatePercentDiffFolder(newFolder, f.Name()) > 65 {
+			if calculatePercentDiffFolder(newFolder, f.Name()) > 80 {
 				name = f.Name()
 			}
 		}
