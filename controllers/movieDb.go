@@ -69,7 +69,7 @@ func checkMovieDB(tv, lang bool, name string, date ...string) string {
 	var year string
 	if len(date) > 0 {
 		if tvOrMovie == "movie" {
-			year = "&primary_release_year=" + date[0]
+			year = "&year=" + date[0]
 		} else {
 			year = "&first_air_date_year=" + date[0]
 		}
