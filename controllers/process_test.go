@@ -137,3 +137,24 @@ func Test_checkFolderSerie(t *testing.T) {
 		})
 	}
 }
+
+func Test_start(t *testing.T) {
+	type args struct {
+		file string
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			"start", args{
+				"GNF2.2016.FRENCH.HDRiP.XViD-STVFRV.avi",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			start(tt.args.file)
+		})
+	}
+}
