@@ -1,13 +1,16 @@
 package controllers
 
 import (
-	"fmt"
+	"io"
 	"log"
 	"os"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"strconv"
 	"strings"
+	"sync"
+	"time"
 )
 
 var (
@@ -35,7 +38,11 @@ func start(file string) {
 		nameClean := name[:len(name)-len(filepath.Ext(name))]
 		movie, _ := dbMovies(false, nameClean, strconv.Itoa(year))
 		if len(movie.Results) > 0 {
-			moveOrRenameFile(dlna+string(os.PathSeparator)+file, movies+string(os.PathSeparator)+name)
+			if runtime.GOOS == "windows" {
+				copyFile(dlna+string(os.PathSeparator)+file, movies+string(os.PathSeparator)+name)
+			} else {
+				moveOrRenameFile(dlna+string(os.PathSeparator)+file, movies+string(os.PathSeparator)+name)
+			}
 		} else {
 			log.Println(nameClean + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + nameClean + ".\n Test manuellement si tu le trouves ;-)")
 		}
@@ -66,8 +73,11 @@ func checkFolderSerie(file, name, serieName string, season int) (string, string)
 	if !exist {
 		createFolder(series + newFolder)
 	}
-	fmt.Println(dlna+string(os.PathSeparator)+file, series+newFolder+string(os.PathSeparator)+name)
-	moveOrRenameFile(dlna+string(os.PathSeparator)+file, series+newFolder+string(os.PathSeparator)+name)
+	if runtime.GOOS == "windows" {
+		copyFile(dlna+string(os.PathSeparator)+file, series+newFolder+string(os.PathSeparator)+name)
+	} else {
+		moveOrRenameFile(dlna+string(os.PathSeparator)+file, series+newFolder+string(os.PathSeparator)+name)
+	}
 	return dlna + string(os.PathSeparator) + file, series + newFolder + string(os.PathSeparator) + name
 }
 
@@ -144,4 +154,45 @@ func moveOrRenameFile(filePathOld, filePathNew string) {
 	if err != nil {
 		log.Println(err)
 	}
+}
+
+func copyFile(oldFile, newFile string) {
+
+	var wg sync.WaitGroup
+
+	wg.Add(1)
+	go func() {
+		r, err := os.Open(oldFile)
+		if err != nil {
+			log.Println(err)
+		}
+		defer r.Close()
+
+		defer wg.Done()
+
+		w, err := os.Create(newFile)
+		if err != nil {
+			log.Println(err)
+		}
+		defer w.Close()
+
+		// do the actual work
+		n, err := io.Copy(w, r)
+		if err != nil {
+			log.Println(err)
+		}
+		log.Printf("Copied file : %s to %s - %v bytes\n", oldFile, newFile, n)
+	}()
+
+	wg.Wait()
+
+	go func() {
+		time.Sleep(time.Second * 2)
+
+		err := os.Remove(oldFile)
+		if err != nil {
+			log.Println(err)
+		}
+	}()
+
 }
