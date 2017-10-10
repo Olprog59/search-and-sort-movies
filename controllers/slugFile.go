@@ -63,7 +63,7 @@ func slugFile(file string) (name, serieName, serieNumberReturn string, year int)
 			serieName = name[:len(name)-len(strings.Join(serie.FindAllString(name, -1), ""))]
 			serieNumberReturn = serie.FindAllString(file, -1)[0]
 			break
-		} else if serieEpisode.MatchString(oldValue) || serieNumber.MatchString(v) {
+		} else if serieEpisode.MatchString(oldValue) && serieNumber.MatchString(v) {
 			serieName = name[:len(name)-len(oldValue)-len(v)-1]
 			serieNumberReturn = serieNumber.FindAllString(file, -1)[0]
 			break
