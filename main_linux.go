@@ -27,7 +27,6 @@ func main() {
 
 	vers := flag.Bool("v", false, "Indique la version de l'application")
 	scan := flag.Bool("scan", false, "Lancer le scan au démarrage de l'application")
-	windows := flag.Bool("windows", false, "Lancer l'application sans l'invite de commandes")
 	flag.Parse()
 
 	if *vers {
@@ -44,12 +43,6 @@ func main() {
 
 	if *scan {
 		myapp.StartScan(true)
-	}
-
-	if *windows {
-		if runtime.GOOS == "windows" {
-			myapp.HiddenWindow()
-		}
 	}
 
 	// Write log to file : log_SearchAndSort
