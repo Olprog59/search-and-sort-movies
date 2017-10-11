@@ -1,4 +1,4 @@
-// +build windows
+// +build !linux
 package myapp
 
 import "github.com/gonutz/w32"
