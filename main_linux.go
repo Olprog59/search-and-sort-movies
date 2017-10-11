@@ -52,10 +52,6 @@ func main() {
 		startScan(true)
 	}
 
-	if *windows {
-		myapp.HiddenWindow()
-	}
-
 	// Write log to file : log_SearchAndSort
 	f, err := os.OpenFile("log_SearchAndSort", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
