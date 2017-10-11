@@ -7,15 +7,7 @@ import (
 	"runtime"
 )
 
-var (
-	buildVersion string
-	buildHash    string
-	buildDate    string
-	buildClean   string
-	buildName    = "search-and-sort-movies"
-)
-
-func Flags() {
+func Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean string) {
 	vers := flag.Bool("v", false, "Indique la version de l'application")
 	scan := flag.Bool("scan", false, "Lancer le scan au démarrage de l'application")
 	windows := flag.Bool("windows", false, "Lancer l'application sans l'invite de commandes")
@@ -23,11 +15,11 @@ func Flags() {
 
 	if *vers {
 		// flag.PrintDefaults()
-		fmt.Printf("Name: %s\n", buildName)
-		fmt.Printf("Version: %s\n", buildVersion)
-		fmt.Printf("Git Commit Hash: %s\n", buildHash)
-		fmt.Printf("Build Date: %s\n", buildDate)
-		fmt.Printf("Built from clean source tree: %s\n", buildClean)
+		fmt.Printf("Name: %s\n", BuildName)
+		fmt.Printf("Version: %s\n", BuildVersion)
+		fmt.Printf("Git Commit Hash: %s\n", BuildHash)
+		fmt.Printf("Build Date: %s\n", BuildDate)
+		fmt.Printf("Built from clean source tree: %s\n", BuildClean)
 		fmt.Printf("OS: %s\n", runtime.GOOS)
 		fmt.Printf("Architecture: %s\n", runtime.GOARCH)
 		os.Exit(1)

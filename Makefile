@@ -26,7 +26,7 @@ GIT_STATUS=$(shell git status --porcelain)
 BUILD_VERSION:=$(shell git log --pretty=format:'%h' -n 1)
 BUILD_DATE:=$(shell date '+%Y-%m-%d_%k:%M:%S')
 
-LDFLAGS= -ldflags "-X 'main.buildVersion=${VERSION}' -X 'main.buildHash=${BUILD_VERSION}' -X 'main.buildDate=${BUILD_DATE}' -X 'main.buildClean=${BUILD_CLEAN}'"
+LDFLAGS= -ldflags "-X 'main.BuildVersion=${VERSION}' -X 'main.BuildHash=${BUILD_VERSION}' -X 'main.BuildDate=${BUILD_DATE}' -X 'main.BuildClean=${BUILD_CLEAN}'"
 
 ifneq ($(wildcard $(VERSION_FILE)),)
 	VERSION:=$(shell cat $(VERSION_FILE))

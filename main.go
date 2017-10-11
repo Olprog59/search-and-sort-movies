@@ -12,6 +12,14 @@ import (
 	"strings"
 )
 
+var (
+	BuildVersion string
+	BuildHash    string
+	BuildDate    string
+	BuildClean   string
+	BuildName    = "search-and-sort-movies"
+)
+
 func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -20,7 +28,7 @@ func init() {
 
 func main() {
 
-	myapp.Flags()
+	myapp.Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean)
 
 	// Write log to file : log_SearchAndSort
 	f, err := os.OpenFile("log_SearchAndSort", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
