@@ -1,4 +1,4 @@
-package controllers
+package myapp
 
 import (
 	"log"
@@ -7,28 +7,28 @@ import (
 )
 
 func Watcher(location string) {
-	watcher, err := fsnotify.NewWatcher()
+	Watcher, err := fsnotify.NewWatcher()
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer watcher.Close()
+	defer Watcher.Close()
 
 	done := make(chan bool)
 	go func() {
 		for {
 			select {
-			case event := <-watcher.Events:
+			case event := <-Watcher.Events:
 				if event.Op&fsnotify.Create == fsnotify.Create {
 					log.Println("Détection du fichier : ", event.Name)
 					Process(event.Name)
 				}
-			case err := <-watcher.Errors:
+			case err := <-Watcher.Errors:
 				log.Println("error:", err)
 			}
 		}
 	}()
 
-	err = watcher.Add(location)
+	err = Watcher.Add(location)
 	if err != nil {
 		log.Fatal(err)
 	}
