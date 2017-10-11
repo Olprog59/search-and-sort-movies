@@ -2,14 +2,11 @@ package main
 
 import (
 	"bufio"
-	"flag"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"os"
 	"path"
-	"path/filepath"
-	"regexp"
 	"runtime"
 	"search-and-sort-movies/myapp"
 	"strings"
@@ -21,40 +18,9 @@ func init() {
 
 }
 
-var (
-	buildVersion string
-	buildHash    string
-	buildDate    string
-	buildClean   string
-	buildName    = "search-and-sort-movies"
-)
-
 func main() {
 
-	vers := flag.Bool("v", false, "Indique la version de l'application")
-	scan := flag.Bool("scan", false, "Lancer le scan au démarrage de l'application")
-	windows := flag.Bool("windows", false, "Lancer l'application sans l'invite de commandes")
-	flag.Parse()
-
-	if *vers {
-		// flag.PrintDefaults()
-		fmt.Printf("Name: %s\n", buildName)
-		fmt.Printf("Version: %s\n", buildVersion)
-		fmt.Printf("Git Commit Hash: %s\n", buildHash)
-		fmt.Printf("Build Date: %s\n", buildDate)
-		fmt.Printf("Built from clean source tree: %s\n", buildClean)
-		fmt.Printf("OS: %s\n", runtime.GOOS)
-		fmt.Printf("Architecture: %s\n", runtime.GOARCH)
-		os.Exit(1)
-	}
-
-	if *scan {
-		startScan(true)
-	}
-
-	if *windows {
-		myapp.HiddenWindow()
-	}
+	myapp.Flags()
 
 	// Write log to file : log_SearchAndSort
 	f, err := os.OpenFile("log_SearchAndSort", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
@@ -88,26 +54,6 @@ func main() {
 	fmt.Println("Ecoute sur le dossier : " + myapp.GetEnv("dlna"))
 	myapp.Watcher(myapp.GetEnv("dlna"))
 
-}
-
-func startScan(auto bool) {
-	if count, file := fileInFolder(); count > 0 {
-		if auto {
-			fmt.Println("Scan automatique")
-			go boucleFiles(file)
-		} else {
-			reader := bufio.NewReader(os.Stdin)
-			fmt.Println("Je vois qu'il y a des fichiers vidéos actuellement dans ton dossier source.")
-			fmt.Println("Veux tu faire le tri? (O/n)")
-			text, _ := reader.ReadString('\n')
-			fmt.Println(text)
-			if strings.TrimSpace(text) == "n" || strings.TrimSpace(text) == "N" {
-				return
-			}
-
-			go boucleFiles(file)
-		}
-	}
 }
 
 func firstConnect() bool {
@@ -171,33 +117,4 @@ func checkFolderExists(folder string) {
 	if _, err := os.Stat(folder); os.IsNotExist(err) {
 		os.MkdirAll(folder, os.ModePerm)
 	}
-}
-
-func fileInFolder() (int, []os.FileInfo) {
-	files, err := ioutil.ReadDir(myapp.GetEnv("dlna"))
-	if err != nil {
-		log.Fatal(err)
-	}
-
-	var count int
-	for _, f := range files {
-		if !f.IsDir() {
-			re := regexp.MustCompile(`(.mkv|.mp4|.avi|.flv)`)
-			if re.MatchString(filepath.Ext(f.Name())) {
-				count++
-			}
-		}
-	}
-	return count, files
-}
-
-func boucleFiles(files []os.FileInfo) {
-	log.Println("Démarrage du tri !")
-	for _, f := range files {
-		if !f.IsDir() {
-			log.Println("Movies : " + f.Name())
-			myapp.Process(f.Name())
-		}
-	}
-	log.Println("Tri terminé !")
 }
