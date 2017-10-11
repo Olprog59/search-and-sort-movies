@@ -1,4 +1,4 @@
-package controllers
+package myapp
 
 import (
 	"testing"
@@ -154,6 +154,90 @@ func Test_searchSimilarFolder(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			if got := searchSimilarFolder(tt.args.currentPath, tt.args.newFolder); got != tt.want {
 				t.Errorf("searchSimilarFolder() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}
+
+func Test_checkIfSizeIsSame(t *testing.T) {
+	type args struct {
+		oldFile string
+		newFile string
+	}
+	tests := []struct {
+		name    string
+		args    args
+		wantErr bool
+	}{
+		{
+			"checlIfSizeIsSame", args{
+				"\\\\SOKYS\\sam\\Series\\dragon-ball-super\\season-1\\dragon-ball-super-episode-77.mp4",
+				"C:\\Users\\kamel\\go\\src\\search-and-sort-movies\\dlna\\dragon-ball-super-episode-77.mp4",
+			},
+			false,
+		},
+		{
+			"checlIfSizeIsSame", args{
+				"\\\\SOKYS\\sam\\Series\\dragon-ball-super\\season-1\\dragon-ball-super-episode-86.mp4",
+				"C:\\Users\\kamel\\go\\src\\search-and-sort-movies\\dlna\\dragon-ball-super-episode-91.mp4",
+			},
+			true,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if err := checkIfSizeIsSame(tt.args.oldFile, tt.args.newFile); (err != nil) != tt.wantErr {
+				t.Errorf("checkIfSizeIsSame() error = %v, wantErr %v", err, tt.wantErr)
+			}
+		})
+	}
+}
+
+func Test_copyFile(t *testing.T) {
+	type args struct {
+		oldFile string
+		newFile string
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			"copyFile", args{
+				"C:\\Users\\kamel\\go\\src\\search-and-sort-movies\\dlna\\dragon-ball-super-episode-91.mp4",
+				"\\\\SOKYS\\sam\\Series\\dragon-ball-super\\season-1\\dragon-ball-super-episode-86.mp4",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			copyFile(tt.args.oldFile, tt.args.newFile)
+		})
+	}
+}
+
+func Test_calculatePercentDiffFolder(t *testing.T) {
+	type args struct {
+		serieName   string
+		folderExist string
+	}
+	tests := []struct {
+		name string
+		args args
+		want float32
+	}{
+		{
+			"calculatePercentDiffFolder", args{
+				"supergirl",
+				"superhigh",
+			},
+			50.0,
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := calculatePercentDiffFolder(tt.args.serieName, tt.args.folderExist); got != tt.want {
+				t.Errorf("calculatePercentDiffFolder() = %v, want %v", got, tt.want)
 			}
 		})
 	}

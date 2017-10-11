@@ -1,6 +1,8 @@
-package controllers
+package myapp
 
 import (
+	"errors"
+	"fmt"
 	"io"
 	"log"
 	"os"
@@ -8,7 +10,6 @@ import (
 	"regexp"
 	"runtime"
 	"strconv"
-	"strings"
 	"sync"
 	"time"
 )
@@ -59,18 +60,19 @@ func start(file string) {
 	}
 }
 
-func folderExist(folder, serieName string) (string, bool) {
-	name := searchSimilarFolder(folder, serieName)
-	if name == "" {
-		return serieName, false
-	}
-	return name, true
-}
+// func folderExist(folder, serieName string) (string, bool) {
+// 	name := searchSimilarFolder(folder, serieName)
+// 	if name == "" {
+// 		return serieName, false
+// 	}
+// 	return name, true
+// }
 
 func checkFolderSerie(file, name, serieName string, season int) (string, string) {
-	serieName, exist := folderExist(series, serieName)
+	// serieName, exist := folderExist(series, serieName)
 	newFolder := string(os.PathSeparator) + serieName + string(os.PathSeparator) + "season-" + strconv.Itoa(season)
-	if !exist {
+	if _, err := os.Stat(serieName); os.IsNotExist(err) {
+		log.Printf("Création du dossier : %s\n", serieName)
 		createFolder(series + newFolder)
 	}
 	if runtime.GOOS == "windows" {
@@ -85,62 +87,62 @@ func checkFolderSerie(file, name, serieName string, season int) (string, string)
 	TODO :
 	Vérifier si un dossier qui ne ressemble pas au nom
 */
-func calculatePercentDiffFolder(serieName, folderExist string) float32 {
-	folderExist = strings.Replace(folderExist, "-", "", -1)
-	serieName = strings.Replace(serieName, "-", "", -1)
+// func calculatePercentDiffFolder(serieName, folderExist string) float32 {
+// 	folderExist = strings.Replace(folderExist, "-", "", -1)
+// 	serieName = strings.Replace(serieName, "-", "", -1)
 
-	t1 := make(map[string]int)
-	t2 := make(map[string]int)
+// 	t1 := make(map[string]int)
+// 	t2 := make(map[string]int)
 
-	for _, v := range serieName {
-		t1[string(v)] = t1[string(v)] + 1
-	}
+// 	for _, v := range serieName {
+// 		t1[string(v)] = t1[string(v)] + 1
+// 	}
 
-	for _, v := range folderExist {
-		t2[string(v)] = t2[string(v)] + 1
-	}
+// 	for _, v := range folderExist {
+// 		t2[string(v)] = t2[string(v)] + 1
+// 	}
 
-	var count float32
-	for k, v := range t1 {
-		for l, w := range t2 {
-			if k == l {
-				if v == w {
-					count = count + 1.0
-				} else if v > w {
-					count = count + (float32(w) / float32(v))
-				} else if w > v {
-					count = count + (float32(v) / float32(w))
-				}
-			}
-		}
-	}
+// 	var count float32
+// 	for k, v := range t1 {
+// 		for l, w := range t2 {
+// 			if k == l {
+// 				if v == w {
+// 					count = count + 1.0
+// 				} else if v > w {
+// 					count = count + (float32(w) / float32(v))
+// 				} else if w > v {
+// 					count = count + (float32(v) / float32(w))
+// 				}
+// 			}
+// 		}
+// 	}
 
-	var percent float32
+// 	var percent float32
 
-	if len(t1) > len(t2) {
-		percent = (count / float32(len(t1))) * 100
-	} else if len(t1) < len(t2) {
-		percent = (count / float32(len(t2))) * 100
-	} else {
-		percent = (count / float32(len(t1))) * 100
+// 	if len(t1) > len(t2) {
+// 		percent = (count / float32(len(t1))) * 100
+// 	} else if len(t1) < len(t2) {
+// 		percent = (count / float32(len(t2))) * 100
+// 	} else {
+// 		percent = (count / float32(len(t1))) * 100
 
-	}
-	return percent
-}
+// 	}
+// 	return percent
+// }
 
-func searchSimilarFolder(currentPath, newFolder string) string {
-	var name string
-	filepath.Walk(currentPath, func(path string, f os.FileInfo, err error) error {
-		if f.IsDir() {
-			if calculatePercentDiffFolder(newFolder, f.Name()) > 80 {
-				name = f.Name()
-			}
-		}
-		return nil
-	})
+// func searchSimilarFolder(currentPath, newFolder string) string {
+// 	var name string
+// 	filepath.Walk(currentPath, func(path string, f os.FileInfo, err error) error {
+// 		if f.IsDir() {
+// 			if calculatePercentDiffFolder(newFolder, f.Name()) > 80 {
+// 				name = f.Name()
+// 			}
+// 		}
+// 		return nil
+// 	})
 
-	return name
-}
+// 	return name
+// }
 func createFolder(folder string) {
 	err := os.MkdirAll(folder, os.ModePerm)
 	if err != nil {
@@ -180,18 +182,59 @@ func copyFile(oldFile, newFile string) {
 		if err != nil {
 			log.Println(err)
 		}
+
+		return
 		log.Printf("Copied file : %s to %s - %v bytes\n", oldFile, newFile, n)
+		fmt.Printf("Copied file : %s to %s - %v bytes\n", oldFile, newFile, n)
 	}()
 
 	wg.Wait()
-
 	go func() {
-		time.Sleep(time.Second * 2)
+		err := checkIfSizeIsSame(oldFile, newFile)
+		if err != nil {
+			log.Println(err)
+			copyFile(oldFile, newFile)
+		} else {
+			log.Println("Le fichier est correctement copié. La source va être supprimé !")
+			removeAfterCopy(oldFile)
+		}
+	}()
+}
+
+func checkSizeFile(file string) (int64, error) {
+	f, err := os.Stat(file)
+	if err != nil {
+		log.Println(err)
+		return f.Size(), err
+	}
+
+	return f.Size(), err
+}
+
+func checkIfSizeIsSame(oldFile, newFile string) error {
+	newFileSize, err := checkSizeFile(newFile)
+	if err != nil {
+		return err
+	}
+
+	oldFileSize, err := checkSizeFile(oldFile)
+	if err != nil {
+		return err
+	}
+
+	if newFileSize != oldFileSize {
+		return errors.New("The files are not the same size. The operation will start again")
+	}
+	return nil
+}
+
+func removeAfterCopy(oldFile string) {
+	go func() {
+		time.Sleep(time.Second * 10)
 
 		err := os.Remove(oldFile)
 		if err != nil {
 			log.Println(err)
 		}
 	}()
-
 }

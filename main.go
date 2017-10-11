@@ -11,10 +11,8 @@ import (
 	"path/filepath"
 	"regexp"
 	"runtime"
-	"search-and-sort-movies/controllers"
+	"search-and-sort-movies/myapp"
 	"strings"
-
-	"github.com/gonutz/w32"
 )
 
 func init() {
@@ -24,11 +22,11 @@ func init() {
 }
 
 var (
-	BuildVersion string
-	BuildHash    string
-	BuildDate    string
-	BuildClean   string
-	Name         = "search-and-sort-movies"
+	buildVersion string
+	buildHash    string
+	buildDate    string
+	buildClean   string
+	buildName    = "search-and-sort-movies"
 )
 
 func main() {
@@ -40,11 +38,11 @@ func main() {
 
 	if *vers {
 		// flag.PrintDefaults()
-		fmt.Printf("Name: %s\n", Name)
-		fmt.Printf("Version: %s\n", BuildVersion)
-		fmt.Printf("Git Commit Hash: %s\n", BuildHash)
-		fmt.Printf("Build Date: %s\n", BuildDate)
-		fmt.Printf("Built from clean source tree: %s\n", BuildClean)
+		fmt.Printf("Name: %s\n", buildName)
+		fmt.Printf("Version: %s\n", buildVersion)
+		fmt.Printf("Git Commit Hash: %s\n", buildHash)
+		fmt.Printf("Build Date: %s\n", buildDate)
+		fmt.Printf("Built from clean source tree: %s\n", buildClean)
 		fmt.Printf("OS: %s\n", runtime.GOOS)
 		fmt.Printf("Architecture: %s\n", runtime.GOARCH)
 		os.Exit(1)
@@ -55,13 +53,7 @@ func main() {
 	}
 
 	if *windows {
-		console := w32.GetConsoleWindow()
-		if console != 0 {
-			_, consoleProcID := w32.GetWindowThreadProcessId(console)
-			if w32.GetCurrentProcessId() == consoleProcID {
-				w32.ShowWindowAsync(console, w32.SW_HIDE)
-			}
-		}
+		myapp.HiddenWindow()
 	}
 
 	// Write log to file : log_SearchAndSort
@@ -77,7 +69,7 @@ func main() {
 		firstConfig()
 	} else {
 		for {
-			if controllers.GetEnv("dlna") == "" || controllers.GetEnv("movies") == "" || controllers.GetEnv("series") == "" {
+			if myapp.GetEnv("dlna") == "" || myapp.GetEnv("movies") == "" || myapp.GetEnv("series") == "" {
 				firstConfig()
 			} else {
 				break
@@ -85,16 +77,16 @@ func main() {
 		}
 	}
 
-	checkFolderExists(controllers.GetEnv("dlna"))
-	checkFolderExists(controllers.GetEnv("movies"))
-	checkFolderExists(controllers.GetEnv("series"))
+	checkFolderExists(myapp.GetEnv("dlna"))
+	checkFolderExists(myapp.GetEnv("movies"))
+	checkFolderExists(myapp.GetEnv("series"))
 
 	fmt.Println("Start :-D")
 
 	// startScan(false)
 
-	fmt.Println("Ecoute sur le dossier : " + controllers.GetEnv("dlna"))
-	controllers.Watcher(controllers.GetEnv("dlna"))
+	fmt.Println("Ecoute sur le dossier : " + myapp.GetEnv("dlna"))
+	myapp.Watcher(myapp.GetEnv("dlna"))
 
 }
 
@@ -128,7 +120,7 @@ func firstConnect() bool {
 	return false
 }
 
-func readJSONFile() {
+func readJSONFileConsole() {
 	f, err := ioutil.ReadFile(".config.json")
 
 	if err != nil {
@@ -143,25 +135,25 @@ func firstConfig() {
 		reader := bufio.NewReader(os.Stdin)
 		fmt.Println("Hello, bienvenue sur l'application de tri des vidéos.")
 		fmt.Println("Ceci est ta première connexion donc il faut configurer des petites choses.")
-		fmt.Println("Commençons par l'emplacement où les fichiers sont téléchargés : ")
 		pwd, _ := os.Getwd()
 		fmt.Println("A savoir, que tu te trouves dans le répertoire : " + pwd)
+		fmt.Println("Commençons par indiqué l'emplacement des fichiers à trier : (ex : /home/user/a_trier ou windows : C:\\Users\\Dupont\\Documents\\a_trier)")
 		text, _ := reader.ReadString('\n')
 		fmt.Println(text)
-		controllers.SetEnv("dlna", path.Clean(strings.TrimSpace(text)))
-		fmt.Println("Ensuite, il faut renter le dossier des films : ")
+		myapp.SetEnv("dlna", path.Clean(strings.TrimSpace(text)))
+		fmt.Println("Ensuite, il faut indiqué le dossier ou tu veux mettre tes films : (ex : /mnt/dlna/movies ou windows : F:\\films)")
 		text, _ = reader.ReadString('\n')
 		fmt.Println(text)
-		controllers.SetEnv("movies", path.Clean(strings.TrimSpace(text)))
-		fmt.Println("Pour finir, il faut rentrer le dossier des séries : ")
+		myapp.SetEnv("movies", path.Clean(strings.TrimSpace(text)))
+		fmt.Println("Pour finir, il faut indiqué le dossier ou tu veux mettre tes séries : (ex : /mnt/dlna/series ou windows : F:\\series)")
 		text, _ = reader.ReadString('\n')
 		fmt.Println(text)
-		controllers.SetEnv("series", path.Clean(strings.TrimSpace(text)))
+		myapp.SetEnv("series", path.Clean(strings.TrimSpace(text)))
 		fmt.Println("Pour la musique, il faut attendre les prochaines versions. :-(  ")
 
 		fmt.Println("Super. Voilà tout est configuré. On va vérifier le fichier : ")
 		fmt.Println('\n')
-		readJSONFile()
+		readJSONFileConsole()
 		fmt.Println("Est-ce que cela est correct? (O/n)")
 		text, _ = reader.ReadString('\n')
 		if strings.TrimSpace(text) == "n" || strings.TrimSpace(text) == "N" {
@@ -182,7 +174,7 @@ func checkFolderExists(folder string) {
 }
 
 func fileInFolder() (int, []os.FileInfo) {
-	files, err := ioutil.ReadDir(controllers.GetEnv("dlna"))
+	files, err := ioutil.ReadDir(myapp.GetEnv("dlna"))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -204,7 +196,7 @@ func boucleFiles(files []os.FileInfo) {
 	for _, f := range files {
 		if !f.IsDir() {
 			log.Println("Movies : " + f.Name())
-			controllers.Process(f.Name())
+			myapp.Process(f.Name())
 		}
 	}
 	log.Println("Tri terminé !")
