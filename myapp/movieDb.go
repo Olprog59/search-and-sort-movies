@@ -3,6 +3,10 @@ package myapp
 import (
 	"encoding/json"
 	"net/http"
+	"regexp"
+	"strings"
+
+	"github.com/Machiel/slugify"
 )
 
 type movieDBTv struct {
@@ -64,6 +68,7 @@ func checkMovieDB(tv, lang bool, name string, date ...string) string {
 
 	if tv {
 		tvOrMovie = "tv"
+		name = slugRemoveYearSerieForSearchMovieDB(name)
 	}
 
 	var year string
@@ -79,6 +84,17 @@ func checkMovieDB(tv, lang bool, name string, date ...string) string {
 
 	return url
 
+}
+
+func slugRemoveYearSerieForSearchMovieDB(name string) (new string) {
+	year := regexp.MustCompile(`^[0-9]{4}$`)
+	for _, v := range strings.Split(name, "-") {
+		if year.MatchString(v) {
+			break
+		}
+		new += v + " "
+	}
+	return slugify.Slugify(new)
 }
 
 func dbSeries(lang bool, name, date string) (movieDBTv, error) {

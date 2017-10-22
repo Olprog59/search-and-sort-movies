@@ -57,6 +57,14 @@ func Test_slugFile(t *testing.T) {
 			"s02e01",
 			2016,
 		},
+		{"slugFile", args{
+			"The.Flash.2014.S04E01.FASTSUB.VOSTFR.720p.HDTV.x264-ZT.WwW.Zone-Telechargement.Ws.mkv",
+		},
+			"the-flash-s04e01.mkv",
+			"the-flash-2014",
+			"s04e01",
+			2014,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
