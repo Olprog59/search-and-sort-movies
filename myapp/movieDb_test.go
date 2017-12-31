@@ -36,6 +36,16 @@ func Test_checkMovieDB(t *testing.T) {
 			},
 			"https://api.themoviedb.org/3/search/tv?api_key=ea8779638f078f25daa3913e80fe46eb&query=the-flash&first_air_date_year=2014",
 		},
+		{
+			"checkMovieDB",
+			args{
+				true,
+				false,
+				"brooklyn-nine-nine",
+				[]string{""},
+			},
+			"https://api.themoviedb.org/3/search/tv?api_key=ea8779638f078f25daa3913e80fe46eb&query=brooklyn-nine-nine",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
