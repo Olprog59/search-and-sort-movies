@@ -57,7 +57,7 @@ const (
 	apiV3 = "ea8779638f078f25daa3913e80fe46eb"
 )
 
-func checkMovieDB(tv, lang bool, name string, date ...string) string {
+func checkMovieDB(tv, lang bool, name string, date []string) string {
 
 	var language string
 	var tvOrMovie = "movie"
@@ -97,12 +97,12 @@ func slugRemoveYearSerieForSearchMovieDB(name string) (new string) {
 	return slugify.Slugify(new)
 }
 
-func dbSeries(lang bool, name, date string) (movieDBTv, error) {
+func dbSeries(lang bool, name string, date ...string) (movieDBTv, error) {
 	url := checkMovieDB(true, lang, name, date)
 	return readJSONFromUrl_TV(url)
 }
 
-func dbMovies(lang bool, name, date string) (movieDBMovie, error) {
+func dbMovies(lang bool, name string, date ...string) (movieDBMovie, error) {
 	url := checkMovieDB(false, lang, name, date)
 	return readJSONFromUrl_Movie(url)
 }

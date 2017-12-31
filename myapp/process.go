@@ -2,7 +2,6 @@ package myapp
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"os"
@@ -23,7 +22,7 @@ var (
 func Process(file string) {
 	re := regexp.MustCompile(`(.mkv|.mp4|.avi|.flv)`)
 	if !re.MatchString(filepath.Ext(file)) {
-		log.Println("Le fichier " + file + " n'est pas reconnu en tant que média")
+		// log.Println("Le fichier " + file + " n'est pas reconnu en tant que média")
 		return
 	}
 
@@ -45,6 +44,13 @@ func start(file string) {
 				moveOrRenameFile(dlna+string(os.PathSeparator)+file, movies+string(os.PathSeparator)+name)
 			}
 		} else {
+			if movie, _ := dbMovies(false, nameClean); len(movie.Results) > 0 {
+				if runtime.GOOS == "windows" {
+					copyFile(dlna+string(os.PathSeparator)+file, movies+string(os.PathSeparator)+name)
+				} else {
+					moveOrRenameFile(dlna+string(os.PathSeparator)+file, movies+string(os.PathSeparator)+name)
+				}
+			}
 			log.Println(nameClean + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + nameClean + ".\n Test manuellement si tu le trouves ;-)")
 		}
 
@@ -71,16 +77,25 @@ func start(file string) {
 func checkFolderSerie(file, name, serieName string, season int) (string, string) {
 	// serieName, exist := folderExist(series, serieName)
 	newFolder := string(os.PathSeparator) + serieName + string(os.PathSeparator) + "season-" + strconv.Itoa(season)
-	if _, err := os.Stat(serieName); os.IsNotExist(err) {
+	folderOk := series + string(os.PathSeparator) + serieName
+	if _, err := os.Stat(folderOk); os.IsNotExist(err) {
+		log.Printf("Création du dossier : %s\n", serieName)
+		createFolder(folderOk)
+	}
+	if _, err := os.Stat(series + newFolder); os.IsNotExist(err) {
 		log.Printf("Création du dossier : %s\n", serieName)
 		createFolder(series + newFolder)
 	}
+
+	finalFilePath := series + newFolder + string(os.PathSeparator) + name
+	oldFilePath := dlna + string(os.PathSeparator) + file
+
 	if runtime.GOOS == "windows" {
-		copyFile(dlna+string(os.PathSeparator)+file, series+newFolder+string(os.PathSeparator)+name)
+		copyFile(oldFilePath, finalFilePath)
 	} else {
-		moveOrRenameFile(dlna+string(os.PathSeparator)+file, series+newFolder+string(os.PathSeparator)+name)
+		moveOrRenameFile(oldFilePath, finalFilePath)
 	}
-	return dlna + string(os.PathSeparator) + file, series + newFolder + string(os.PathSeparator) + name
+	return oldFilePath, finalFilePath
 }
 
 /*
@@ -153,7 +168,7 @@ func createFolder(folder string) {
 func moveOrRenameFile(filePathOld, filePathNew string) {
 	err := os.Rename(filePathOld, filePathNew)
 	if err != nil {
-		log.Println(err)
+		log.Printf("Move Or Rename File : %s", err)
 	}
 }
 
@@ -185,7 +200,7 @@ func copyFile(oldFile, newFile string) {
 
 		return
 		log.Printf("Copied file : %s to %s - %v bytes\n", oldFile, newFile, n)
-		fmt.Printf("Copied file : %s to %s - %v bytes\n", oldFile, newFile, n)
+		log.Printf("Copied file : %s to %s - %v bytes\n", oldFile, newFile, n)
 	}()
 
 	wg.Wait()
