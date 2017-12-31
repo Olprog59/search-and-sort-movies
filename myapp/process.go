@@ -42,6 +42,7 @@ func start(file string) {
 				copyFile(dlna+string(os.PathSeparator)+file, movies+string(os.PathSeparator)+name)
 			} else {
 				moveOrRenameFile(dlna+string(os.PathSeparator)+file, movies+string(os.PathSeparator)+name)
+				log.Printf("%s a bien été déplacé dans %s", name, movies+string(os.PathSeparator)+name)
 			}
 		} else {
 			if movie, _ := dbMovies(false, nameClean); len(movie.Results) > 0 {
@@ -85,7 +86,7 @@ func checkFolderSerie(file, name, serieName string, season int) (string, string)
 		createFolder(folderOk)
 	}
 	if _, err := os.Stat(series + newFolder); os.IsNotExist(err) {
-		log.Printf("Création du dossier : %s\n", serieName)
+		log.Printf("Création du dossier : %s\n", newFolder)
 		createFolder(series + newFolder)
 	}
 
