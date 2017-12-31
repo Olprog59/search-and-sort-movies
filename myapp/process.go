@@ -48,7 +48,9 @@ func start(file string) {
 				if runtime.GOOS == "windows" {
 					copyFile(dlna+string(os.PathSeparator)+file, movies+string(os.PathSeparator)+name)
 				} else {
-					moveOrRenameFile(dlna+string(os.PathSeparator)+file, movies+string(os.PathSeparator)+name)
+					if moveOrRenameFile(dlna+string(os.PathSeparator)+file, movies+string(os.PathSeparator)+name) {
+						log.Printf("%s a bien été déplacé dans %s", name, movies+string(os.PathSeparator)+name)
+					}
 				}
 			}
 			log.Println(nameClean + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + nameClean + ".\n Test manuellement si tu le trouves ;-)")
@@ -93,7 +95,9 @@ func checkFolderSerie(file, name, serieName string, season int) (string, string)
 	if runtime.GOOS == "windows" {
 		copyFile(oldFilePath, finalFilePath)
 	} else {
-		moveOrRenameFile(oldFilePath, finalFilePath)
+		if moveOrRenameFile(oldFilePath, finalFilePath) {
+			log.Printf("%s a bien été déplacé dans %s", name, finalFilePath)
+		}
 	}
 	return oldFilePath, finalFilePath
 }
@@ -165,11 +169,13 @@ func createFolder(folder string) {
 	}
 }
 
-func moveOrRenameFile(filePathOld, filePathNew string) {
+func moveOrRenameFile(filePathOld, filePathNew string) bool {
 	err := os.Rename(filePathOld, filePathNew)
 	if err != nil {
 		log.Printf("Move Or Rename File : %s", err)
+		return false
 	}
+	return true
 }
 
 func copyFile(oldFile, newFile string) {

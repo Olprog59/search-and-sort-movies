@@ -4,7 +4,7 @@ BIN_DIR=bin
 VERSION_FILE=VERSION
 GO_BIN=$(shell which go)
 
-BINARY = SearchAndSortMovies
+BINARY = search-and-sort-movies
 VET_REPORT = vet.report
 TEST_REPORT = tests.xml
 GOARCH = amd64
