@@ -2,6 +2,7 @@ package myapp
 
 import (
 	"log"
+	"path/filepath"
 
 	"github.com/fsnotify/fsnotify"
 )
@@ -19,7 +20,8 @@ func Watcher(location string) {
 			select {
 			case event := <-Watcher.Events:
 				if event.Op&fsnotify.Create == fsnotify.Create {
-					log.Println("Détection du fichier : ", event.Name)
+					_, file := filepath.Split(event.Name)
+					log.Println("Détection de : ", file)
 					Process(event.Name)
 				}
 			case err := <-Watcher.Errors:

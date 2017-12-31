@@ -17,6 +17,7 @@ var (
 	dlna   = GetEnv("dlna")
 	movies = GetEnv("movies")
 	series = GetEnv("series")
+	count  = 0
 )
 
 func Process(file string) {
@@ -42,6 +43,7 @@ func start(file string) {
 				copyFile(dlna+string(os.PathSeparator)+file, movies+string(os.PathSeparator)+name)
 			} else {
 				moveOrRenameFile(dlna+string(os.PathSeparator)+file, movies+string(os.PathSeparator)+name)
+				log.Printf("%s a bien été déplacé dans %s", name, movies+string(os.PathSeparator)+name)
 			}
 		} else {
 			if movie, _ := dbMovies(false, nameClean); len(movie.Results) > 0 {
@@ -53,7 +55,14 @@ func start(file string) {
 					}
 				}
 			}
-			log.Println(nameClean + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + nameClean + ".\n Test manuellement si tu le trouves ;-)")
+			if count < 3 {
+				count++
+				time.Sleep(2000 * time.Millisecond)
+				start(file)
+			} else {
+				log.Println(nameClean + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + nameClean + ".\n Test manuellement si tu le trouves ;-)")
+				count = 0
+			}
 		}
 
 	} else {
@@ -63,7 +72,14 @@ func start(file string) {
 			season, _ := slugSerieSeasonEpisode(serieNumber)
 			checkFolderSerie(file, name, serieName, season)
 		} else {
-			log.Println(serieName + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + serieName + ".\n Test manuellement si tu le trouves ;-)")
+			if count < 3 {
+				count++
+				time.Sleep(2000 * time.Millisecond)
+				start(file)
+			} else {
+				log.Println(serieName + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + serieName + ".\n Test manuellement si tu le trouves ;-)")
+				count = 0
+			}
 		}
 	}
 }
@@ -85,7 +101,7 @@ func checkFolderSerie(file, name, serieName string, season int) (string, string)
 		createFolder(folderOk)
 	}
 	if _, err := os.Stat(series + newFolder); os.IsNotExist(err) {
-		log.Printf("Création du dossier : %s\n", serieName)
+		log.Printf("Création du dossier : %s\n", newFolder)
 		createFolder(series + newFolder)
 	}
 
