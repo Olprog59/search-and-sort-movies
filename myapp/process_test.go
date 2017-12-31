@@ -118,3 +118,26 @@ func Test_copyFile(t *testing.T) {
 		})
 	}
 }
+
+func Test_moveOrRenameFile(t *testing.T) {
+	type args struct {
+		filePathOld string
+		filePathNew string
+	}
+	tests := []struct {
+		name string
+		args args
+	}{
+		{
+			"moveOrRenameFile", args{
+				"/home/sam/go/src/search-and-sort-movies/dlna/Series STAr trek  Discovery-s01e25.mkv",
+				"/home/sam/go/src/search-and-sort-movies/dlna/Series/star-trek-discovery/season-1/star-trek-discovery-s01e25.mkv",
+			},
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			moveOrRenameFile(tt.args.filePathOld, tt.args.filePathNew)
+		})
+	}
+}
