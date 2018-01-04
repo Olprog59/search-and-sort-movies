@@ -65,6 +65,22 @@ func Test_slugFile(t *testing.T) {
 			"s04e01",
 			2014,
 		},
+		{"slugFile", args{
+			"Les.Tuche.French.DVDRIP-zone-telechargement.ws.avi",
+		},
+			"les-tuche.avi",
+			"",
+			"",
+			0,
+		},
+		{"slugFile", args{
+			"Kingsman.The.Golden.Circle.2017.FRENCH.BDRip.XviD-GZR.WwW.Zone-Telechargement.Ws.avi",
+		},
+			"kingsman-the-golden-circle.avi",
+			"",
+			"",
+			2017,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

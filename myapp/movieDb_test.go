@@ -49,7 +49,7 @@ func Test_checkMovieDB(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := checkMovieDB(tt.args.tv, tt.args.lang, tt.args.name, tt.args.date...); got != tt.want {
+			if got := checkMovieDB(tt.args.tv, tt.args.lang, tt.args.name, tt.args.date); got != tt.want {
 				t.Errorf("checkMovieDB() = %v, want %v", got, tt.want)
 			}
 		})
