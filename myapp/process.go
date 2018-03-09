@@ -69,7 +69,7 @@ func start(file string) {
 		serie, _ := dbSeries(false, serieName, strconv.Itoa(year))
 
 		if len(serie.Results) > 0 {
-			season, _ := slugSerieSeasonEpisode(serieNumber)
+			_, season, _ := slugSerieSeasonEpisode(serieNumber)
 			checkFolderSerie(file, name, serieName, season)
 		} else {
 			if count < 3 {
