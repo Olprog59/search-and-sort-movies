@@ -26,7 +26,7 @@ func Test_slugFile(t *testing.T) {
 			2017,
 		},
 		{"slugFile", args{
-			"modern.family.s01e09.french.dvdrip.xvid-jmt-Zone-telechargement.Ws.avi",
+			"modern.family.s1e09.french.dvdrip.xvid-jmt-Zone-telechargement.Ws.avi",
 		},
 			"modern-family-s01e09.avi",
 			"modern-family",
@@ -42,7 +42,7 @@ func Test_slugFile(t *testing.T) {
 			2016,
 		},
 		{"slugFile", args{
-			"Demain.Nous.Appartient.S01E04.FRENCH.HDTV.XviD-ZT.WwW.Zone-Telechargement.Ws.avi",
+			"Demain.Nous.Appartient.S01E4.FRENCH.HDTV.XviD-ZT.WwW.Zone-Telechargement.Ws.avi",
 		},
 			"demain-nous-appartient-s01e04.avi",
 			"demain-nous-appartient",
@@ -50,7 +50,7 @@ func Test_slugFile(t *testing.T) {
 			0,
 		},
 		{"slugFile", args{
-			"MacGyver.2016.S02E01.FASTSUB.VOSTFR.720p.HDTV.x264-ZT.WwW.Zone-Telechargement.mkv",
+			"MacGyver.2016.S2E1.FASTSUB.VOSTFR.720p.HDTV.x264-ZT.WwW.Zone-Telechargement.mkv",
 		},
 			"macgyver-s02e01.mkv",
 			"macgyver-2016",
@@ -81,6 +81,24 @@ func Test_slugFile(t *testing.T) {
 			"",
 			2017,
 		},
+		{"slugFile", args{
+			"new.girl.101.trois.gars.une.fille-Zone-Telechargement.Ws.avi",
+		},
+			"new-girl-s01e01.avi",
+			"new-girl",
+			"s01e01",
+			0,
+		},
+		{"slugFile", args{
+			"Thor le monde des tenebres 720p-Shanks@Zone-Telechargement.Ws.mkv",
+		},
+			"thor-le-monde-des-tenebres.mkv",
+			"",
+			"",
+			0,
+		},
+
+
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -108,19 +126,31 @@ func Test_slugSerieSeasonEpisode(t *testing.T) {
 	tests := []struct {
 		name        string
 		args        args
+		wantSeasonAndEpisode string
 		wantSeason  int
 		wantEpisode int
 	}{
 		{"slugSerieSeasonEpisode", args{
 			"s01e09",
 		},
+			"s01e09",
+			1,
+			9,
+		},
+		{"slugSerieSeasonEpisode", args{
+			"109",
+		},
+			"s01e09",
 			1,
 			9,
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			gotSeason, gotEpisode := slugSerieSeasonEpisode(tt.args.serieNumber)
+			gotSeasonAndEpisode, gotSeason, gotEpisode := slugSerieSeasonEpisode(tt.args.serieNumber)
+			if gotSeasonAndEpisode != tt.wantSeasonAndEpisode {
+				t.Errorf("slugSerieSeasonEpisode() gotSeasonAndEpisode = %v, want %v", gotSeasonAndEpisode, tt.wantSeasonAndEpisode)
+			}
 			if gotSeason != tt.wantSeason {
 				t.Errorf("slugSerieSeasonEpisode() gotSeason = %v, want %v", gotSeason, tt.wantSeason)
 			}

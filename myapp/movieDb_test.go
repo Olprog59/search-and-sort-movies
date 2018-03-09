@@ -42,7 +42,7 @@ func Test_checkMovieDB(t *testing.T) {
 				true,
 				false,
 				"brooklyn-nine-nine",
-				[]string{""},
+				nil,
 			},
 			"https://api.themoviedb.org/3/search/tv?api_key=ea8779638f078f25daa3913e80fe46eb&query=brooklyn-nine-nine",
 		},
