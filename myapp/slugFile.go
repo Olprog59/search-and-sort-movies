@@ -28,7 +28,7 @@ func slugFile(file string) (name, serieName, serieNumberReturn string, year int)
 
 	serie := regexp.MustCompile(`(?mi)[s]{1}[0-9]{1,2}[e]{1}[0-9]{1,3}`)
 	serieEpisode := regexp.MustCompile(`episode`)
-	serieNumber := regexp.MustCompile(`^[0-9]{1,3}$`)
+	serieNumber := regexp.MustCompile(`^[0-9]{2,3}$`)
 
 	str = strings.Split(file, "-")
 
@@ -103,7 +103,7 @@ func slugSerieSeasonEpisode(serieNumber string) (seasonAndEpisode string, season
 	serie := regexp.MustCompile(`[s]{1}[0-9]{1,2}[e]{1}[0-9]{1,2}`)
 	seasonNumber := regexp.MustCompile(`[s]{1}[0-9]{1,2}`)
 	episodeNumber := regexp.MustCompile(`[e]{1}[0-9]{1,2}`)
-	episodeNumber2 := regexp.MustCompile(`[0-9]{1,3}`)
+	episodeNumber2 := regexp.MustCompile(`[0-9]{2,3}`)
 	if serie.MatchString(serieNumber) {
 		season, _ = strconv.Atoi(strings.Join(seasonNumber.FindAllString(serieNumber, -1), "")[1:])
 		episode, _ = strconv.Atoi(strings.Join(episodeNumber.FindAllString(serieNumber, -1), "")[1:])
