@@ -97,8 +97,14 @@ func Test_slugFile(t *testing.T) {
 			"",
 			0,
 		},
-
-
+		{"slugFile", args{
+			"Pitch.Perfect.3.2017.MULTI.1080p.BluRay.x264-VENUE.Zone-Telechargement1.Com.mkv",
+		},
+			"pitch-perfect-3.mkv",
+			"",
+			"",
+			2017,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -124,11 +130,11 @@ func Test_slugSerieSeasonEpisode(t *testing.T) {
 		serieNumber string
 	}
 	tests := []struct {
-		name        string
-		args        args
+		name                 string
+		args                 args
 		wantSeasonAndEpisode string
-		wantSeason  int
-		wantEpisode int
+		wantSeason           int
+		wantEpisode          int
 	}{
 		{"slugSerieSeasonEpisode", args{
 			"s01e09",
