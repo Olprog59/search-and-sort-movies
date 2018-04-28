@@ -46,7 +46,8 @@ func start(file string) {
 				log.Printf("%s a bien été déplacé dans %s", name, movies+string(os.PathSeparator)+name)
 			}
 		} else {
-			if movie, _ := dbMovies(false, nameClean); len(movie.Results) > 0 {
+			movie, _ := dbMovies(false, nameClean)
+			if len(movie.Results) > 0 {
 				if runtime.GOOS == "windows" {
 					copyFile(dlna+string(os.PathSeparator)+file, movies+string(os.PathSeparator)+name)
 				} else {
@@ -60,7 +61,7 @@ func start(file string) {
 				time.Sleep(2000 * time.Millisecond)
 				start(file)
 			} else {
-				log.Println(nameClean + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + nameClean + ".\n Test manuellement si tu le trouves ;-)")
+				log.Println(name[:len(name)-len(filepath.Ext(name))] + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + name[:len(name)-len(filepath.Ext(name))] + ".\n Test manuellement si tu le trouves ;-)")
 				count = 0
 			}
 		}

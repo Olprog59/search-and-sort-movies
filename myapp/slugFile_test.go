@@ -105,6 +105,14 @@ func Test_slugFile(t *testing.T) {
 			"",
 			2017,
 		},
+		{"slugFile", args{
+			"acts of violence 2018-Ww2.zone-telechargement1.com.mkv",
+		},
+			"acts-of-violence.mkv",
+			"",
+			"",
+			2018,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
