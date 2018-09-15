@@ -113,6 +113,30 @@ func Test_slugFile(t *testing.T) {
 			"",
 			2018,
 		},
+		{"slugFile", args{
+			"Major 2nd - Episode 23 VOSTFR (720p)-Zone-Telechargement1 org.mkv",
+		},
+			"major-2nd-episode-23.mkv",
+			"major-2nd",
+			"s01e23",
+			0,
+		},
+		{"slugFile", args{
+			"Inaz Ares 21 VOSTFR-Zone-Telechargement1 org.mkv",
+		},
+			"inaz-ares-episode-21.mkv",
+			"inaz-ares",
+			"s01e21",
+			0,
+		},
+		{"slugFile", args{
+			"Inaz Ares 22 VOSTFR-Zone-Telechargement1 org.mkv",
+		},
+			"inaz-ares-episode-22.mkv",
+			"inaz-ares",
+			"s01e22",
+			0,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
