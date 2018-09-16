@@ -20,13 +20,13 @@ func slugFile(file string) (name, serieName, serieNumberReturn string, year int)
 		`^french$|^dvdrip$|
 				^dvd-r$|^bluray$|^bdrip$|
 				^brrip$|^cam$|^ts$|^tc$|^vcd$|
-				^md$|^ld$|^r[0-9]{1}$|
+				^md$|^ld$|^r[0-9]$|
 				^xvid$|^divx$|^scr$|
 				^dvdscr$|^repack$|
 				^multi$|^hdlight$|^720p$|^480p$|^1080p$`)
 	yearReg := regexp.MustCompile(`^[0-9]{4}$`)
 
-	serie := regexp.MustCompile(`(?mi)[s]{1}[0-9]{1,2}[e]{1}[0-9]{1,3}`)
+	serie := regexp.MustCompile(`(?mi)[s][0-9]{1,2}[e][0-9]{1,3}`)
 	serieEpisode := regexp.MustCompile(`episode`)
 	serieNumber := regexp.MustCompile(`^[0-9]{2,3}$`)
 
@@ -84,6 +84,11 @@ func slugFile(file string) (name, serieName, serieNumberReturn string, year int)
 			name = serieName + " " + serieNumberReturn
 			break
 		} else if serieNumber.MatchString(v) {
+			SetMoviesExceptFile("the-100")
+			SetMoviesExceptFile("new-girl")
+			if GetMoviesExceptFile(oldName + "-" + v) {
+				continue
+			}
 			serieNumberReturn, _, _ = slugSerieSeasonEpisode(v)
 			serieName = name[:len(name)-len(v)-1]
 			name = serieName + " " + serieNumberReturn
@@ -100,7 +105,7 @@ func slugFile(file string) (name, serieName, serieNumberReturn string, year int)
 }
 
 func slugSerieSeasonEpisode(serieNumber string) (seasonAndEpisode string, season, episode int) {
-	serie := regexp.MustCompile(`[s]{1}[0-9]{1,2}[e]{1}[0-9]{1,2}`)
+	serie := regexp.MustCompile(`[s][0-9]{1,2}[e][0-9]{1,2}`)
 	seasonNumber := regexp.MustCompile(`[s]{1}[0-9]{1,2}`)
 	episodeNumber := regexp.MustCompile(`[e]{1}[0-9]{1,2}`)
 	episodeNumber2 := regexp.MustCompile(`[0-9]{2,3}`)
@@ -110,8 +115,8 @@ func slugSerieSeasonEpisode(serieNumber string) (seasonAndEpisode string, season
 		serieNumber = checkIfTwoNumberToSeasonOrEpisode(season, episode)
 		return serieNumber, season, episode
 	} else if episodeNumber2.MatchString(serieNumber) {
-		season, _ = strconv.Atoi(serieNumber[:1])
-		episode, _ = strconv.Atoi(serieNumber[1:])
+		season = 0
+		episode, _ = strconv.Atoi(serieNumber)
 		serieNumber = checkIfTwoNumberToSeasonOrEpisode(season, episode)
 		return serieNumber, season, episode
 
@@ -128,7 +133,7 @@ func removeLangInName(s string) string {
 	return s
 }
 
-func checkIfTwoNumberToSeasonOrEpisode(season, episode int) (string) {
+func checkIfTwoNumberToSeasonOrEpisode(season, episode int) string {
 	strSeason := strconv.Itoa(season)
 	strEpisode := strconv.Itoa(episode)
 	var str string
