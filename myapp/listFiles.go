@@ -1,22 +1,23 @@
 package myapp
 
 import (
-	"os"
-	"path/filepath"
+	"io/ioutil"
+	"log"
 )
 
 func ReadAllFiles() []string {
-	var files []string
 
 	root := GetEnv("dlna")
-	err := filepath.Walk(root, func(path string, info os.FileInfo, err error) error {
-		if !info.IsDir() {
-			files = append(files, info.Name())
-		}
-		return nil
-	})
+	f, err := ioutil.ReadDir(root)
 	if err != nil {
-		panic(err)
+		log.Println(err)
+	}
+	var files []string
+	for _, v := range f {
+		if v.IsDir() {
+			continue
+		}
+		files = append(files, v.Name())
 	}
 	return files
 }
