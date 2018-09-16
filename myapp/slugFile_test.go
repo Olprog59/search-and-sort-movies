@@ -84,9 +84,9 @@ func Test_slugFile(t *testing.T) {
 		{"slugFile", args{
 			"new.girl.101.trois.gars.une.fille-Zone-Telechargement.Ws.avi",
 		},
-			"new-girl-s01e01.avi",
+			"new-girl-s00e101.avi",
 			"new-girl",
-			"s01e01",
+			"s00e101",
 			0,
 		},
 		{"slugFile", args{
@@ -116,25 +116,33 @@ func Test_slugFile(t *testing.T) {
 		{"slugFile", args{
 			"Major 2nd - Episode 23 VOSTFR (720p)-Zone-Telechargement1 org.mkv",
 		},
-			"major-2nd-episode-23.mkv",
+			"major-2nd-s00e23.mkv",
 			"major-2nd",
-			"s01e23",
+			"s00e23",
 			0,
 		},
 		{"slugFile", args{
 			"Inaz Ares 21 VOSTFR-Zone-Telechargement1 org.mkv",
 		},
-			"inaz-ares-episode-21.mkv",
+			"inaz-ares-s00e21.mkv",
 			"inaz-ares",
-			"s01e21",
+			"s00e21",
 			0,
 		},
 		{"slugFile", args{
 			"Inaz Ares 22 VOSTFR-Zone-Telechargement1 org.mkv",
 		},
-			"inaz-ares-episode-22.mkv",
+			"inaz-ares-s00e22.mkv",
 			"inaz-ares",
-			"s01e22",
+			"s00e22",
+			0,
+		},
+		{"slugFile", args{
+			"The.100.S05E13.FASTSUB.VOSTFR.720p.HDTV.x264-ZT.WwW.Zone-Telechargement1.ORG.mkv",
+		},
+			"the-100-s05e13.mkv",
+			"the-100",
+			"s05e13",
 			0,
 		},
 	}
@@ -178,9 +186,9 @@ func Test_slugSerieSeasonEpisode(t *testing.T) {
 		{"slugSerieSeasonEpisode", args{
 			"109",
 		},
-			"s01e09",
-			1,
-			9,
+			"s00e109",
+			0,
+			109,
 		},
 	}
 	for _, tt := range tests {
