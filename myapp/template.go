@@ -7,6 +7,7 @@ import (
 	"html/template"
 	"log"
 	"net/http"
+	"os"
 )
 
 type page struct {
@@ -23,6 +24,7 @@ var store = sessions.NewCookieStore([]byte("samsam"))
 func StartServerWeb() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", index).Methods(http.MethodGet)
+	r.HandleFunc("/", indexPost).Methods(http.MethodPost)
 	r.HandleFunc("/except", exceptFile).Methods(http.MethodGet)
 	r.HandleFunc("/except", exceptFilePost).Methods(http.MethodPost)
 	r.HandleFunc("/except/delete", exceptFileDelete).Methods(http.MethodPost)
@@ -32,24 +34,33 @@ func StartServerWeb() {
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	//t, err := template.ParseFiles("templates/index.html") //parse the html file homepage.html
-	//if err != nil { // if there is an error
-	//	log.Print("template parsing error: ", err) // log it
-	//}
-	t := template.New("index")
-	t.Parse(header + pageIndex + pageFooter)
+	t, err := template.ParseFiles("templates/index.html") //parse the html file homepage.html
+	if err != nil {                                       // if there is an error
+		log.Print("template parsing error: ", err) // log it
+	}
+	//t := template.New("index")
+	//t.Parse(header + pageIndex + pageFooter)
 
-	err := t.Execute(w, page{Title: "A trier", Navbar: "index", List: ReadAllFiles()}) //execute the template and pass it the HomePageVars struct to fill in the gaps
-	if err != nil {                                                                    // if there is an error
+	err = t.Execute(w, page{Title: "A trier", Navbar: "index", List: ReadAllFiles()}) //execute the template and pass it the HomePageVars struct to fill in the gaps
+	if err != nil {                                                                   // if there is an error
 		log.Print("template executing error: ", err) //log it
 	}
 }
+
+func indexPost(w http.ResponseWriter, r *http.Request) {
+	name := r.FormValue("ajax_data")
+	oldName := r.FormValue("oldName")
+
+	dlna := GetEnv("dlna")
+	os.Rename(dlna+string(os.PathSeparator)+oldName, dlna+string(os.PathSeparator)+name)
+}
+
 func exceptFile(w http.ResponseWriter, r *http.Request) {
-	//t, err := template.ParseFiles("templates/except.html") //parse the html file homepage.html
-	//if err != nil { // if there is an error
-	//	log.Print("template parsing error: ", err) // log it
-	//}
-	t := template.New("exceptFile")
+	t, err := template.ParseFiles("templates/except.html") //parse the html file homepage.html
+	if err != nil {                                        // if there is an error
+		log.Print("template parsing error: ", err) // log it
+	}
+	//t := template.New("exceptFile")
 	session, err := store.Get(r, "flash-session")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -61,7 +72,7 @@ func exceptFile(w http.ResponseWriter, r *http.Request) {
 	}
 	session.Save(r, w)
 
-	t.Parse(header + pageExcept + pageFooter)
+	//t.Parse(header + pageExcept + pageFooter)
 
 	err = t.Execute(w, page{Title: "Exception", Navbar: "except", Exception: readFile(), FlashMessage: message}) //execute the template and pass it the HomePageVars struct to fill in the gaps
 	if err != nil {                                                                                              // if there is an error
@@ -82,16 +93,18 @@ func exceptFilePost(w http.ResponseWriter, r *http.Request) {
 
 	http.Redirect(w, r, "/except", 301)
 }
+
 func exceptFileDelete(w http.ResponseWriter, r *http.Request) {
 	name := r.FormValue("ajax_data")
 	RemoveMoviesExceptFile(name)
 }
+
 func configApp(w http.ResponseWriter, r *http.Request) {
-	//t, err := template.ParseFiles("templates/config.html")
-	t := template.New("configApp")
-	//if err != nil { // if there is an error
-	//	log.Print("template parsing error: ", err) // log it
-	//}
+	//t := template.New("configApp")
+	t, err := template.ParseFiles("templates/config.html")
+	if err != nil { // if there is an error
+		log.Print("template parsing error: ", err) // log it
+	}
 	session, err := store.Get(r, "flash-session")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -103,7 +116,7 @@ func configApp(w http.ResponseWriter, r *http.Request) {
 	}
 	session.Save(r, w)
 
-	t.Parse(header + pageConfig + pageFooter)
+	//t.Parse(header + pageConfig + pageFooter)
 
 	err = t.Execute(w, page{
 		Title:  "Configuration",
@@ -170,7 +183,7 @@ const header = `
     </div>
 </nav>
 
-<div class="container">
+<div class="container-fluid">
 {{ $message := .FlashMessage }}
 {{ if ne $message "" }}
     <div class="alert alert-success alert-dismissible fade show" role="alert">
@@ -184,9 +197,23 @@ const header = `
 
 const pageIndex = `
     <ul class="list-group">
-        {{ range .List }}
-        <li class="list-group-item">{{ . }}</li>
-        {{ end }}
+    {{ range .List }}
+        <li class="list-group-item">
+            <div class="input-group">
+                <div class="input-group-prepend">
+                    <span class="input-group-text text" id="inputGroup-sizing-default">{{ . }}</span>
+                </div>
+                <input type="text"
+                       placeholder="Entrer ici le nouveau nom de fichier"
+                       class="form-control newName"
+                       aria-label="Default"
+                       aria-describedby="inputGroup-sizing-default">
+                <div class="input-group-append">
+                    <span class="input-group-text">&#9997;</span>
+                </div>
+            </div>
+        </li>
+    {{ end }}
     </ul>
 `
 
@@ -276,6 +303,34 @@ const pageFooter = `
         setTimeout(function () {
             $(".alert").alert('close')
         }, 3000)
+
+		$('.input-group-append').on("click", function () {
+            const that = $(this);
+            const parent = that.parent();
+            const val = parent.children(".input-group-prepend").children(".text").text();
+            const input = parent.children(".newName").val();
+            if (input !== "") {
+                $.ajax({
+                    url: "/",
+                    type: "post",
+                    dataType: 'html',
+                    data: {ajax_data: input, oldName: val},
+                }).done(function () {
+                    parent.parent().parent().prepend('<div class="alert alert-info alert-dismissible fade show" role="alert">\n' +
+                            '                        Rechargement en cours de la page\n' +
+                            '                            <button type="button" class="close" data-dismiss="alert" aria-label="Close">\n' +
+                            '                                <span aria-hidden="true">&times;</span>\n' +
+                            '                            </button>\n' +
+                            '                        </div>');
+                    setTimeout(function () {
+                        location.reload();
+                    }, 2000)
+                }).fail(function () {
+                    alert("un problème est survenu")
+                })
+            }
+        })
+
     })
 </script>
 
