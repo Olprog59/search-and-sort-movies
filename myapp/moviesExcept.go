@@ -28,6 +28,20 @@ func GetMoviesExceptFile(value string) bool {
 
 	return false
 }
+func RemoveMoviesExceptFile(value string) {
+	jsonType := readFile()
+	var newJson []MoviesExcept
+	for _, v := range jsonType {
+		if v.Name != value {
+			newJson = append(newJson, v)
+		}
+	}
+	j, err := json.MarshalIndent(newJson, "", " ")
+	if err != nil {
+		log.Println(err)
+	}
+	writeFile(j)
+}
 
 // SetEnv :
 func SetMoviesExceptFile(value string) {
