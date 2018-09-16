@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"path"
 	"runtime"
@@ -38,6 +39,9 @@ func main() {
 	defer f.Close()
 	log.SetOutput(f)
 
+	// Start server web
+	myapp.StartServerWeb()
+
 	// Check if it's the first connection
 	if firstConnect() {
 		firstConfig()
@@ -56,8 +60,6 @@ func main() {
 	checkFolderExists(myapp.GetEnv("series"))
 
 	fmt.Println("Start :-D")
-
-	// startScan(false)
 
 	fmt.Println("Ecoute sur le dossier : " + myapp.GetEnv("dlna"))
 	myapp.Watcher(myapp.GetEnv("dlna"))
@@ -125,4 +127,8 @@ func checkFolderExists(folder string) {
 	if _, err := os.Stat(folder); os.IsNotExist(err) {
 		os.MkdirAll(folder, os.ModePerm)
 	}
+}
+
+func helloWorld(w http.ResponseWriter, r *http.Request) {
+	fmt.Fprintf(w, "Hello World")
 }
