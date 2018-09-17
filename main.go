@@ -49,6 +49,7 @@ func main() {
 
 	log.Println("Start :-D")
 	log.Println("Ecoute sur le dossier : " + myapp.GetEnv("dlna"))
+
 	myapp.Watcher(myapp.GetEnv("dlna"))
 
 }
