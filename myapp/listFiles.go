@@ -1,8 +1,10 @@
 package myapp
 
 import (
+	"bufio"
 	"io/ioutil"
 	"log"
+	"os"
 )
 
 func ReadAllFiles() []string {
@@ -20,4 +22,22 @@ func ReadAllFiles() []string {
 		files = append(files, v.Name())
 	}
 	return files
+}
+
+func ReadFileLog() (data []string) {
+	file, err := os.Open("./log_SearchAndSort")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer file.Close()
+
+	scanner := bufio.NewScanner(file)
+	for scanner.Scan() {
+		data = append(data, scanner.Text())
+	}
+
+	if err := scanner.Err(); err != nil {
+		log.Fatal(err)
+	}
+	return data
 }

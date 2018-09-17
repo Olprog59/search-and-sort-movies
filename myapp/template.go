@@ -18,6 +18,7 @@ type page struct {
 	FlashMessage string
 	Exception    []MoviesExcept
 	Pwd          string
+	Log          []string
 }
 
 var store = sessions.NewCookieStore([]byte("samsam"))
@@ -26,11 +27,13 @@ func StartServerWeb() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", index).Methods(http.MethodGet)
 	r.HandleFunc("/", indexPost).Methods(http.MethodPost)
+	r.HandleFunc("/log", logFile).Methods(http.MethodGet)
 	r.HandleFunc("/except", exceptFile).Methods(http.MethodGet)
 	r.HandleFunc("/except", exceptFilePost).Methods(http.MethodPost)
 	r.HandleFunc("/except/delete", exceptFileDelete).Methods(http.MethodPost)
 	r.HandleFunc("/config", configApp).Methods(http.MethodGet)
 	r.HandleFunc("/config", configAppPost).Methods(http.MethodPost)
+	r.HandleFunc("/mail", configAppMailPost).Methods(http.MethodPost)
 	go http.ListenAndServe(":1515", r)
 }
 
@@ -55,6 +58,16 @@ func indexPost(w http.ResponseWriter, r *http.Request) {
 
 	dlna := GetEnv("dlna")
 	os.Rename(dlna+string(os.PathSeparator)+oldName, dlna+string(os.PathSeparator)+name)
+}
+
+func logFile(w http.ResponseWriter, r *http.Request) {
+	t := template.New("logFile")
+	t.Parse(header + pageLog + pageFooter)
+
+	err := t.Execute(w, page{Title: "Log", Navbar: "log", Log: ReadFileLog()}) //execute the template and pass it the HomePageVars struct to fill in the gaps
+	if err != nil {                                                            // if there is an error
+		log.Print("template executing error: ", err) //log it
+	}
 }
 
 func exceptFile(w http.ResponseWriter, r *http.Request) {
@@ -126,7 +139,8 @@ func configApp(w http.ResponseWriter, r *http.Request) {
 		Config: &Config{
 			Dlna:   GetEnv("dlna"),
 			Movies: GetEnv("movies"),
-			Series: GetEnv("series")},
+			Series: GetEnv("series"),
+			Mail:   GetEnv("mail")},
 		FlashMessage: message,
 		Pwd:          pwd("", false)}) //execute the template and pass it the HomePageVars struct to fill in the gaps
 	if err != nil { // if there is an error
@@ -153,6 +167,22 @@ func configAppPost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/config", 301)
 }
 
+func configAppMailPost(w http.ResponseWriter, r *http.Request) {
+	r.ParseForm()
+	mail := r.Form.Get("mail")
+
+	SetEnv("mail", mail)
+
+	session, err := store.Get(r, "flash-session")
+	if err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	}
+	session.AddFlash("Les modifications ont bien été prises en compte", "message")
+	session.Save(r, w)
+
+	http.Redirect(w, r, "/config", 301)
+}
+
 const header = `
 <!DOCTYPE html>
 <html lang="en">
@@ -166,13 +196,22 @@ const header = `
             cursor: pointer;
         }
 		.container-fluid{
-			padding-top: 10px;
+			padding-top: 70px;
+		}
+		.page-log{
+			height: 90vh;
+			min-height: 500px;
+		}
+		.page-log > #scroll {
+			overflow: scroll;
+			background-color: #343A40;
+			color: #fff;
 		}
     </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <a class="navbar-brand" href="#">Search and sort Movies</a>
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark fixed-top">
+    <a class="navbar-brand" href="/">Search and sort Movies</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
         <span class="navbar-toggler-icon"></span>
@@ -188,6 +227,9 @@ const header = `
             </li>
             <li class="nav-item {{ if eq .Navbar "config"}}active{{end}}">
                 <a class="nav-link" href="/config">Configuration</a>
+            </li>
+            <li class="nav-item {{ if eq .Navbar "log"}}active{{end}}">
+                <a class="nav-link" href="/log">Log</a>
             </li>
         </ul>
     </div>
@@ -227,6 +269,16 @@ const pageIndex = `
     </ul>
 `
 
+const pageLog = `
+<div class="row justify-content-center page-log">
+<div class="col-10" id="scroll">
+{{ range .Log }}
+        <samp>{{ . }}</samp><br>
+    {{ end }}
+</div>
+</div>
+`
+
 const pageExcept = `
  <form action="/except" method="post">
         <div class="form-group">
@@ -261,7 +313,7 @@ const pageConfig = `
     </div>
  <form action="/config" method="post">
         <div class="form-group">
-            <label for="dlna"></label>
+            <label for="dlna">Dossier à Trier</label>
             <input type="text" name="dlna" class="form-control" id="dlna" aria-describedby="dlnaHelp"
                    placeholder="Entrer le chemin où seront trier les films et séries" required value="{{.Config.Dlna}}">
             <small id="dlnaHelp" class="form-text text-muted">Entrer un chemin de type : C:\users\dlna ou
@@ -269,7 +321,7 @@ const pageConfig = `
             </small>
         </div>
         <div class="form-group">
-            <label for="movies"></label>
+            <label for="movies">Dossier de films</label>
             <input type="text" name="movies" class="form-control" id="movies" aria-describedby="moviesHelp"
                    placeholder="Entrer le chemin où seront stocker les films" required value="{{.Config.Movies}}">
             <small id="moviesHelp" class="form-text text-muted">Entrer un chemin de type : C:\users\movies ou
@@ -277,12 +329,21 @@ const pageConfig = `
             </small>
         </div>
         <div class="form-group">
-            <label for="series"></label>
+            <label for="series">Dossier de séries</label>
             <input type="text" name="series" class="form-control" id="series" aria-describedby="seriesHelp"
                    placeholder="Entrer le chemin où seront stocker les séries" required value="{{.Config.Series}}">
             <small id="seriesHelp" class="form-text text-muted">Entrer un chemin de type : C:\users\series ou
                 /home/user/series
             </small>
+        </div>
+        <button type="submit" class="btn btn-primary">Sauvegarder</button>
+    </form>
+ 	<form action="/mail" method="post">
+        <div class="form-group">
+            <label for="mail">Email afin d'envoyer si un problème survient'</label>
+            <input type="email" name="mail" class="form-control" id="mail" aria-describedby="mailHelp"
+                   placeholder="Entrer le chemin où seront trier les films et séries" required value="{{.Config.Mail}}">
+            <small id="mailHelp" class="form-text text-muted">Entrer un email</small>
         </div>
         <button type="submit" class="btn btn-primary">Sauvegarder</button>
     </form>
@@ -301,6 +362,11 @@ const pageFooter = `
 
 <script>
     $(function () {
+		$(function() {
+  			var wtf    = $('#scroll');
+  			var height = wtf[0].scrollHeight;
+  			wtf.scrollTop(height);
+		});
         $(".removeExcept").click(function () {
             const that = $(this);
             const name = that.data("name");
