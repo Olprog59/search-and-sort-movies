@@ -14,7 +14,7 @@ type MoviesExcept struct {
 
 const (
 	// MoviesExceptFile :
-	MoviesExceptFile = ".movies_except.json"
+	MoviesExceptFile = "./.movies_except.json"
 )
 
 // GetEnv :
@@ -63,8 +63,11 @@ func SetMoviesExceptFile(value string) {
 }
 
 func readFile() []MoviesExcept {
-	checkIfMovieExceptFileIsExist()
 	f, err := ioutil.ReadFile(MoviesExceptFile)
+
+	if os.IsNotExist(err) {
+		return nil
+	}
 
 	if err != nil {
 		log.Println(err)
@@ -77,7 +80,6 @@ func readFile() []MoviesExcept {
 }
 
 func writeFile(jsonByte []byte) {
-	checkIfMovieExceptFileIsExist()
 	err := ioutil.WriteFile(MoviesExceptFile, jsonByte, 0644)
 	if err != nil {
 		log.Println(err)
@@ -91,13 +93,11 @@ func checkIfMovieExceptFileIsExist() {
 	// create file if not exists
 	if os.IsNotExist(err) {
 		newJSON := &MoviesExcept{
-			Name: "",
-		}
+			Name: ""}
 		j, err := json.MarshalIndent(newJSON, "", " ")
 		if err != nil {
 			log.Println(err)
 		}
-
-		writeJSONFile(j)
+		writeFile(j)
 	}
 }
