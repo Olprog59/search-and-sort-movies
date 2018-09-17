@@ -17,6 +17,7 @@ type page struct {
 	Config       *Config
 	FlashMessage string
 	Exception    []MoviesExcept
+	Pwd          string
 }
 
 var store = sessions.NewCookieStore([]byte("samsam"))
@@ -34,12 +35,13 @@ func StartServerWeb() {
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
-	t, err := template.ParseFiles("templates/index.html") //parse the html file homepage.html
-	if err != nil {                                       // if there is an error
-		log.Print("template parsing error: ", err) // log it
-	}
-	//t := template.New("index")
-	//t.Parse(header + pageIndex + pageFooter)
+	var err error
+	//t, err := template.ParseFiles("templates/index.html") //parse the html file homepage.html
+	//if err != nil { // if there is an error
+	//	log.Print("template parsing error: ", err) // log it
+	//}
+	t := template.New("index")
+	t.Parse(header + pageIndex + pageFooter)
 
 	err = t.Execute(w, page{Title: "A trier", Navbar: "index", List: ReadAllFiles()}) //execute the template and pass it the HomePageVars struct to fill in the gaps
 	if err != nil {                                                                   // if there is an error
@@ -56,11 +58,11 @@ func indexPost(w http.ResponseWriter, r *http.Request) {
 }
 
 func exceptFile(w http.ResponseWriter, r *http.Request) {
-	t, err := template.ParseFiles("templates/except.html") //parse the html file homepage.html
-	if err != nil {                                        // if there is an error
-		log.Print("template parsing error: ", err) // log it
-	}
-	//t := template.New("exceptFile")
+	//t, err := template.ParseFiles("templates/except.html") //parse the html file homepage.html
+	//if err != nil { // if there is an error
+	//	log.Print("template parsing error: ", err) // log it
+	//}
+	t := template.New("exceptFile")
 	session, err := store.Get(r, "flash-session")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -72,7 +74,7 @@ func exceptFile(w http.ResponseWriter, r *http.Request) {
 	}
 	session.Save(r, w)
 
-	//t.Parse(header + pageExcept + pageFooter)
+	t.Parse(header + pageExcept + pageFooter)
 
 	err = t.Execute(w, page{Title: "Exception", Navbar: "except", Exception: readFile(), FlashMessage: message}) //execute the template and pass it the HomePageVars struct to fill in the gaps
 	if err != nil {                                                                                              // if there is an error
@@ -100,11 +102,11 @@ func exceptFileDelete(w http.ResponseWriter, r *http.Request) {
 }
 
 func configApp(w http.ResponseWriter, r *http.Request) {
-	//t := template.New("configApp")
-	t, err := template.ParseFiles("templates/config.html")
-	if err != nil { // if there is an error
-		log.Print("template parsing error: ", err) // log it
-	}
+	t := template.New("configApp")
+	//t, err := template.ParseFiles("templates/config.html")
+	//if err != nil { // if there is an error
+	//	log.Print("template parsing error: ", err) // log it
+	//}
 	session, err := store.Get(r, "flash-session")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -116,7 +118,7 @@ func configApp(w http.ResponseWriter, r *http.Request) {
 	}
 	session.Save(r, w)
 
-	//t.Parse(header + pageConfig + pageFooter)
+	t.Parse(header + pageConfig + pageFooter)
 
 	err = t.Execute(w, page{
 		Title:  "Configuration",
@@ -125,7 +127,8 @@ func configApp(w http.ResponseWriter, r *http.Request) {
 			Dlna:   GetEnv("dlna"),
 			Movies: GetEnv("movies"),
 			Series: GetEnv("series")},
-		FlashMessage: message}) //execute the template and pass it the HomePageVars struct to fill in the gaps
+		FlashMessage: message,
+		Pwd:          pwd("", false)}) //execute the template and pass it the HomePageVars struct to fill in the gaps
 	if err != nil { // if there is an error
 		log.Print("template executing error: ", err) //log it
 	}
@@ -158,10 +161,17 @@ const header = `
     <title>{{ .Title }}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
           integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
-
+    <style>
+        .input-group-append{
+            cursor: pointer;
+        }
+		.container-fluid{
+			padding-top: 10px;
+		}
+    </style>
 </head>
 <body>
-<nav class="navbar navbar-expand-lg navbar-light bg-light">
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <a class="navbar-brand" href="#">Search and sort Movies</a>
     <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
             aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
@@ -196,21 +206,21 @@ const header = `
 `
 
 const pageIndex = `
-    <ul class="list-group">
+    <ul class="list-group list-group-flush">
     {{ range .List }}
-        <li class="list-group-item">
+        <li class="list-group-item list-group-item-action">
             <div class="input-group">
                 <div class="input-group-prepend">
                     <span class="input-group-text text" id="inputGroup-sizing-default">{{ . }}</span>
                 </div>
                 <input type="text"
-                       placeholder="Entrer ici le nouveau nom de fichier"
+                       placeholder="Entrer ici le nouveau nom de fichier et valider avec le bouton de droite"
                        class="form-control newName"
                        aria-label="Default"
                        aria-describedby="inputGroup-sizing-default">
-                <div class="input-group-append">
-                    <span class="input-group-text">&#9997;</span>
-                </div>
+                    <div class="input-group-append">
+                        <span class="input-group-text">&#10004;</span>
+                    </div>
             </div>
         </li>
     {{ end }}
@@ -243,6 +253,12 @@ const pageExcept = `
 `
 
 const pageConfig = `
+<div class="alert alert-info alert-dismissible fade show" role="alert">
+        {{ .Pwd }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
  <form action="/config" method="post">
         <div class="form-group">
             <label for="dlna"></label>

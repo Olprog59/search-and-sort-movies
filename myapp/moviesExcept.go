@@ -28,6 +28,7 @@ func GetMoviesExceptFile(value string) bool {
 
 	return false
 }
+
 func RemoveMoviesExceptFile(value string) {
 	jsonType := readFile()
 	var newJson []MoviesExcept

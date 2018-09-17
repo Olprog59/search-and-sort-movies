@@ -40,6 +40,12 @@
         </button>
     </div>
 {{ end }}
+    <div class="alert alert-info alert-dismissible fade show" role="alert">
+    {{ .Pwd }}
+        <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+        </button>
+    </div>
     <form action="/config" method="post">
         <div class="form-group">
             <label for="dlna"></label>
