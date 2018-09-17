@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
+	"os"
 )
 
 // MoviesExcept :
@@ -18,6 +19,7 @@ const (
 
 // GetEnv :
 func GetMoviesExceptFile(value string) bool {
+	checkIfMovieExceptFileIsExist()
 	jsonType := readFile()
 
 	for _, v := range jsonType {
@@ -46,6 +48,7 @@ func RemoveMoviesExceptFile(value string) {
 
 // SetEnv :
 func SetMoviesExceptFile(value string) {
+	checkIfMovieExceptFileIsExist()
 	jsonType := readFile()
 
 	if !GetMoviesExceptFile(value) {
@@ -60,6 +63,7 @@ func SetMoviesExceptFile(value string) {
 }
 
 func readFile() []MoviesExcept {
+	checkIfMovieExceptFileIsExist()
 	f, err := ioutil.ReadFile(MoviesExceptFile)
 
 	if err != nil {
@@ -73,8 +77,27 @@ func readFile() []MoviesExcept {
 }
 
 func writeFile(jsonByte []byte) {
+	checkIfMovieExceptFileIsExist()
 	err := ioutil.WriteFile(MoviesExceptFile, jsonByte, 0644)
 	if err != nil {
 		log.Println(err)
+	}
+}
+
+func checkIfMovieExceptFileIsExist() {
+	// detect if file exists
+	var _, err = os.Stat(MoviesExceptFile)
+
+	// create file if not exists
+	if os.IsNotExist(err) {
+		newJSON := &MoviesExcept{
+			Name: "",
+		}
+		j, err := json.MarshalIndent(newJSON, "", " ")
+		if err != nil {
+			log.Println(err)
+		}
+
+		writeJSONFile(j)
 	}
 }
