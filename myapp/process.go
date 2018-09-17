@@ -63,7 +63,7 @@ func start(file string) {
 				start(file)
 			} else {
 				message := fmt.Sprintln(name[:len(name)-len(filepath.Ext(name))] + ", n'a pas été trouvé sur <a href='https://www.themoviedb.org/search?query=" + name[:len(name)-len(filepath.Ext(name))] + "'>cliques ici pour vérifier sur moviedb</a>.\n Test manuellement si tu le trouves ;-)")
-				EnvoiDeMail("Search and sort movies Problem", message)
+				//EnvoiDeMail("Search and sort movies Problem", message)
 				log.Println(message)
 				count = 0
 			}
