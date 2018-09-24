@@ -140,7 +140,8 @@ func configApp(w http.ResponseWriter, r *http.Request) {
 			Dlna:   GetEnv("dlna"),
 			Movies: GetEnv("movies"),
 			Series: GetEnv("series"),
-			Mail:   GetEnv("mail")},
+			//Mail:   GetEnv("mail")
+		},
 		FlashMessage: message,
 		Pwd:          pwd("", false)}) //execute the template and pass it the HomePageVars struct to fill in the gaps
 	if err != nil { // if there is an error
@@ -338,7 +339,7 @@ const pageConfig = `
         </div>
         <button type="submit" class="btn btn-primary">Sauvegarder</button>
     </form>
- 	<form action="/mail" method="post">
+ 	<!--<form action="/mail" method="post">
         <div class="form-group">
             <label for="mail">Email afin d'envoyer si un problème survient'</label>
             <input type="email" name="mail" class="form-control" id="mail" aria-describedby="mailHelp"
@@ -346,7 +347,7 @@ const pageConfig = `
             <small id="mailHelp" class="form-text text-muted">Entrer un email</small>
         </div>
         <button type="submit" class="btn btn-primary">Sauvegarder</button>
-    </form>
+    </form>-->
 `
 
 const pageFooter = `
