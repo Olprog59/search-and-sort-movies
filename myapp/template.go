@@ -8,6 +8,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"strings"
 )
 
 type page struct {
@@ -19,6 +20,8 @@ type page struct {
 	Exception    []MoviesExcept
 	Pwd          string
 	Log          []string
+	Movie        Movie
+	Serie        *Serie
 }
 
 var store = sessions.NewCookieStore([]byte("samsam"))
@@ -27,6 +30,8 @@ func StartServerWeb() {
 	r := mux.NewRouter()
 	r.HandleFunc("/", index).Methods(http.MethodGet)
 	r.HandleFunc("/", indexPost).Methods(http.MethodPost)
+	r.HandleFunc("/movies", allMovies).Methods(http.MethodGet)
+	r.HandleFunc("/series", allSeries).Methods(http.MethodGet)
 	r.HandleFunc("/log", logFile).Methods(http.MethodGet)
 	r.HandleFunc("/except", exceptFile).Methods(http.MethodGet)
 	r.HandleFunc("/except", exceptFilePost).Methods(http.MethodPost)
@@ -48,6 +53,48 @@ func index(w http.ResponseWriter, r *http.Request) {
 
 	err = t.Execute(w, page{Title: "A trier", Navbar: "index", List: ReadAllFiles()}) //execute the template and pass it the HomePageVars struct to fill in the gaps
 	if err != nil {                                                                   // if there is an error
+		log.Print("template executing error: ", err) //log it
+	}
+}
+
+func allMovies(w http.ResponseWriter, r *http.Request) {
+	var err error
+	//t, err := template.New("movies.html").Funcs(template.FuncMap{
+	t := template.New("movies.html").Funcs(template.FuncMap{
+		"title": func(str string) string {
+			return strings.Title(strings.Join(strings.Split(str, "-"), " "))
+		},
+	})
+	//}).ParseFiles("templates/movies.html") //parse the html file homepage.html
+	if err != nil { // if there is an error
+		log.Print("template parsing error: ", err) // log it
+	}
+	//t := template.New("index")
+	t.Parse(header + pageMovies + pageFooter)
+
+	err = t.Execute(w, page{Title: "Movies", Navbar: "movies", Movie: AllMovies()}) //execute the template and pass it the HomePageVars struct to fill in the gaps
+	if err != nil {                                                                 // if there is an error
+		log.Print("template executing error: ", err) //log it
+	}
+}
+
+func allSeries(w http.ResponseWriter, r *http.Request) {
+	var err error
+	//t, err := template.New("series.html").Funcs(template.FuncMap{
+	t := template.New("series.html").Funcs(template.FuncMap{
+		"title": func(str string) string {
+			return strings.Title(strings.Join(strings.Split(str, "-"), " "))
+		},
+	})
+	//}).ParseFiles("templates/series.html") //parse the html file homepage.html
+	if err != nil { // if there is an error
+		log.Print("template parsing error: ", err) // log it
+	}
+	//t := template.New("index")
+	t.Parse(header + pageSeries + pageFooter)
+
+	err = t.Execute(w, page{Title: "Series", Navbar: "series", Serie: AllSeries()}) //execute the template and pass it the HomePageVars struct to fill in the gaps
+	if err != nil {                                                                 // if there is an error
 		log.Print("template executing error: ", err) //log it
 	}
 }
@@ -223,6 +270,12 @@ const header = `
             <li class="nav-item {{ if eq .Navbar "index"}}active{{end}}">
                 <a class="nav-link" href="/">Liste à trier<span class="sr-only">(current)</span></a>
             </li>
+ 			<li class="nav-item {{ if eq .Navbar "movies"}}active{{end}}">
+                <a class="nav-link" href="/movies">Movies</a>
+            </li>
+            <li class="nav-item {{ if eq .Navbar "series"}}active{{end}}">
+                <a class="nav-link" href="/series">Series</a>
+            </li>
             <li class="nav-item {{ if eq .Navbar "except"}}active{{end}}">
                 <a class="nav-link" href="/except">Exception</a>
             </li>
@@ -268,6 +321,65 @@ const pageIndex = `
         </li>
     {{ end }}
     </ul>
+`
+
+const pageMovies = `
+	<div class="row">
+    {{ range $v := .Movie.Files }}
+        <div class="col-sm-6 col-lg-4 col-xl-3 mb-3">
+            <div class="card text-white bg-dark mb-3">
+                <div class="card-body">
+                {{ $v.Name | title }}
+                </div>
+            </div>
+        </div>
+    {{ end }}
+    </div>
+`
+
+const pageSeries = `
+ 	<div class="row">
+    {{ range $s := .Serie.Series }}
+        <div class="col-sm-6 col-lg-4 col-xl-3 mb-3">
+            <div class="card">
+                <div class="card-body">
+                    <h4 class="card-title text-center">
+                    {{ $s.Name | title }}
+                    </h4>
+                    <div class="card-text">
+                        <div class="accordion" id="parent-{{ $s.Name }}">
+                        {{ range $season := $s.Seasons }}
+                            <div class="card text-white bg-dark">
+                                <div class="card-header" id="heading-{{ $s.Name }}">
+                                    <h5 class="mb-0">
+                                        <button class="btn btn-scondary col-sm-12" type="button" data-toggle="collapse"
+                                                data-target="#{{ $s.Name }}-{{ $season.Name }}" aria-expanded="false"
+                                                aria-controls="{{ $s.Name }}-{{ $season.Name }}">
+                                        {{ $season.Name }}
+                                        </button>
+                                    </h5>
+                                </div>
+
+                                <div id="{{ $s.Name }}-{{ $season.Name }}" class="collapse"
+                                     aria-labelledby="heading-{{ $s.Name }}"
+                                     data-parent="#parent-{{ $s.Name }}">
+                                    <div class="card-body">
+                                    {{ range $file := $season.Files }}
+                                        <ul class="list-group">
+                                            <li class="list-group-item list-group-item-light">{{ $file.Name }}</li>
+                                        </ul>
+                                    {{ end }}
+                                    </div>
+                                </div>
+                            </div>
+                        {{ end }}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {{ end }}
+    </div>
 `
 
 const pageLog = `
