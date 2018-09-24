@@ -23,7 +23,7 @@ func slugFile(file string) (name, serieName, serieNumberReturn string, year int)
 				^md$|^ld$|^r[0-9]$|
 				^xvid$|^divx$|^scr$|
 				^dvdscr$|^repack$|
-				^multi$|^hdlight$|^720p$|^480p$|^1080p$`)
+				^multi$|^hdlight$|^720p$|^480p$|^1080p$|^2160p$|^uhd$`)
 	yearReg := regexp.MustCompile(`^[0-9]{4}$`)
 
 	serie := regexp.MustCompile(`(?mi)[s][0-9]{1,2}[e][0-9]{1,3}`)
