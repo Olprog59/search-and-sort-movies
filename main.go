@@ -19,9 +19,6 @@ var (
 func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
-	if _, err := os.Stat(myapp.FOLDER_CONFIG); os.IsNotExist(err) {
-		os.Mkdir(myapp.FOLDER_CONFIG, os.ModePerm)
-	}
 }
 
 func main() {
@@ -34,7 +31,7 @@ func main() {
 	defer f.Close()
 	log.SetOutput(f)
 
-	myapp.StartServerWeb()
+	go myapp.StartServerWeb()
 
 	for {
 		if myapp.GetEnv("dlna") != "" || myapp.GetEnv("movies") != "" || myapp.GetEnv("series") != "" {
