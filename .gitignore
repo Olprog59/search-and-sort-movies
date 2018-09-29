@@ -33,3 +33,9 @@ debug
 .vscode
 .idea
 a_trier/
+
+\.DS_Store
+
+searchMoviesConfig/\.movies\.json
+
+searchMoviesConfig/\.series\.json
