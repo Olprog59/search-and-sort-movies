@@ -2,6 +2,7 @@ package myapp
 
 import (
 	"bufio"
+	"encoding/json"
 	"io/ioutil"
 	"log"
 	"os"
@@ -9,32 +10,28 @@ import (
 )
 
 type Movie struct {
-	Name  string
-	Path  string
-	Files []File
+	Files []File `json:"files"`
 }
 
 type Serie struct {
-	Name   string
-	Path   string
-	Series []Series
+	Series []Series `json:"series"`
 }
 
 type Series struct {
-	Name    string
-	Path    string
-	Seasons []Season
+	Name    string   `json:"name"`
+	Path    string   `json:"path"`
+	Seasons []Season `json:"seasons"`
 }
 
 type Season struct {
-	Name  string
-	Path  string
-	Files []File
+	Name  string `json:"name"`
+	Path  string `json:"path"`
+	Files []File `json:"files"`
 }
 
 type File struct {
-	Name string
-	Path string
+	Name string `json:"name"`
+	Path string `json:"path"`
 }
 
 func ReadAllFiles() []string {
@@ -55,7 +52,7 @@ func ReadAllFiles() []string {
 }
 
 func ReadFileLog() (data []string) {
-	file, err := os.Open("./log_SearchAndSort")
+	file, err := os.Open(LOGFILE)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -72,7 +69,7 @@ func ReadFileLog() (data []string) {
 	return data
 }
 
-func AllMovies() Movie {
+func SaveAllMovies() {
 	var movie Movie
 	err := filepath.Walk(GetEnv("movies"), func(path string, info os.FileInfo, err error) error {
 		if info.IsDir() {
@@ -84,10 +81,15 @@ func AllMovies() Movie {
 	if err != nil {
 		panic(err)
 	}
-	return movie
+	j, err := json.MarshalIndent(&movie, "", " ")
+	if err != nil {
+		log.Println(err)
+	}
+
+	writeJSONFile(MOVIESFILE, j)
 }
 
-func AllSeries() *Serie {
+func SaveAllSeries() {
 	var serie Serie
 	path := GetEnv("series")
 	for _, s := range read(path) {
@@ -114,7 +116,34 @@ func AllSeries() *Serie {
 			serie.Series = append(serie.Series, series)
 		}
 	}
-	return &serie
+	j, err := json.MarshalIndent(&serie, "", " ")
+	if err != nil {
+		log.Println(err)
+	}
+
+	writeJSONFile(SERIESFILE, j)
+}
+
+func readJSON(file string) []byte {
+	f, err := ioutil.ReadFile(file)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	return f
+}
+
+func ReadAllMovies() Movie {
+	var movie Movie
+	json.Unmarshal(readJSON(MOVIESFILE), &movie)
+	return movie
+}
+
+func ReadAllSeries() Serie {
+	var serie Serie
+	json.Unmarshal(readJSON(SERIESFILE), &serie)
+	return serie
 }
 
 func read(path string) []os.FileInfo {

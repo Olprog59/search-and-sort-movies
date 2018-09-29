@@ -19,14 +19,18 @@ type Config struct {
 
 const (
 	// ConfigFile :
-	ConfigFile = ".config.json"
+	FOLDER_CONFIG = "./searchMoviesConfig"
+	LOGFILE       = FOLDER_CONFIG + string(os.PathSeparator) + "log_SearchAndSort"
+	MOVIESFILE    = FOLDER_CONFIG + string(os.PathSeparator) + ".movies.json"
+	SERIESFILE    = FOLDER_CONFIG + string(os.PathSeparator) + ".series.json"
+	ConfigFile    = FOLDER_CONFIG + string(os.PathSeparator) + ".config.json"
 )
 
 // GetEnv :
 func GetEnv(key string) string {
 	checkIfConfigFileIsExist()
 
-	jsonType := readJSONFile()
+	jsonType := readJSONFile(ConfigFile)
 
 	return jsonType[key].(string)
 }
@@ -35,7 +39,7 @@ func GetEnv(key string) string {
 func SetEnv(key, value string) {
 	checkIfConfigFileIsExist()
 	// open file using READ & WRITE permission
-	jsonType := readJSONFile()
+	jsonType := readJSONFile(ConfigFile)
 
 	jsonType[key] = value
 
@@ -44,7 +48,7 @@ func SetEnv(key, value string) {
 		log.Println(err)
 	}
 
-	writeJSONFile(j)
+	writeJSONFile(ConfigFile, j)
 }
 
 // CheckIfConfigFileIsExist : Create file is not exist
@@ -65,13 +69,13 @@ func checkIfConfigFileIsExist() {
 			log.Println(err)
 		}
 
-		writeJSONFile(j)
+		writeJSONFile(ConfigFile, j)
 	}
 }
 
 // ReadJSONFile :
-func readJSONFile() map[string]interface{} {
-	f, err := ioutil.ReadFile(ConfigFile)
+func readJSONFile(file string) map[string]interface{} {
+	f, err := ioutil.ReadFile(file)
 
 	if err != nil {
 		log.Println(err)
@@ -83,8 +87,8 @@ func readJSONFile() map[string]interface{} {
 	return jsonType
 }
 
-func writeJSONFile(jsonByte []byte) {
-	err := ioutil.WriteFile(ConfigFile, jsonByte, 0644)
+func writeJSONFile(file string, jsonByte []byte) {
+	err := ioutil.WriteFile(file, jsonByte, 0644)
 	// file, err := os.Create(ConfigFile)
 	if err != nil {
 		log.Println(err)

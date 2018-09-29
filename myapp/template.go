@@ -21,7 +21,7 @@ type page struct {
 	Pwd          string
 	Log          []string
 	Movie        Movie
-	Serie        *Serie
+	Serie        Serie
 }
 
 var store = sessions.NewCookieStore([]byte("samsam"))
@@ -31,7 +31,9 @@ func StartServerWeb() {
 	r.HandleFunc("/", index).Methods(http.MethodGet)
 	r.HandleFunc("/", indexPost).Methods(http.MethodPost)
 	r.HandleFunc("/movies", allMovies).Methods(http.MethodGet)
+	r.HandleFunc("/movies/{path}", removeMovies).Methods(http.MethodGet)
 	r.HandleFunc("/series", allSeries).Methods(http.MethodGet)
+	r.HandleFunc("/series/{path}", removeSeries).Methods(http.MethodGet)
 	r.HandleFunc("/log", logFile).Methods(http.MethodGet)
 	r.HandleFunc("/except", exceptFile).Methods(http.MethodGet)
 	r.HandleFunc("/except", exceptFilePost).Methods(http.MethodPost)
@@ -40,6 +42,43 @@ func StartServerWeb() {
 	r.HandleFunc("/config", configAppPost).Methods(http.MethodPost)
 	r.HandleFunc("/mail", configAppMailPost).Methods(http.MethodPost)
 	go http.ListenAndServe(":1515", r)
+}
+func removeSeries(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	path := GetEnv("series") + string(os.PathSeparator) + strings.Replace(vars["path"], "_", "/", -1)
+	log.Println(path)
+	for _, serie := range ReadAllSeries().Series {
+		for _, season := range serie.Seasons {
+			for _, file := range season.Files {
+				if file.Path == path {
+					err := os.RemoveAll(file.Path)
+					if err != nil {
+						log.Println(err)
+					} else {
+						SaveAllSeries()
+					}
+				}
+			}
+		}
+	}
+	http.Redirect(w, r, "/series", 301)
+}
+func removeMovies(w http.ResponseWriter, r *http.Request) {
+	vars := mux.Vars(r)
+	path := GetEnv("movies") + string(os.PathSeparator) + strings.Replace(vars["path"], "_", "/", -1)
+	log.Println(path)
+	for _, files := range ReadAllMovies().Files {
+		if files.Path == path {
+			err := os.RemoveAll(files.Path)
+			if err != nil {
+				log.Println(err)
+			} else {
+				SaveAllMovies()
+			}
+		}
+
+	}
+	http.Redirect(w, r, "/movies", 301)
 }
 
 func index(w http.ResponseWriter, r *http.Request) {
@@ -64,6 +103,10 @@ func allMovies(w http.ResponseWriter, r *http.Request) {
 		"title": func(str string) string {
 			return strings.Title(strings.Join(strings.Split(str, "-"), " "))
 		},
+		"rename": func(str string) string {
+			str = str[len(GetEnv("movies"))+1:]
+			return strings.Replace(str, "/", "_", -1)
+		},
 	})
 	//}).ParseFiles("templates/movies.html") //parse the html file homepage.html
 	if err != nil { // if there is an error
@@ -72,10 +115,11 @@ func allMovies(w http.ResponseWriter, r *http.Request) {
 	//t := template.New("index")
 	t.Parse(header + pageMovies + pageFooter)
 
-	err = t.Execute(w, page{Title: "Movies", Navbar: "movies", Movie: AllMovies()}) //execute the template and pass it the HomePageVars struct to fill in the gaps
-	if err != nil {                                                                 // if there is an error
+	err = t.Execute(w, page{Title: "Movies", Navbar: "movies", Movie: ReadAllMovies()}) //execute the template and pass it the HomePageVars struct to fill in the gaps
+	if err != nil {                                                                     // if there is an error
 		log.Print("template executing error: ", err) //log it
 	}
+	SaveAllMovies()
 }
 
 func allSeries(w http.ResponseWriter, r *http.Request) {
@@ -85,6 +129,10 @@ func allSeries(w http.ResponseWriter, r *http.Request) {
 		"title": func(str string) string {
 			return strings.Title(strings.Join(strings.Split(str, "-"), " "))
 		},
+		"rename": func(str string) string {
+			str = str[len(GetEnv("series"))+1:]
+			return strings.Replace(str, "/", "_", -1)
+		},
 	})
 	//}).ParseFiles("templates/series.html") //parse the html file homepage.html
 	if err != nil { // if there is an error
@@ -93,10 +141,11 @@ func allSeries(w http.ResponseWriter, r *http.Request) {
 	//t := template.New("index")
 	t.Parse(header + pageSeries + pageFooter)
 
-	err = t.Execute(w, page{Title: "Series", Navbar: "series", Serie: AllSeries()}) //execute the template and pass it the HomePageVars struct to fill in the gaps
-	if err != nil {                                                                 // if there is an error
+	err = t.Execute(w, page{Title: "Series", Navbar: "series", Serie: ReadAllSeries()}) //execute the template and pass it the HomePageVars struct to fill in the gaps
+	if err != nil {                                                                     // if there is an error
 		log.Print("template executing error: ", err) //log it
 	}
+	SaveAllSeries()
 }
 
 func indexPost(w http.ResponseWriter, r *http.Request) {
@@ -239,6 +288,8 @@ const header = `
     <title>{{ .Title }}</title>
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css"
           integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+	<link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.3.1/css/all.css" integrity="sha384-mzrmE5qonljUremFsqc01SB46JvROS7bZs3IO2EmfFsd15uHvIt+Y8vEf7N7fWAU" crossorigin="anonymous">
+
     <style>
         .input-group-append{
             cursor: pointer;
@@ -326,10 +377,18 @@ const pageIndex = `
 const pageMovies = `
 	<div class="row">
     {{ range $v := .Movie.Files }}
-        <div class="col-sm-6 col-lg-4 col-xl-3 mb-3">
+        <div class="col-sm-6 col-lg-4 col-xl-3 mb-3 files">
             <div class="card text-white bg-dark mb-3">
                 <div class="card-body">
-                {{ $v.Name | title }}
+                
+					<div class="row">
+						<div class="col-10">{{ $v.Name | title }}</div> 
+						<div class="col-2">
+							<a href="/movies/{{ $v.Path | rename }}" class="delete">
+								<i class="fas fa-trash-alt"></i>
+							</a>
+						</div>
+					</div>
                 </div>
             </div>
         </div>
@@ -364,11 +423,20 @@ const pageSeries = `
                                      aria-labelledby="heading-{{ $s.Name }}"
                                      data-parent="#parent-{{ $s.Name }}">
                                     <div class="card-body">
-                                    {{ range $file := $season.Files }}
                                         <ul class="list-group">
-                                            <li class="list-group-item list-group-item-light">{{ $file.Name }}</li>
-                                        </ul>
+                                    {{ range $file := $season.Files }}
+                                            <li class="list-group-item list-group-item-light files">
+												<div class="row">
+													<div class="col-10">{{ $file.Name }}</div> 
+													<div class="col-2">
+														<a href="/series/{{ $file.Path | rename }}" class="delete">
+															<i class="fas fa-trash-alt"></i>
+														</a>
+													</div>
+												</div>
+											</li>
                                     {{ end }}
+                                        </ul>
                                     </div>
                                 </div>
                             </div>
@@ -525,6 +593,20 @@ const pageFooter = `
                 })
             }
         })
+
+		$(".delete").click(function(e){
+			that = $(this);
+			e.preventDefault();
+			let href = that.attr('href');
+			$.ajax({
+			    url: href,
+			    type: 'GET',
+			    success: function(result) {
+					//console.log("success");
+    		    	that.closest(".files").slideUp();
+			    }
+			});
+		});
 
     })
 </script>
