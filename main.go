@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"runtime"
@@ -20,12 +19,15 @@ var (
 func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	if _, err := os.Stat(myapp.FOLDER_CONFIG); os.IsNotExist(err) {
+		os.Mkdir(myapp.FOLDER_CONFIG, os.ModePerm)
+	}
 }
 
 func main() {
 	myapp.Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean)
 	// Write log to file : log_SearchAndSort
-	f, err := os.OpenFile("log_SearchAndSort", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err := os.OpenFile(myapp.LOGFILE, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
@@ -38,7 +40,6 @@ func main() {
 		if myapp.GetEnv("dlna") != "" || myapp.GetEnv("movies") != "" || myapp.GetEnv("series") != "" {
 			break
 		}
-		fmt.Println("En attente de configuration : va sur http://localhost:1515")
 		log.Println("En attente de configuration : va sur http://localhost:1515")
 		time.Sleep(30 * time.Second)
 	}

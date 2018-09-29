@@ -86,6 +86,8 @@ func start(file string) {
 			}
 		}
 	}
+	SaveAllMovies()
+	SaveAllSeries()
 }
 
 // func folderExist(folder, serieName string) (string, bool) {
