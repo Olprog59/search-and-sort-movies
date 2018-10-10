@@ -72,20 +72,20 @@ package myapp
 //		args    args
 //		wantErr bool
 //	}{
-//		//{
-//		//	"checlIfSizeIsSame", args{
-//		//		"\\\\SOKYS\\sam\\Series\\dragon-ball-super\\season-1\\dragon-ball-super-episode-77.mp4",
-//		//		"C:\\Users\\kamel\\go\\src\\search-and-sort-movies\\dlna\\dragon-ball-super-episode-77.mp4",
-//		//	},
-//		//	false,
-//		//},
-//		//{
-//		//	"checlIfSizeIsSame", args{
-//		//		"\\\\SOKYS\\sam\\Series\\dragon-ball-super\\season-1\\dragon-ball-super-episode-86.mp4",
-//		//		"C:\\Users\\kamel\\go\\src\\search-and-sort-movies\\dlna\\dragon-ball-super-episode-91.mp4",
-//		//	},
-//		//	true,
-//		//},
+//		{
+//			"checlIfSizeIsSame", args{
+//				"\\\\SOKYS\\sam\\Series\\dragon-ball-super\\season-1\\dragon-ball-super-episode-77.mp4",
+//				"C:\\Users\\kamel\\go\\src\\search-and-sort-movies\\dlna\\dragon-ball-super-episode-77.mp4",
+//			},
+//			false,
+//		},
+//		{
+//			"checlIfSizeIsSame", args{
+//				"\\\\SOKYS\\sam\\Series\\dragon-ball-super\\season-1\\dragon-ball-super-episode-86.mp4",
+//				"C:\\Users\\kamel\\go\\src\\search-and-sort-movies\\dlna\\dragon-ball-super-episode-91.mp4",
+//			},
+//			true,
+//		},
 //	}
 //	for _, tt := range tests {
 //		t.Run(tt.name, func(t *testing.T) {

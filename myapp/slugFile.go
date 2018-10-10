@@ -84,7 +84,7 @@ func slugFile(file string) (name, serieName, serieNumberReturn string, year int)
 			name = serieName + " " + serieNumberReturn
 			break
 		} else if serieNumber.MatchString(v) {
-			if GetMoviesExceptFile(oldName + "-" + v) {
+			if GetMoviesExceptFile(oldName + "-" + v) || len(oldName) < 3 {
 				continue
 			}
 			serieNumberReturn, _, _ = slugSerieSeasonEpisode(v)
