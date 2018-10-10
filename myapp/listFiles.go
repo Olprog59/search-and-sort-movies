@@ -7,6 +7,8 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"regexp"
+	"strconv"
 )
 
 type Movie struct {
@@ -18,9 +20,11 @@ type Serie struct {
 }
 
 type Series struct {
-	Name    string   `json:"name"`
-	Path    string   `json:"path"`
-	Seasons []Season `json:"seasons"`
+	Name          string   `json:"name"`
+	Path          string   `json:"path"`
+	Image         string   `json:"image"`
+	OriginalTitle string   `json:"original_title"`
+	Seasons       []Season `json:"seasons"`
 }
 
 type Season struct {
@@ -30,8 +34,10 @@ type Season struct {
 }
 
 type File struct {
-	Name string `json:"name"`
-	Path string `json:"path"`
+	Name          string `json:"name"`
+	Path          string `json:"path"`
+	Image         string `json:"image"`
+	OriginalTitle string `json:"original_title"`
 }
 
 func ReadAllFiles() []string {
@@ -69,13 +75,32 @@ func ReadFileLog() (data []string) {
 	return data
 }
 
-func SaveAllMovies() {
+func ifMatchVideoFile(file string) bool {
+	re := regexp.MustCompile(`(.mkv|.mp4|.avi|.flv)`)
+	if !re.MatchString(filepath.Ext(file)) {
+		return false
+	}
+	return true
+}
+
+func SaveAllMovies() bool {
 	var movie Movie
 	err := filepath.Walk(GetEnv("movies"), func(path string, info os.FileInfo, err error) error {
-		if info.IsDir() {
-			return nil
+		if !info.IsDir() {
+			if !ifMatchVideoFile(info.Name()) {
+				return nil
+			}
+			name, _, _, year := slugFile(info.Name())
+			nameClean := name[:len(name)-len(filepath.Ext(name))]
+			movieOnline, _ := dbMovies(false, nameClean, strconv.Itoa(year))
+			var posterPath string
+			var originalTitle string
+			if len(movieOnline.Results) > 0 {
+				posterPath = "https://image.tmdb.org/t/p/w500" + movieOnline.Results[0].PosterPath
+				originalTitle = movieOnline.Results[0].OriginalTitle
+			}
+			movie.Files = append(movie.Files, File{Name: info.Name(), Path: path, OriginalTitle: originalTitle, Image: posterPath})
 		}
-		movie.Files = append(movie.Files, File{Name: info.Name(), Path: path})
 		return nil
 	})
 	if err != nil {
@@ -87,9 +112,10 @@ func SaveAllMovies() {
 	}
 
 	writeJSONFile(MOVIESFILE, j)
+	return true
 }
 
-func SaveAllSeries() {
+func SaveAllSeries() bool {
 	var serie Serie
 	path := GetEnv("series")
 	for _, s := range read(path) {
@@ -97,11 +123,18 @@ func SaveAllSeries() {
 			var series Series
 			series.Name = s.Name()
 			series.Path = path + string(filepath.Separator) + series.Name
+			//serieOnline, _ := dbMovies(false, series.Name)
+			serieOnline, _ := dbSeries(false, series.Name, "")
+			if len(serieOnline.Results) > 0 {
+				series.Image = "https://image.tmdb.org/t/p/w500" + serieOnline.Results[0].PosterPath
+				series.OriginalTitle = serieOnline.Results[0].OriginalName
+			}
 			for _, se := range read(series.Path) {
 				if se.IsDir() {
 					var season Season
 					season.Name = se.Name()
 					season.Path = series.Path + string(filepath.Separator) + season.Name
+
 					for _, fi := range read(season.Path) {
 						if !fi.IsDir() {
 							var file File
@@ -122,6 +155,7 @@ func SaveAllSeries() {
 	}
 
 	writeJSONFile(SERIESFILE, j)
+	return true
 }
 
 func readJSON(file string) []byte {

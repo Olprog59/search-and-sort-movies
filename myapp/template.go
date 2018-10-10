@@ -40,7 +40,8 @@ func StartServerWeb() {
 	r.HandleFunc("/except/delete", exceptFileDelete).Methods(http.MethodPost)
 	r.HandleFunc("/config", configApp).Methods(http.MethodGet)
 	r.HandleFunc("/config", configAppPost).Methods(http.MethodPost)
-	r.HandleFunc("/mail", configAppMailPost).Methods(http.MethodPost)
+	r.HandleFunc("/refresh", refresh).Methods(http.MethodPut)
+	//r.HandleFunc("/mail", configAppMailPost).Methods(http.MethodPost)
 	go http.ListenAndServe(":1515", r)
 }
 func removeSeries(w http.ResponseWriter, r *http.Request) {
@@ -81,6 +82,19 @@ func removeMovies(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/movies", 301)
 }
 
+func refresh(w http.ResponseWriter, r *http.Request) {
+	serie := make(chan bool)
+	movie := make(chan bool)
+	go func() {
+		serie <- SaveAllSeries()
+		movie <- SaveAllMovies()
+	}()
+
+	if <-serie && <-movie{
+		w.Write([]byte("true"))
+	}
+}
+
 func index(w http.ResponseWriter, r *http.Request) {
 	var err error
 	//t, err := template.ParseFiles("templates/index.html") //parse the html file homepage.html
@@ -91,7 +105,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	t.Parse(header + pageIndex + pageFooter)
 
 	err = t.Execute(w, page{Title: "A trier", Navbar: "index", List: ReadAllFiles()}) //execute the template and pass it the HomePageVars struct to fill in the gaps
-	if err != nil {                                                                   // if there is an error
+	if err != nil { // if there is an error
 		log.Print("template executing error: ", err) //log it
 	}
 }
@@ -116,10 +130,9 @@ func allMovies(w http.ResponseWriter, r *http.Request) {
 	t.Parse(header + pageMovies + pageFooter)
 
 	err = t.Execute(w, page{Title: "Movies", Navbar: "movies", Movie: ReadAllMovies()}) //execute the template and pass it the HomePageVars struct to fill in the gaps
-	if err != nil {                                                                     // if there is an error
+	if err != nil { // if there is an error
 		log.Print("template executing error: ", err) //log it
 	}
-	SaveAllMovies()
 }
 
 func allSeries(w http.ResponseWriter, r *http.Request) {
@@ -142,10 +155,9 @@ func allSeries(w http.ResponseWriter, r *http.Request) {
 	t.Parse(header + pageSeries + pageFooter)
 
 	err = t.Execute(w, page{Title: "Series", Navbar: "series", Serie: ReadAllSeries()}) //execute the template and pass it the HomePageVars struct to fill in the gaps
-	if err != nil {                                                                     // if there is an error
+	if err != nil { // if there is an error
 		log.Print("template executing error: ", err) //log it
 	}
-	SaveAllSeries()
 }
 
 func indexPost(w http.ResponseWriter, r *http.Request) {
@@ -161,7 +173,7 @@ func logFile(w http.ResponseWriter, r *http.Request) {
 	t.Parse(header + pageLog + pageFooter)
 
 	err := t.Execute(w, page{Title: "Log", Navbar: "log", Log: ReadFileLog()}) //execute the template and pass it the HomePageVars struct to fill in the gaps
-	if err != nil {                                                            // if there is an error
+	if err != nil { // if there is an error
 		log.Print("template executing error: ", err) //log it
 	}
 }
@@ -186,7 +198,7 @@ func exceptFile(w http.ResponseWriter, r *http.Request) {
 	t.Parse(header + pageExcept + pageFooter)
 
 	err = t.Execute(w, page{Title: "Exception", Navbar: "except", Exception: readFile(), FlashMessage: message}) //execute the template and pass it the HomePageVars struct to fill in the gaps
-	if err != nil {                                                                                              // if there is an error
+	if err != nil { // if there is an error
 		log.Print("template executing error: ", err) //log it
 	}
 }
@@ -336,6 +348,9 @@ const header = `
             <li class="nav-item {{ if eq .Navbar "log"}}active{{end}}">
                 <a class="nav-link" href="/log">Log</a>
             </li>
+            <li class="nav-item {{ if eq .Navbar "log"}}active{{end}}" id="refresh">
+                <a class="nav-link" href="/refresh"><i class="fas fa-sync-alt fa-lg"></i></a>
+            </li>
         </ul>
     </div>
 </nav>
@@ -378,6 +393,7 @@ const pageMovies = `
 	<div class="row">
     {{ range $v := .Movie.Files }}
         <div class="col-sm-6 col-lg-4 col-xl-3 mb-3 files">
+			<img class="card-img-top" src="{{ $v.Image }}" alt="Card image cap">
             <div class="card text-white bg-dark mb-3">
                 <div class="card-body">
                 
@@ -400,6 +416,7 @@ const pageSeries = `
  	<div class="row">
     {{ range $s := .Serie.Series }}
         <div class="col-sm-6 col-lg-4 col-xl-3 mb-3">
+			<img class="card-img-top" src="{{ $s.Image }}" alt="Card image cap">
             <div class="card">
                 <div class="card-body">
                     <h4 class="card-title text-center">
@@ -607,6 +624,22 @@ const pageFooter = `
 			    }
 			});
 		});
+
+		$("#refresh").click(function(e){
+			that = $(this);
+			e.preventDefault();
+			that.find(".fas").addClass("fa-spin");
+			$.ajax({
+			    url: "/refresh",
+			    type: 'PUT',
+			    success: function(result) {
+					if (result) {
+						that.find(".fas").removeClass("fa-spin");
+						//console.log("refresh finish" + result)
+					}
+			    }
+			});
+		})
 
     })
 </script>

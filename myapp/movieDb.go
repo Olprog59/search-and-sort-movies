@@ -2,6 +2,7 @@ package myapp
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"regexp"
 	"strings"
@@ -9,45 +10,47 @@ import (
 	"github.com/Machiel/slugify"
 )
 
-type movieDBTv struct {
-	Page    int `json:"page"`
-	Results []struct {
-		BackdropPath     string   `json:"backdrop_path"`
-		FirstAirDate     string   `json:"first_air_date"`
-		GenreIds         []int    `json:"genre_ids"`
-		ID               int      `json:"id"`
-		Name             string   `json:"name"`
-		OriginCountry    []string `json:"origin_country"`
-		OriginalLanguage string   `json:"original_language"`
-		OriginalName     string   `json:"original_name"`
-		Overview         string   `json:"overview"`
-		Popularity       float64  `json:"popularity"`
-		PosterPath       string   `json:"poster_path"`
-		VoteAverage      int      `json:"vote_average"`
-		VoteCount        int      `json:"vote_count"`
-	} `json:"results"`
-	TotalPages   int `json:"total_pages"`
-	TotalResults int `json:"total_results"`
+type resultDbTv struct {
+	BackdropPath     string   `json:"backdrop_path"`
+	FirstAirDate     string   `json:"first_air_date"`
+	GenreIds         []int    `json:"genre_ids"`
+	ID               int      `json:"id"`
+	Name             string   `json:"name"`
+	OriginCountry    []string `json:"origin_country"`
+	OriginalLanguage string   `json:"original_language"`
+	OriginalName     string   `json:"original_name"`
+	Overview         string   `json:"overview"`
+	Popularity       float64  `json:"popularity"`
+	PosterPath       string   `json:"poster_path"`
+	VoteAverage      int      `json:"vote_average"`
+	VoteCount        int      `json:"vote_count"`
 }
 
+type movieDBTv struct {
+	Page         int          `json:"page"`
+	Results      []resultDbTv `json:"results"`
+	TotalPages   int          `json:"total_pages"`
+	TotalResults int          `json:"total_results"`
+}
+type resultDbMovie struct {
+	Adult            bool    `json:"adult"`
+	BackdropPath     string  `json:"backdrop_path"`
+	GenreIds         []int   `json:"genre_ids"`
+	ID               int     `json:"id"`
+	OriginalLanguage string  `json:"original_language"`
+	OriginalTitle    string  `json:"original_title"`
+	Overview         string  `json:"overview"`
+	Popularity       float64 `json:"popularity"`
+	PosterPath       string  `json:"poster_path"`
+	ReleaseDate      string  `json:"release_date"`
+	Title            string  `json:"title"`
+	Video            bool    `json:"video"`
+	VoteAverage      float64 `json:"vote_average"`
+	VoteCount        int     `json:"vote_count"`
+}
 type movieDBMovie struct {
-	Page    int `json:"page"`
-	Results []struct {
-		Adult            bool    `json:"adult"`
-		BackdropPath     string  `json:"backdrop_path"`
-		GenreIds         []int   `json:"genre_ids"`
-		ID               int     `json:"id"`
-		OriginalLanguage string  `json:"original_language"`
-		OriginalTitle    string  `json:"original_title"`
-		Overview         string  `json:"overview"`
-		Popularity       float64 `json:"popularity"`
-		PosterPath       string  `json:"poster_path"`
-		ReleaseDate      string  `json:"release_date"`
-		Title            string  `json:"title"`
-		Video            bool    `json:"video"`
-		VoteAverage      float64 `json:"vote_average"`
-		VoteCount        int     `json:"vote_count"`
-	} `json:"results"`
+	Page         int `json:"page"`
+	Results      []resultDbMovie  `json:"results"`
 	TotalPages   int `json:"total_pages"`
 	TotalResults int `json:"total_results"`
 }
@@ -81,7 +84,7 @@ func checkMovieDB(tv, lang bool, name string, date []string) string {
 	}
 
 	url := "https://api.themoviedb.org/3/search/" + tvOrMovie + "?api_key=" + apiV3 + language + "&query=" + name + year
-
+	log.Println(url)
 	return url
 
 }
@@ -99,15 +102,15 @@ func slugRemoveYearSerieForSearchMovieDB(name string) (new string) {
 
 func dbSeries(lang bool, name string, date ...string) (movieDBTv, error) {
 	url := checkMovieDB(true, lang, name, date)
-	return readJSONFromUrl_TV(url)
+	return readJSONFromUrlTV(url)
 }
 
 func dbMovies(lang bool, name string, date ...string) (movieDBMovie, error) {
 	url := checkMovieDB(false, lang, name, date)
-	return readJSONFromUrl_Movie(url)
+	return readJSONFromUrlMovie(url)
 }
 
-func readJSONFromUrl_TV(url string) (movieDBTv, error) {
+func readJSONFromUrlTV(url string) (movieDBTv, error) {
 	var movie movieDBTv
 
 	resp, err := http.Get(url)
@@ -121,7 +124,7 @@ func readJSONFromUrl_TV(url string) (movieDBTv, error) {
 	return movie, nil
 }
 
-func readJSONFromUrl_Movie(url string) (movieDBMovie, error) {
+func readJSONFromUrlMovie(url string) (movieDBMovie, error) {
 	var movie movieDBMovie
 
 	resp, err := http.Get(url)
