@@ -26,7 +26,7 @@ type page struct {
 
 var store = sessions.NewCookieStore([]byte("samsam"))
 
-func StartServerWeb() {
+func StartServerWeb() *mux.Router {
 	r := mux.NewRouter()
 	r.HandleFunc("/", index).Methods(http.MethodGet)
 	r.HandleFunc("/", indexPost).Methods(http.MethodPost)
@@ -42,7 +42,9 @@ func StartServerWeb() {
 	r.HandleFunc("/config", configAppPost).Methods(http.MethodPost)
 	r.HandleFunc("/refresh", refresh).Methods(http.MethodPut)
 	//r.HandleFunc("/mail", configAppMailPost).Methods(http.MethodPost)
-	go http.ListenAndServe(":1515", r)
+
+	r = RestStartServerWeb(r)
+	return r
 }
 func removeSeries(w http.ResponseWriter, r *http.Request) {
 	vars := mux.Vars(r)
@@ -90,7 +92,7 @@ func refresh(w http.ResponseWriter, r *http.Request) {
 		movie <- SaveAllMovies()
 	}()
 
-	if <-serie && <-movie{
+	if <-serie && <-movie {
 		w.Write([]byte("true"))
 	}
 }
@@ -105,7 +107,7 @@ func index(w http.ResponseWriter, r *http.Request) {
 	t.Parse(header + pageIndex + pageFooter)
 
 	err = t.Execute(w, page{Title: "A trier", Navbar: "index", List: ReadAllFiles()}) //execute the template and pass it the HomePageVars struct to fill in the gaps
-	if err != nil { // if there is an error
+	if err != nil {                                                                   // if there is an error
 		log.Print("template executing error: ", err) //log it
 	}
 }
@@ -130,7 +132,7 @@ func allMovies(w http.ResponseWriter, r *http.Request) {
 	t.Parse(header + pageMovies + pageFooter)
 
 	err = t.Execute(w, page{Title: "Movies", Navbar: "movies", Movie: ReadAllMovies()}) //execute the template and pass it the HomePageVars struct to fill in the gaps
-	if err != nil { // if there is an error
+	if err != nil {                                                                     // if there is an error
 		log.Print("template executing error: ", err) //log it
 	}
 }
@@ -155,7 +157,7 @@ func allSeries(w http.ResponseWriter, r *http.Request) {
 	t.Parse(header + pageSeries + pageFooter)
 
 	err = t.Execute(w, page{Title: "Series", Navbar: "series", Serie: ReadAllSeries()}) //execute the template and pass it the HomePageVars struct to fill in the gaps
-	if err != nil { // if there is an error
+	if err != nil {                                                                     // if there is an error
 		log.Print("template executing error: ", err) //log it
 	}
 }
@@ -173,7 +175,7 @@ func logFile(w http.ResponseWriter, r *http.Request) {
 	t.Parse(header + pageLog + pageFooter)
 
 	err := t.Execute(w, page{Title: "Log", Navbar: "log", Log: ReadFileLog()}) //execute the template and pass it the HomePageVars struct to fill in the gaps
-	if err != nil { // if there is an error
+	if err != nil {                                                            // if there is an error
 		log.Print("template executing error: ", err) //log it
 	}
 }
@@ -198,7 +200,7 @@ func exceptFile(w http.ResponseWriter, r *http.Request) {
 	t.Parse(header + pageExcept + pageFooter)
 
 	err = t.Execute(w, page{Title: "Exception", Navbar: "except", Exception: readFile(), FlashMessage: message}) //execute the template and pass it the HomePageVars struct to fill in the gaps
-	if err != nil { // if there is an error
+	if err != nil {                                                                                              // if there is an error
 		log.Print("template executing error: ", err) //log it
 	}
 }
