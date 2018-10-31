@@ -2,6 +2,7 @@ package main
 
 import (
 	"log"
+	"net/http"
 	"os"
 	"runtime"
 	"search-and-sort-movies/myapp"
@@ -31,7 +32,7 @@ func main() {
 	defer f.Close()
 	log.SetOutput(f)
 
-	go myapp.StartServerWeb()
+	go http.ListenAndServe(":1515", myapp.StartServerWeb())
 
 	for {
 		if myapp.GetEnv("dlna") != "" || myapp.GetEnv("movies") != "" || myapp.GetEnv("series") != "" {

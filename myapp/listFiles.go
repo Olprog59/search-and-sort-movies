@@ -24,6 +24,7 @@ type Series struct {
 	Path          string   `json:"path"`
 	Image         string   `json:"image"`
 	OriginalTitle string   `json:"original_title"`
+	Description   string   `json:"description"`
 	Seasons       []Season `json:"seasons"`
 }
 
@@ -38,6 +39,7 @@ type File struct {
 	Path          string `json:"path"`
 	Image         string `json:"image"`
 	OriginalTitle string `json:"original_title"`
+	Description   string `json:"description"`
 }
 
 func ReadAllFiles() []string {
@@ -95,11 +97,13 @@ func SaveAllMovies() bool {
 			movieOnline, _ := dbMovies(false, nameClean, strconv.Itoa(year))
 			var posterPath string
 			var originalTitle string
+			var description string
 			if len(movieOnline.Results) > 0 {
 				posterPath = "https://image.tmdb.org/t/p/w500" + movieOnline.Results[0].PosterPath
 				originalTitle = movieOnline.Results[0].OriginalTitle
+				description = movieOnline.Results[0].Overview
 			}
-			movie.Files = append(movie.Files, File{Name: info.Name(), Path: path, OriginalTitle: originalTitle, Image: posterPath})
+			movie.Files = append(movie.Files, File{Name: info.Name(), Path: path, OriginalTitle: originalTitle, Image: posterPath, Description: description})
 		}
 		return nil
 	})
@@ -128,6 +132,7 @@ func SaveAllSeries() bool {
 			if len(serieOnline.Results) > 0 {
 				series.Image = "https://image.tmdb.org/t/p/w500" + serieOnline.Results[0].PosterPath
 				series.OriginalTitle = serieOnline.Results[0].OriginalName
+				series.Description = serieOnline.Results[0].Overview
 			}
 			for _, se := range read(series.Path) {
 				if se.IsDir() {
