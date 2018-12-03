@@ -13,7 +13,7 @@ type Config struct {
 	Dlna   string `json:"dlna"`
 	Series string `json:"series"`
 	Movies string `json:"movies"`
-	Mail   string `json:"mail"`
+	//Mail   string `json:"mail"`
 	// Music  string `json:"music"`
 }
 

@@ -32,6 +32,8 @@ func main() {
 	defer f.Close()
 	log.SetOutput(f)
 
+	myapp.StartDb()
+
 	go http.ListenAndServe(":1515", myapp.StartServerWeb())
 
 	for {
