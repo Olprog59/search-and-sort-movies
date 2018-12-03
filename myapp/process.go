@@ -24,7 +24,6 @@ var (
 func Process(file string) {
 	re := regexp.MustCompile(`(.mkv|.mp4|.avi|.flv)`)
 	if !re.MatchString(filepath.Ext(file)) {
-		// log.Println("Le fichier " + file + " n'est pas reconnu en tant que média")
 		return
 	}
 
@@ -41,13 +40,19 @@ func start(file string) {
 		nameClean := name[:len(name)-len(extension)]
 		movie, _ := dbMovies(false, nameClean, strconv.Itoa(year))
 		if len(movie.Results) > 0 {
-			path := movies+string(os.PathSeparator)+nameClean + "-"+ strconv.Itoa(year) +"-"+extension
+			var path string
+			if year != 0 {
+				path = movies + string(os.PathSeparator) + nameClean + "-" + strconv.Itoa(year) + "-" + extension
+			} else {
+				path = movies + string(os.PathSeparator) + nameClean + extension
+			}
 			if runtime.GOOS == "windows" {
 				copyFile(dlna+string(os.PathSeparator)+file, movies+string(os.PathSeparator)+path)
 			} else {
 				moveOrRenameFile(dlna+string(os.PathSeparator)+file, path)
 				log.Printf("%s a bien été déplacé dans %s", name, path)
 			}
+			go saveMovie(movie, name, path)
 		} else {
 			if count < 3 {
 				count++
@@ -66,7 +71,8 @@ func start(file string) {
 
 		if len(serie.Results) > 0 {
 			_, season, _ := slugSerieSeasonEpisode(serieNumber)
-			checkFolderSerie(file, name, serieName, season)
+			_, path := checkFolderSerie(file, name, serieName, season)
+			go saveSerie(serie, serieName, path)
 		} else {
 			if count < 3 {
 				count++
@@ -78,8 +84,6 @@ func start(file string) {
 			}
 		}
 	}
-	SaveAllMovies()
-	SaveAllSeries()
 }
 
 func checkFolderSerie(file, name, serieName string, season int) (string, string) {
