@@ -6,11 +6,11 @@ import (
 	"net/http"
 )
 
-type page struct {
-	Config    *Config
-	Exception []MoviesExcept
-	Pwd       string
-}
+//type page struct {
+//	Config    *Config
+//	Exception []MoviesExcept
+//	Pwd       string
+//}
 
 func RestStartServerWeb(r *mux.Router) *mux.Router {
 	r.HandleFunc("/api/movies", restAllMovies).Methods(http.MethodGet)
@@ -20,7 +20,7 @@ func RestStartServerWeb(r *mux.Router) *mux.Router {
 	r.HandleFunc("/api/log", restLogFile).Methods(http.MethodGet)
 	r.HandleFunc("/api/except", restExceptFile).Methods(http.MethodGet)
 	r.HandleFunc("/api/except", restExceptFilePost).Methods(http.MethodPost)
-	r.HandleFunc("/api/except/delete", restExceptFileDelete).Methods(http.MethodPost)
+	//r.HandleFunc("/api/except/delete", restExceptFileDelete).Methods(http.MethodPost)
 	r.HandleFunc("/api/config", restConfigApp).Methods(http.MethodGet)
 	r.HandleFunc("/api/config", restConfigAppPost).Methods(http.MethodPost)
 	//r.HandleFunc("/api/refresh", restRefresh).Methods(http.MethodPut)
@@ -137,7 +137,7 @@ func restLogFile(w http.ResponseWriter, r *http.Request) {
 
 func restExceptFile(w http.ResponseWriter, r *http.Request) {
 	originProblem(w, r)
-	json.NewEncoder(w).Encode(readFile())
+	json.NewEncoder(w).Encode(GetAllExcept())
 }
 
 func restExceptFilePost(w http.ResponseWriter, r *http.Request) {
@@ -154,10 +154,10 @@ func restExceptFilePost(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/except", 301)
 }
 
-func restExceptFileDelete(w http.ResponseWriter, r *http.Request) {
-	name := r.FormValue("ajax_data")
-	RemoveMoviesExceptFile(name)
-}
+//func restExceptFileDelete(w http.ResponseWriter, r *http.Request) {
+//	name := r.FormValue("ajax_data")
+//	RemoveMoviesExceptFile(name)
+//}
 
 func restConfigApp(w http.ResponseWriter, r *http.Request) {
 	originProblem(w, r)
