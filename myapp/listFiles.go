@@ -151,13 +151,13 @@ func ReadFileLog() (data []mapLog) {
 	return data
 }
 
-//func ifMatchVideoFile(file string) bool {
-//	re := regexp.MustCompile(`(.mkv|.mp4|.avi|.flv)`)
-//	if !re.MatchString(filepath.Ext(file)) {
-//		return false
-//	}
-//	return true
-//}
+func ifMatchVideoFile(file string) bool {
+	re := regexp.MustCompile(`(.mkv|.mp4|.avi|.flv)`)
+	if !re.MatchString(filepath.Ext(file)) {
+		return false
+	}
+	return true
+}
 
 func saveMovie(movieOnline movieDBMovie, name, path string) {
 	var posterPath string
@@ -177,40 +177,39 @@ func saveMovie(movieOnline movieDBMovie, name, path string) {
 	})
 }
 
-//
-//func SaveAllMovies() bool {
-//	err := filepath.Walk(GetEnv("movies"), func(path string, info os.FileInfo, err error) error {
-//		if !info.IsDir() {
-//			if !ifMatchVideoFile(info.Name()) {
-//				return nil
-//			}
-//			name, _, _, year := slugFile(info.Name())
-//			nameClean := name[:len(name)-len(filepath.Ext(name))]
-//			movieOnline, _ := dbMovies(false, nameClean, strconv.Itoa(year))
-//			var posterPath string
-//			var originalTitle string
-//			var description string
-//			if len(movieOnline.Results) > 0 {
-//				posterPath = "https://image.tmdb.org/t/p/w500" + movieOnline.Results[0].PosterPath
-//				originalTitle = movieOnline.Results[0].OriginalTitle
-//				description = movieOnline.Results[0].Overview
-//			}
-//			movie := &Movie{Name: info.Name(), Path: path, OriginalTitle: originalTitle, Image: posterPath, Description: description}
-//			testDb(func(db *gorm.DB) {
-//				res := db.Where("path = ? and name = ?", path, name).First(&movie)
-//				if res.RowsAffected == 0 {
-//					db.Create(&movie)
-//				}
-//			})
-//		}
-//		return nil
-//	})
-//	if err != nil {
-//		panic(err)
-//	}
-//
-//	return true
-//}
+func SaveAllMovies() bool {
+	err := filepath.Walk(GetEnv("movies"), func(path string, info os.FileInfo, err error) error {
+		if !info.IsDir() {
+			if !ifMatchVideoFile(info.Name()) {
+				return nil
+			}
+			name, _, _, year := slugFile(info.Name())
+			nameClean := name[:len(name)-len(filepath.Ext(name))]
+			movieOnline, _ := dbMovies(false, nameClean, strconv.Itoa(year))
+			var posterPath string
+			var originalTitle string
+			var description string
+			if len(movieOnline.Results) > 0 {
+				posterPath = "https://image.tmdb.org/t/p/w500" + movieOnline.Results[0].PosterPath
+				originalTitle = movieOnline.Results[0].OriginalTitle
+				description = movieOnline.Results[0].Overview
+			}
+			movie := &Movie{Name: info.Name(), Path: path, OriginalTitle: originalTitle, Image: posterPath, Description: description}
+			testDb(func(db *gorm.DB) {
+				res := db.Where("path = ? and name = ?", path, name).First(&movie)
+				if res.RowsAffected == 0 {
+					db.Create(&movie)
+				}
+			})
+		}
+		return nil
+	})
+	if err != nil {
+		panic(err)
+	}
+
+	return true
+}
 
 func splitSeriePath(path string) (serieName, serieSeason, fileName string) {
 	a := path[len(GetEnv("series")):]
@@ -265,49 +264,49 @@ func saveSerie(serieOnline movieDBTv, name, path string) {
 	})
 }
 
-//func SaveAllSeries() bool {
-//	path := GetEnv("series")
-//	for _, s := range read(path) {
-//		if s.IsDir() {
-//			var serie Serie
-//			serie.Name = s.Name()
-//			serie.Path = path + string(filepath.Separator) + serie.Name
-//			//serieOnline, _ := dbMovies(false, serie.Name)
-//			serieOnline, _ := dbSeries(false, serie.Name, "")
-//			if len(serieOnline.Results) > 0 {
-//				serie.Image = "https://image.tmdb.org/t/p/w500" + serieOnline.Results[0].PosterPath
-//				serie.OriginalTitle = serieOnline.Results[0].OriginalName
-//				serie.Description = serieOnline.Results[0].Overview
-//			}
-//			for _, se := range read(serie.Path) {
-//				if se.IsDir() {
-//					var season Season
-//					season.Name = se.Name()
-//					season.Path = serie.Path + string(filepath.Separator) + season.Name
-//
-//					for _, fi := range read(season.Path) {
-//						if !fi.IsDir() {
-//							var file File
-//							file.Name = fi.Name()
-//							file.Path = season.Path + string(filepath.Separator) + file.Name
-//							season.Files = append(season.Files, file)
-//						}
-//					}
-//					serie.Seasons = append(serie.Seasons, season)
-//				}
-//			}
-//
-//			testDb(func(db *gorm.DB) {
-//				res := db.Where("path = ?", path).First(&serie)
-//				if res.RowsAffected == 0 {
-//					db.Create(&serie)
-//				}
-//			})
-//
-//		}
-//	}
-//	return true
-//}
+func SaveAllSeries() bool {
+	path := GetEnv("series")
+	for _, s := range read(path) {
+		if s.IsDir() {
+			var serie Serie
+			serie.Name = s.Name()
+			serie.Path = path + string(filepath.Separator) + serie.Name
+			//serieOnline, _ := dbMovies(false, serie.Name)
+			serieOnline, _ := dbSeries(false, serie.Name, "")
+			if len(serieOnline.Results) > 0 {
+				serie.Image = "https://image.tmdb.org/t/p/w500" + serieOnline.Results[0].PosterPath
+				serie.OriginalTitle = serieOnline.Results[0].OriginalName
+				serie.Description = serieOnline.Results[0].Overview
+			}
+			for _, se := range read(serie.Path) {
+				if se.IsDir() {
+					var season Season
+					season.Name = se.Name()
+					season.Path = serie.Path + string(filepath.Separator) + season.Name
+
+					for _, fi := range read(season.Path) {
+						if !fi.IsDir() {
+							var file File
+							file.Name = fi.Name()
+							file.Path = season.Path + string(filepath.Separator) + file.Name
+							season.Files = append(season.Files, file)
+						}
+					}
+					serie.Seasons = append(serie.Seasons, season)
+				}
+			}
+
+			testDb(func(db *gorm.DB) {
+				res := db.Where("path = ?", path).First(&serie)
+				if res.RowsAffected == 0 {
+					db.Create(&serie)
+				}
+			})
+
+		}
+	}
+	return true
+}
 
 //func readJSON(file string) []byte {
 //	f, err := ioutil.ReadFile(file)
@@ -339,10 +338,10 @@ func ReadAllSeries() []Serie {
 	return serie
 }
 
-//func read(path string) []os.FileInfo {
-//	file, err := ioutil.ReadDir(path)
-//	if err != nil {
-//		log.Println(err)
-//	}
-//	return file
-//}
+func read(path string) []os.FileInfo {
+	file, err := ioutil.ReadDir(path)
+	if err != nil {
+		log.Println(err)
+	}
+	return file
+}

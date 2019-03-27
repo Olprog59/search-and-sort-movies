@@ -13,7 +13,7 @@ func StartDb() {
 	defer db.Close()
 
 	// Migrate the schema
-	db.AutoMigrate(&Movie{}, &Serie{}, &Season{}, &File{})
+	db.AutoMigrate(&Movie{}, &Serie{}, &Season{}, &File{}, &MoviesExcept{})
 }
 
 func testDb(f func(dataBase *gorm.DB)) {
