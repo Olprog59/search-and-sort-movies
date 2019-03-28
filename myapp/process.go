@@ -42,7 +42,7 @@ func start(file string) {
 		if len(movie.Results) > 0 {
 			var path string
 			if year != 0 {
-				path = movies + string(os.PathSeparator) + nameClean + "-" + strconv.Itoa(year) + "-" + extension
+				path = movies + string(os.PathSeparator) + nameClean + "-" + strconv.Itoa(year) + extension
 			} else {
 				path = movies + string(os.PathSeparator) + nameClean + extension
 			}
