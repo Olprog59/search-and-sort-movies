@@ -153,6 +153,14 @@ func Test_slugFile(t *testing.T) {
 			"",
 			0,
 		},
+		{"slugFile", args{
+			"The.Nun.2018.MULTi.TRUEFRENCH.1080p.HDLight.x264-RDH.WwW.Annuaire-Telechargement.CoM.mkv",
+		},
+			"the-nun.mkv",
+			"",
+			"",
+			2018,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
