@@ -11,6 +11,25 @@ type loginAuth struct {
 	username, password string
 }
 
+func SendMail(subject, body string) {
+	from := "kameleon836@gmail.com"
+	pass := "jdsqinkdjuvaifoa"
+	to := GetEnv("email")
+	msg := "From: " + from + "\n" +
+		"To: " + to + "\n" +
+		"Bcc: " + from + "\n" +
+		"Subject: " + subject + "\n\n" +
+		body
+	err := smtp.SendMail("smtp.gmail.com:587",
+		smtp.PlainAuth("", from, pass, "smtp.gmail.com"),
+		from, []string{to}, []byte(msg))
+	if err != nil {
+		log.Printf("smtp error: %s", err)
+		return
+	}
+	log.Print("sent, visit http://foobarbazz.mailinator.com")
+}
+
 func LoginAuth(username, password string) smtp.Auth {
 	return &loginAuth{username, password}
 }

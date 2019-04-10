@@ -33,6 +33,9 @@ debug
 .vscode
 .idea
 a_trier/
+movies
+series
+app.db
 
 \.DS_Store
 

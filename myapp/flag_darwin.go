@@ -10,6 +10,7 @@ import (
 func Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean string) {
 	vers := flag.Bool("v", false, "Indique la version de l'application")
 	scan := flag.Bool("scan", false, "Lancer le scan au démarrage de l'application")
+	sendmail := flag.Bool("email", false, "Envoie email test")
 	flag.Parse()
 
 	if *vers {
@@ -25,7 +26,12 @@ func Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean string) {
 	}
 
 	if *scan {
-		startScan(true)
+		startScan()
+	}
+
+	if *sendmail{
+		SendMail("", "")
+		os.Exit(1)
 	}
 
 }

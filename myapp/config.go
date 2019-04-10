@@ -5,7 +5,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"path/filepath"
 )
 
 // Config :
@@ -21,8 +20,8 @@ const (
 	// ConfigFile :
 	FOLDER_CONFIG = "./searchMoviesConfig"
 	LOGFILE       = FOLDER_CONFIG + string(os.PathSeparator) + "log_SearchAndSort"
-	MOVIESFILE    = FOLDER_CONFIG + string(os.PathSeparator) + ".movies.json"
-	SERIESFILE    = FOLDER_CONFIG + string(os.PathSeparator) + ".series.json"
+	//MOVIESFILE    = FOLDER_CONFIG + string(os.PathSeparator) + ".movies.json"
+	//SERIESFILE    = FOLDER_CONFIG + string(os.PathSeparator) + ".series.json"
 	ConfigFile    = FOLDER_CONFIG + string(os.PathSeparator) + ".config.json"
 )
 
@@ -97,15 +96,4 @@ func writeJSONFile(file string, jsonByte []byte) {
 	if err != nil {
 		log.Println(err)
 	}
-}
-
-func pwd(name string, endPathSeparator bool) string {
-	pwd, err := os.Getwd()
-	if err != nil {
-		log.Println(err)
-	}
-	if endPathSeparator {
-		return filepath.Clean(pwd+string(os.PathSeparator)+name) + string(os.PathSeparator)
-	}
-	return filepath.Clean(pwd + string(os.PathSeparator) + name)
 }

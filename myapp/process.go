@@ -7,7 +7,6 @@ import (
 	"log"
 	"os"
 	"path/filepath"
-	"regexp"
 	"runtime"
 	"strconv"
 	"sync"
@@ -21,17 +20,12 @@ var (
 	count  = 0
 )
 
-func Process(file string) {
-	re := regexp.MustCompile(`(.mkv|.mp4|.avi|.flv)`)
-	if !re.MatchString(filepath.Ext(file)) {
-		return
-	}
-
-	_, file = filepath.Split(file)
-	go start(file)
+func Process(complete string) {
+	dir, file := filepath.Split(complete)
+	go start(complete, dir, file)
 }
 
-func start(file string) {
+func start(complete, dir, file string) {
 	name, serieName, serieNumber, year := slugFile(file)
 
 	// Si c'est un film
@@ -47,17 +41,16 @@ func start(file string) {
 				path = movies + string(os.PathSeparator) + nameClean + extension
 			}
 			if runtime.GOOS == "windows" {
-				copyFile(dlna+string(os.PathSeparator)+file, movies+string(os.PathSeparator)+path)
+				copyFile(complete, movies+string(os.PathSeparator)+path)
 			} else {
-				moveOrRenameFile(dlna+string(os.PathSeparator)+file, path)
+				moveOrRenameFile(complete, path)
 				log.Printf("%s a bien été déplacé dans %s", name, path)
 			}
-			go saveMovie(movie, name, path)
 		} else {
 			if count < 3 {
 				count++
 				time.Sleep(2000 * time.Millisecond)
-				start(file)
+				start(complete, dir, file)
 			} else {
 				message := fmt.Sprintln(name[:len(name)-len(filepath.Ext(name))] + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + name[:len(name)-len(filepath.Ext(name))] + ". Test manuellement si tu le trouves ;-)")
 				//EnvoiDeMail("Search and sort movies Problem", message)
@@ -71,13 +64,12 @@ func start(file string) {
 
 		if len(serie.Results) > 0 {
 			_, season, _ := slugSerieSeasonEpisode(serieNumber)
-			_, path := checkFolderSerie(file, name, serieName, season)
-			go saveSerie(serie, serieName, path)
+			checkFolderSerie(complete, file, name, serieName, season)
 		} else {
 			if count < 3 {
 				count++
 				time.Sleep(2000 * time.Millisecond)
-				start(file)
+				start(complete, dir, file)
 			} else {
 				log.Println(serieName + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + serieName + ".\n Test manuellement si tu le trouves ;-)")
 				count = 0
@@ -86,7 +78,7 @@ func start(file string) {
 	}
 }
 
-func checkFolderSerie(file, name, serieName string, season int) (string, string) {
+func checkFolderSerie(complete, file, name, serieName string, season int) (string, string) {
 	// serieName, exist := folderExist(series, serieName)
 	newFolder := string(os.PathSeparator) + serieName + string(os.PathSeparator) + "season-" + strconv.Itoa(season)
 	folderOk := series + string(os.PathSeparator) + serieName
@@ -100,16 +92,15 @@ func checkFolderSerie(file, name, serieName string, season int) (string, string)
 	}
 
 	finalFilePath := series + newFolder + string(os.PathSeparator) + name
-	oldFilePath := dlna + string(os.PathSeparator) + file
 
 	if runtime.GOOS == "windows" {
-		copyFile(oldFilePath, finalFilePath)
+		copyFile(complete, finalFilePath)
 	} else {
-		if moveOrRenameFile(oldFilePath, finalFilePath) {
+		if moveOrRenameFile(complete, finalFilePath) {
 			log.Printf("%s a bien été déplacé dans %s", name, finalFilePath)
 		}
 	}
-	return oldFilePath, finalFilePath
+	return complete, finalFilePath
 }
 
 func createFolder(folder string) {
@@ -120,6 +111,8 @@ func createFolder(folder string) {
 }
 
 func moveOrRenameFile(filePathOld, filePathNew string) bool {
+	fmt.Println(filePathOld)
+	fmt.Println(filePathNew)
 	err := os.Rename(filePathOld, filePathNew)
 	if err != nil {
 		log.Printf("Move Or Rename File : %s", err)
