@@ -18,47 +18,51 @@ func MyWatcher(location string) {
 
 	done := make(chan bool)
 
-	go watchStart(watch)
+	go func() {
+		for {
+			select {
+			case event := <-watch.Events:
+				fmt.Println(event)
+				if event.Op&fsnotify.Remove == fsnotify.Remove || event.Op&fsnotify.Rename == fsnotify.Rename {
+					folder, file := filepath.Split(event.Name)
+					re := regexp.MustCompile(regexFile)
+					if re.MatchString(filepath.Ext(file)) {
+						folder = filepath.Clean(folder)
+						if GetEnv("dlna") != folder {
+							if err := watch.Remove(folder); err != nil {
+								log.Println(err)
+							}
 
-	err = watch.Add(location)
-	if err != nil {
+							if err := os.RemoveAll(folder); err != nil {
+								log.Println(err)
+							}
+						}
+					}
+				}
+				if event.Op&fsnotify.Create == fsnotify.Create {
+					_, file := filepath.Split(event.Name)
+					f, _ := os.Stat(event.Name)
+					if f.IsDir() {
+						log.Println(event.Name)
+						if filepath.Clean(event.Name) != GetEnv("dlna") {
+							watch.Add(event.Name)
+						}
+					}
+					re := regexp.MustCompile(regexFile)
+					if re.MatchString(filepath.Ext(file)) {
+						log.Println("Détection de : ", file)
+						Process(event.Name)
+					}
+				}
+			case err := <-watch.Errors:
+				log.Println("error:", err)
+			}
+		}
+	}()
+
+	if err := watch.Add(location); err != nil {
 		log.Fatal(err)
 	}
+
 	<-done
-}
-
-func watchStart(watch *fsnotify.Watcher) {
-	var folder string
-	for {
-		select {
-		case event := <-watch.Events:
-			fmt.Println(event)
-
-
-			if event.Op&fsnotify.Remove == fsnotify.Remove {
-				fmt.Println(event.Name)
-				re := regexp.MustCompile(regexFile)
-				if !re.MatchString(filepath.Ext(event.Name)) {
-					log.Println("Détection de : ", event.Name)
-					os.RemoveAll(filepath.Dir(event.Name))
-				}
-			}
-			if event.Op&fsnotify.Create == fsnotify.Create {
-				f, _ := os.Stat(event.Name)
-				if f.IsDir() {
-					folder = event.Name
-					fmt.Println("ecoute sur : " + folder)
-					MyWatcher(folder)
-				}
-				_, file := filepath.Split(event.Name)
-				re := regexp.MustCompile(regexFile)
-				if !re.MatchString(filepath.Ext(file)) {
-					log.Println("Détection de : ", file)
-					//Process(event.Name)
-				}
-			}
-		case err := <-watch.Errors:
-			log.Println("error:", err)
-		}
-	}
 }
