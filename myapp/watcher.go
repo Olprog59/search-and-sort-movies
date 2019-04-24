@@ -1,7 +1,6 @@
 package myapp
 
 import (
-	"fmt"
 	"github.com/fsnotify/fsnotify"
 	"log"
 	"os"
@@ -22,7 +21,6 @@ func MyWatcher(location string) {
 		for {
 			select {
 			case event := <-watch.Events:
-				fmt.Println(event)
 				if event.Op&fsnotify.Remove == fsnotify.Remove || event.Op&fsnotify.Rename == fsnotify.Rename {
 					folder, file := filepath.Split(event.Name)
 					re := regexp.MustCompile(regexFile)

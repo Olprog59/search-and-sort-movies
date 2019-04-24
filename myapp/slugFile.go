@@ -84,6 +84,16 @@ func slugFile(file string) (name, serieName, serieNumberReturn string, year int)
 			name = serieName + " " + serieNumberReturn
 			break
 		} else if serieNumber.MatchString(v) {
+			var toto = false
+			for _, value := range str {
+				if serie.MatchString(value) {
+					toto = true
+					break
+				}
+			}
+			if toto {
+				continue
+			}
 			serieNumberReturn, _, _ = slugSerieSeasonEpisode(v)
 			serieName = name[:len(name)-len(v)-1]
 			name = serieName + " " + serieNumberReturn

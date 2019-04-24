@@ -137,14 +137,14 @@ func Test_slugFile(t *testing.T) {
 			"s00e22",
 			0,
 		},
-		//{"slugFile", args{
-		//	"The.100.S05E13.FASTSUB.VOSTFR.720p.HDTV.x264-ZT.WwW.Zone-Telechargement1.ORG.mkv",
-		//},
-		//	"the-100-s05e13.mkv",
-		//	"the-100",
-		//	"s05e13",
-		//	0,
-		//},
+		{"slugFile", args{
+			"The.100.S05E13.FASTSUB.VOSTFR.720p.HDTV.x264-ZT.WwW.Zone-Telechargement1.ORG.mkv",
+		},
+			"the-100-s05e13.mkv",
+			"the-100",
+			"s05e13",
+			0,
+		},
 		{"slugFile", args{
 			"la-nonne.mkv",
 		},
