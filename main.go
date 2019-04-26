@@ -5,11 +5,13 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"net/http"
 	"os"
 	"path"
 	"runtime"
 	"search-and-sort-movies/myapp"
 	"strings"
+	"time"
 )
 
 var (
@@ -18,6 +20,8 @@ var (
 	BuildDate    string
 	BuildClean   string
 	BuildName    = "search-and-sort-movies"
+	count        int
+	ticker       *time.Ticker
 )
 
 func init() {
@@ -35,19 +39,30 @@ func main() {
 	defer f.Close()
 	log.SetOutput(f)
 
-
 	// Check if it's the first connection
 	if firstConnect() {
 		firstConfig()
 	} else {
 		for {
-			if myapp.GetEnv("dlna") == "" || myapp.GetEnv("movies") == "" || myapp.GetEnv("series") == "" || myapp.GetEnv("email") == ""{
+			if myapp.GetEnv("dlna") == "" || myapp.GetEnv("movies") == "" || myapp.GetEnv("series") == "" || myapp.GetEnv("email") == "" {
 				firstConfig()
 			} else {
 				break
 			}
 		}
 	}
+
+	go func() {
+		http.HandleFunc("/version", version)
+		fmt.Println(http.ListenAndServe(":666", nil))
+	}()
+
+	ticker = time.NewTicker(10 * time.Second)
+	go func() {
+		for range ticker.C {
+			myapp.SendVersion(BuildVersion, ticker)
+		}
+	}()
 
 	checkFolderExists(myapp.GetEnv("dlna"))
 	checkFolderExists(myapp.GetEnv("movies"))
@@ -61,6 +76,11 @@ func main() {
 	myapp.MyWatcher(myapp.GetEnv("dlna"))
 
 }
+
+func version(writer http.ResponseWriter, request *http.Request) {
+	fmt.Fprintf(writer, BuildVersion)
+}
+
 func checkFolderExists(folder string) {
 	if _, err := os.Stat(folder); os.IsNotExist(err) {
 		os.MkdirAll(folder, os.ModePerm)
