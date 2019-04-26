@@ -10,13 +10,13 @@ TEST_REPORT = tests.xml
 GOARCH = amd64
 
 GITHUB_USERNAME=kameleon83
-# BUILD_DIR=${GOPATH}/src/github.com/${GITHUB_USERNAME}/${BINARY}
+# BUILD_DIR=${GOPATH}/src/github.com/${GITHUB_USERNAME}
 
 ## Compile sous linux
-BUILD_DIR=${GOPATH}/src/search-and-sort-movies/${BINARY}
+BUILD_DIR=${GOPATH}/src/search-and-sort-movies
 
 ## Compile sous windows
-# BUILD_DIR=/mnt/c/Users/kamel/go/src/search-and-sort-movies/${BINARY}
+# BUILD_DIR=/mnt/c/Users/kamel/go/src/search-and-sort-movies
 CURRENT_DIR=$(shell pwd)
 BUILD_DIR_LINK=$(shell readlink ${BUILD_DIR})
 
