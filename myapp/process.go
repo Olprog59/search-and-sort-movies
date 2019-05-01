@@ -146,7 +146,10 @@ func copyFile(oldFile, newFile string) {
 		if err != nil {
 			log.Println(err)
 		}
-
+		err = os.Chown(newFile, 0, 0)
+		if err != nil {
+			log.Println(err)
+		}
 		log.Printf("Copied file : %s to %s - %v bytes\n", oldFile, newFile, n)
 		return
 	}()

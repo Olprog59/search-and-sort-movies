@@ -29,8 +29,8 @@ func Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean string) {
 		startScan()
 	}
 
-	if *sendmail{
-		SendMail("", "")
+	if *sendmail {
+		//SendMail("", "")
 		os.Exit(1)
 	}
 
