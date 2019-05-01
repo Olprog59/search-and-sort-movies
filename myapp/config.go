@@ -9,19 +9,16 @@ import (
 
 // Config :
 type Config struct {
-	Dlna   string `json:"dlna"`
-	Series string `json:"series"`
-	Movies string `json:"movies"`
-	//Mail   string `json:"mail"`
-	// Music  string `json:"music"`
+	Dlna             string `json:"dlna"`
+	Series           string `json:"series"`
+	Movies           string `json:"movies"`
+	CheckUpdate      string `json:"check_update"`
+	RetryCheckUpdate string `json:"retry_check_update"`
 }
 
 const (
-	// ConfigFile :
 	FOLDER_CONFIG = "./searchMoviesConfig"
 	LOGFILE       = FOLDER_CONFIG + string(os.PathSeparator) + "log_SearchAndSort"
-	//MOVIESFILE    = FOLDER_CONFIG + string(os.PathSeparator) + ".movies.json"
-	//SERIESFILE    = FOLDER_CONFIG + string(os.PathSeparator) + ".series.json"
 	ConfigFile    = FOLDER_CONFIG + string(os.PathSeparator) + ".config.json"
 )
 
@@ -30,6 +27,12 @@ func GetEnv(key string) string {
 	checkIfConfigFileIsExist()
 
 	jsonType := readJSONFile(ConfigFile)
+
+	if jsonType[key] == nil {
+		SetEnv(key, "")
+	}
+
+	jsonType = readJSONFile(ConfigFile)
 
 	return jsonType[key].(string)
 }
@@ -62,9 +65,11 @@ func checkIfConfigFileIsExist() {
 	// create file if not exists
 	if os.IsNotExist(err) {
 		newJSON := &Config{
-			Dlna:   "", //pwd("dlna", true),
-			Series: "", //pwd("dlna/Series", true),
-			Movies: "", //pwd("dlna/Movies", true),
+			Dlna:             "", //pwd("dlna", true),
+			Series:           "", //pwd("dlna/Series", true),
+			Movies:           "", //pwd("dlna/Movies", true),
+			CheckUpdate:      "24h0m0s",
+			RetryCheckUpdate: "12h0m0s",
 			// Music:  pwd("dlna/Music", true),
 		}
 		j, err := json.MarshalIndent(newJSON, "", " ")

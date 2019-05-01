@@ -1,25 +1,24 @@
 package myapp
 
 import (
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
-	"os/user"
+	"os/exec"
 	"runtime"
 	"time"
 )
 
-const URL = "http://localhost:999/"
+const URL = "http://sokys.ddns.net:999/"
 
-func SendVersion(version string, ticker *time.Ticker) {
+func SendVersion(version string, ticker *time.Ticker, retry time.Duration) {
 	client := http.Client{}
 	//req, err := http.NewRequest("GET", "http://sokys.ddns.net:999/", nil)
 	req, err := http.NewRequest("GET", URL, nil)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 
 	}
 
@@ -32,9 +31,9 @@ func SendVersion(version string, ticker *time.Ticker) {
 	if err != nil {
 		count++
 		log.Println(err)
-		t := time.NewTimer(5 * time.Second)
+		t := time.NewTimer(retry)
 		<-t.C
-		SendVersion(version, ticker)
+		SendVersion(version, ticker, retry)
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -70,17 +69,60 @@ func fileFollowOS() string {
 }
 
 func updateApp() {
-	fmt.Println("let's go pour la mise à jour")
+	log.Println("let's go pour la mise à jour")
+	writeFileBash()
+	//changeChownFileBash()
 	oss := fileFollowOS()
 	if oss != "" {
-		err := DownloadFile("/Users/olprog/go/src/search-and-sort-movies/a_trier/search-and-sort-movies-"+oss+"-amd64", URL+"download/search-and-sort-movies-"+oss+"-amd64-temp")
+		log.Println("start download")
+		err := DownloadFile("./search-and-sort-movies-"+oss+"-amd64-temp", URL+"download/search-and-sort-movies-"+oss+"-amd64")
 		if err != nil {
 			log.Println(err)
+		} else {
+			log.Println("download finish")
+
+			err = exec.Command("bash", "-c", "./.updateApp").Start()
+			if err != nil {
+				log.Fatal(err)
+			}
+			os.Exit(1)
 		}
 
 	}
 
 }
+
+func writeFileBash() {
+	err := ioutil.WriteFile(".updateApp", []byte(bash), 0755)
+	if err != nil {
+		log.Println(err)
+	}
+}
+
+//func changeChownFileBash()  {
+//	err := os.Chown(".updateApp", 0, 0)
+//	if err != nil {
+//		log.Println(err)
+//	}
+//}
+
+const bash = `#!/bin/bash
+sleep 5
+goos=$(uname | tr '[:upper:]' '[:lower:]')
+newFile=search-and-sort-movies-$goos-amd64-temp
+oldFile=search-and-sort-movies-$goos-amd64
+service=searchAndSortMovies.service
+addOld="${oldFile}-old"
+
+cp $oldFile $addOld
+sleep 2
+mv $newFile $oldFile
+sleep 2
+
+./$oldFile &
+
+#systemctl start service
+`
 
 func DownloadFile(filepath string, url string) error {
 
@@ -98,15 +140,20 @@ func DownloadFile(filepath string, url string) error {
 	}
 	defer out.Close()
 
+	err = os.Chmod(filepath, 0755)
+	if err != nil {
+		return err
+	}
+
 	// Write the body to file
 	_, err = io.Copy(out, resp.Body)
 	return err
 }
 
 func username() string {
-	user2, err := user.Current()
+	hostname, err := os.Hostname()
 	if err != nil {
 		panic(err)
 	}
-	return user2.Name
+	return hostname
 }
