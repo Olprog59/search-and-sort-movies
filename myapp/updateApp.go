@@ -114,7 +114,7 @@ sleep 2
 
 #./$oldFile &
 
-systemctl restart service
+systemctl restart $service
 `
 
 func DownloadFile(filepath string, url string) error {
