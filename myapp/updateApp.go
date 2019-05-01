@@ -99,13 +99,6 @@ func writeFileBash() {
 	}
 }
 
-//func changeChownFileBash()  {
-//	err := os.Chown(".updateApp", 0, 0)
-//	if err != nil {
-//		log.Println(err)
-//	}
-//}
-
 const bash = `#!/bin/bash
 sleep 5
 goos=$(uname | tr '[:upper:]' '[:lower:]')
@@ -119,9 +112,9 @@ sleep 2
 mv $newFile $oldFile
 sleep 2
 
-./$oldFile &
+#./$oldFile &
 
-#systemctl start service
+systemctl restart service
 `
 
 func DownloadFile(filepath string, url string) error {

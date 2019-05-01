@@ -14,6 +14,8 @@ type Config struct {
 	Movies           string `json:"movies"`
 	CheckUpdate      string `json:"check_update"`
 	RetryCheckUpdate string `json:"retry_check_update"`
+	User             string `json:"user"`
+	Group            string `json:"group"`
 }
 
 const (
