@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
-	"net/http"
 	"os"
 	"path"
 	"runtime"
@@ -44,7 +43,7 @@ func main() {
 		firstConfig()
 	} else {
 		for {
-			if myapp.GetEnv("dlna") == "" || myapp.GetEnv("movies") == "" || myapp.GetEnv("series") == "" || myapp.GetEnv("email") == "" {
+			if myapp.GetEnv("dlna") == "" || myapp.GetEnv("movies") == "" || myapp.GetEnv("series") == "" {
 				firstConfig()
 			} else {
 				break
@@ -52,15 +51,18 @@ func main() {
 		}
 	}
 
-	go func() {
-		http.HandleFunc("/version", version)
-		fmt.Println(http.ListenAndServe(":666", nil))
-	}()
+	if myapp.GetEnv("check_update") == "" {
+		myapp.SetEnv("check_update", (24 * time.Hour).String())
+	}
 
-	ticker = time.NewTicker(10 * time.Second)
+	if myapp.GetEnv("retry_check_update") == "" {
+		myapp.SetEnv("retry_check_update", (12 * time.Hour).String())
+	}
+
+	ticker = time.NewTicker(timeDurationParse(myapp.GetEnv("check_update")))
 	go func() {
 		for range ticker.C {
-			myapp.SendVersion(BuildVersion, ticker)
+			myapp.SendVersion(BuildVersion, ticker, timeDurationParse(myapp.GetEnv("retry_check_update")))
 		}
 	}()
 
@@ -77,8 +79,12 @@ func main() {
 
 }
 
-func version(writer http.ResponseWriter, request *http.Request) {
-	fmt.Fprintf(writer, BuildVersion)
+func timeDurationParse(str string) time.Duration {
+	timeDuration, err := time.ParseDuration(str)
+	if err != nil {
+		log.Println(err)
+	}
+	return timeDuration
 }
 
 func checkFolderExists(folder string) {
@@ -126,10 +132,10 @@ func firstConfig() {
 		text, _ = reader.ReadString('\n')
 		fmt.Println(text)
 		myapp.SetEnv("series", path.Clean(strings.TrimSpace(text)))
-		fmt.Println("Et pour finir un email. Celui-ci permettra d'envoyer un email si un problème est rencontré.")
-		text, _ = reader.ReadString('\n')
-		fmt.Println(text)
-		myapp.SetEnv("email", path.Clean(strings.TrimSpace(text)))
+		//fmt.Println("Et pour finir un email. Celui-ci permettra d'envoyer un email si un problème est rencontré.")
+		//text, _ = reader.ReadString('\n')
+		//fmt.Println(text)
+		//myapp.SetEnv("email", path.Clean(strings.TrimSpace(text)))
 
 		fmt.Println("Super. Voilà tout est configuré. On va vérifier le fichier : ")
 		fmt.Println('\n')
