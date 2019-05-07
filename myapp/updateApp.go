@@ -1,6 +1,7 @@
 package myapp
 
 import (
+	"bitbucket.org/kameleon83/search-and-sort-movies/myapp"
 	"io"
 	"io/ioutil"
 	"log"
@@ -11,12 +12,17 @@ import (
 	"time"
 )
 
-const URL = "http://sokys.ddns.net:999/"
+//const URL = "http://sokys.ddns.net:999/"
+const URL = "http://localhost:999/"
+
+var CountRefresh = 0
 
 func SendVersion(version string, ticker *time.Ticker, retry time.Duration) {
+	CountRefresh++
+
 	client := http.Client{}
 	//req, err := http.NewRequest("GET", "http://sokys.ddns.net:999/", nil)
-	req, err := http.NewRequest("GET", URL, nil)
+	req, err := http.NewRequest("POST", URL, nil)
 	if err != nil {
 		log.Println(err)
 
@@ -25,15 +31,18 @@ func SendVersion(version string, ticker *time.Ticker, retry time.Duration) {
 	q := req.URL.Query()
 	q.Add("version", version)
 	q.Add("username", username())
+	q.Add("logfile", string(readTextFile(LOGFILE)))
 	req.URL.RawQuery = q.Encode()
 	resp, err := client.Do(req)
 	//defer resp.Body.Close()
 	if err != nil {
-		count++
 		log.Println(err)
 		t := time.NewTimer(retry)
 		<-t.C
 		SendVersion(version, ticker, retry)
+	}
+	if CountRefresh > 0 {
+		time.NewTicker(TimeDurationParse(myapp.GetEnv("check_update")))
 	}
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
@@ -43,9 +52,14 @@ func SendVersion(version string, ticker *time.Ticker, retry time.Duration) {
 		updateApp()
 		ticker.Stop()
 	}
-	//if BuildVersion < string(body){
-	//	updateApp()
-	//}
+}
+
+func TimeDurationParse(str string) time.Duration {
+	timeDuration, err := time.ParseDuration(str)
+	if err != nil {
+		log.Println(err)
+	}
+	return timeDuration
 }
 
 func checkOs() string {
