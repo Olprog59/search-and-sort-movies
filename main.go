@@ -59,10 +59,11 @@ func main() {
 		myapp.SetEnv("retry_check_update", (12 * time.Hour).String())
 	}
 
-	ticker = time.NewTicker(timeDurationParse(myapp.GetEnv("check_update")))
+	ticker = time.NewTicker(1000 * time.Millisecond)
+
 	go func() {
 		for range ticker.C {
-			myapp.SendVersion(BuildVersion, ticker, timeDurationParse(myapp.GetEnv("retry_check_update")))
+			myapp.SendVersion(BuildVersion, ticker, myapp.TimeDurationParse(myapp.GetEnv("retry_check_update")))
 		}
 	}()
 
@@ -77,14 +78,6 @@ func main() {
 
 	myapp.MyWatcher(myapp.GetEnv("dlna"))
 
-}
-
-func timeDurationParse(str string) time.Duration {
-	timeDuration, err := time.ParseDuration(str)
-	if err != nil {
-		log.Println(err)
-	}
-	return timeDuration
 }
 
 func checkFolderExists(folder string) {
