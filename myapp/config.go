@@ -97,6 +97,17 @@ func readJSONFile(file string) map[string]interface{} {
 	return jsonType
 }
 
+// ReadJSONFile :
+func readTextFile(file string) []byte {
+	f, err := ioutil.ReadFile(file)
+
+	if err != nil {
+		log.Println(err)
+	}
+
+	return f
+}
+
 func writeJSONFile(file string, jsonByte []byte) {
 	err := ioutil.WriteFile(file, jsonByte, 0644)
 	// file, err := os.Create(ConfigFile)
