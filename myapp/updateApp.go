@@ -12,8 +12,9 @@ import (
 	"time"
 )
 
-//const URL = "http://sokys.ddns.net:999/"
-const URL = "http://localhost:999/"
+const URL = "http://sokys.ddns.net:999/"
+
+//const URL = "http://localhost:999/"
 
 var CountRefresh = 0
 
