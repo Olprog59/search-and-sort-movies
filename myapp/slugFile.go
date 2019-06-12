@@ -17,7 +17,7 @@ func slugFile(file string) (name, serieName, serieNumberReturn string, year int)
 	file = slugify.Slugify(file)
 
 	video := regexp.MustCompile(
-		`^french$|^dvdrip$|
+		`^french$|^dvdrip$|^multi$|^vostfr$|
 				^dvd-r$|^bluray$|^bdrip$|
 				^brrip$|^cam$|^ts$|^tc$|^vcd$|
 				^md$|^ld$|^r[0-9]$|
@@ -100,6 +100,7 @@ func slugFile(file string) (name, serieName, serieNumberReturn string, year int)
 			break
 		} else if video.MatchString(v) {
 			name = oldName
+			year, _ = searchYear(str, yearReg)
 			break
 		}
 		oldName = name
@@ -107,6 +108,15 @@ func slugFile(file string) (name, serieName, serieNumberReturn string, year int)
 	}
 
 	return slugify.Slugify(name) + ext, slugify.Slugify(serieName), serieNumberReturn, year
+}
+
+func searchYear(str []string, reg *regexp.Regexp) (int, error) {
+	for _, val := range str {
+		if reg.MatchString(val) {
+			return strconv.Atoi(val)
+		}
+	}
+	return 0, nil
 }
 
 func slugSerieSeasonEpisode(serieNumber string) (seasonAndEpisode string, season, episode int) {
