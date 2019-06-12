@@ -59,7 +59,7 @@ func main() {
 		myapp.SetEnv("retry_check_update", (12 * time.Hour).String())
 	}
 
-	ticker = time.NewTicker(myapp.TimeDurationParse(myapp.GetEnv("retry_check_update")))
+	ticker = time.NewTicker(myapp.TimeDurationParse(myapp.GetEnv("check_update")))
 
 	go func() {
 		for range ticker.C {
