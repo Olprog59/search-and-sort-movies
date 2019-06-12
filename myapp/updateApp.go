@@ -44,8 +44,8 @@ func SendVersion(version string, ticker *time.Ticker, retry time.Duration) {
 		log.Println(err)
 	}
 	if version < string(body) {
-		//updateApp()
-		//ticker.Stop()
+		updateApp()
+		ticker.Stop()
 	}
 }
 
@@ -90,7 +90,7 @@ func updateApp() {
 		} else {
 			log.Println("download finish")
 
-			err = exec.Command("bash", "-c", "./.updateApp").Start()
+			err = exec.Command("/bin/bash", "-c", "./.updateApp").Start()
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -109,7 +109,7 @@ func writeFileBash() {
 }
 
 const bash = `#!/bin/bash
-sleep 5
+sleep 2
 goos=$(uname | tr '[:upper:]' '[:lower:]')
 newFile=search-and-sort-movies-$goos-amd64-temp
 oldFile=search-and-sort-movies-$goos-amd64
