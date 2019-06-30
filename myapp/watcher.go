@@ -25,13 +25,9 @@ func MyWatcher(location string) {
 					folder, file := filepath.Split(event.Name)
 					re := regexp.MustCompile(regexFile)
 					if re.MatchString(filepath.Ext(file)) {
-						folder = filepath.Clean(folder)
+						folder = filepath.Dir(folder)
 						if GetEnv("dlna") != folder {
 							if err := watch.Remove(folder); err != nil {
-								log.Println(err)
-							}
-
-							if err := os.RemoveAll(folder); err != nil {
 								log.Println(err)
 							}
 						}
@@ -42,9 +38,18 @@ func MyWatcher(location string) {
 					f, _ := os.Stat(event.Name)
 					if f.IsDir() {
 						log.Println(event.Name)
-						if filepath.Clean(event.Name) != GetEnv("dlna") {
-							watch.Add(event.Name)
-						}
+						err = filepath.Walk(event.Name, func(path string, info os.FileInfo, err error) error {
+							//files = append(files, path)
+							re := regexp.MustCompile(regexFile)
+							if re.MatchString(filepath.Ext(path)) {
+								println("c'est parti pour " + filepath.Dir(path))
+								err = watch.Add(filepath.Dir(path))
+								if err != nil {
+									print(err)
+								}
+							}
+							return nil
+						})
 					}
 					re := regexp.MustCompile(regexFile)
 					if re.MatchString(filepath.Ext(file)) {

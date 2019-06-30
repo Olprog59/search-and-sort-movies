@@ -51,21 +51,21 @@ func main() {
 		}
 	}
 
-	if myapp.GetEnv("check_update") == "" {
-		myapp.SetEnv("check_update", (24 * time.Hour).String())
-	}
-
-	if myapp.GetEnv("retry_check_update") == "" {
-		myapp.SetEnv("retry_check_update", (12 * time.Hour).String())
-	}
-
-	ticker = time.NewTicker(myapp.TimeDurationParse(myapp.GetEnv("check_update")))
-
-	go func() {
-		for range ticker.C {
-			myapp.SendVersion(BuildVersion, ticker, myapp.TimeDurationParse(myapp.GetEnv("retry_check_update")))
-		}
-	}()
+	//if myapp.GetEnv("check_update") == "" {
+	//	myapp.SetEnv("check_update", (24 * time.Hour).String())
+	//}
+	//
+	//if myapp.GetEnv("retry_check_update") == "" {
+	//	myapp.SetEnv("retry_check_update", (12 * time.Hour).String())
+	//}
+	//
+	//ticker = time.NewTicker(myapp.TimeDurationParse(myapp.GetEnv("check_update")))
+	//
+	//go func() {
+	//	for range ticker.C {
+	//		myapp.SendVersion(BuildVersion, ticker, myapp.TimeDurationParse(myapp.GetEnv("retry_check_update")))
+	//	}
+	//}()
 
 	checkFolderExists(myapp.GetEnv("dlna"))
 	checkFolderExists(myapp.GetEnv("movies"))

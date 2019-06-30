@@ -34,7 +34,7 @@ func Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean string) {
 		HiddenWindow()
 	}
 
-	if *sendmail{
+	if *sendmail {
 		SendMail("", "")
 		os.Exit(1)
 	}

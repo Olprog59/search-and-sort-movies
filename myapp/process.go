@@ -1,6 +1,7 @@
 package myapp
 
 import (
+	"bitbucket.org/kameleon83/search-and-sort-movies/myapp"
 	"errors"
 	"fmt"
 	"io"
@@ -98,6 +99,12 @@ func checkFolderSerie(complete, file, name, serieName string, season int) (strin
 	} else {
 		if moveOrRenameFile(complete, finalFilePath) {
 			log.Printf("%s a bien été déplacé dans %s", name, finalFilePath)
+			if filepath.Dir(complete) != myapp.GetEnv("dlna") {
+				err := os.Remove(filepath.Dir(complete))
+				if err != nil {
+					log.Println("error de suppression de dossier")
+				}
+			}
 		}
 	}
 	return complete, finalFilePath
