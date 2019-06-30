@@ -49,10 +49,10 @@ type resultDbMovie struct {
 	VoteCount        int     `json:"vote_count"`
 }
 type movieDBMovie struct {
-	Page         int `json:"page"`
-	Results      []resultDbMovie  `json:"results"`
-	TotalPages   int `json:"total_pages"`
-	TotalResults int `json:"total_results"`
+	Page         int             `json:"page"`
+	Results      []resultDbMovie `json:"results"`
+	TotalPages   int             `json:"total_pages"`
+	TotalResults int             `json:"total_results"`
 }
 
 const (
