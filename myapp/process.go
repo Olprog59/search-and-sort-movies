@@ -66,7 +66,7 @@ func start(complete, dir, file string) {
 		}
 
 	} else {
-		originalName := file[:len(file)-len(filepath.Ext(name))]
+		originalName := file[:len(file)-len(filepath.Ext(name))-len(serieName)]
 		originalName = url.QueryEscape(originalName)
 		if count > 1 {
 			originalName = ""
