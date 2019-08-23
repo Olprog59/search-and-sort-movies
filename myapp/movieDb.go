@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"strconv"
 	"strings"
 
 	"github.com/Machiel/slugify"
@@ -60,7 +61,7 @@ const (
 	apiV3 = "ea8779638f078f25daa3913e80fe46eb"
 )
 
-func checkMovieDB(tv, lang bool, name string, date []string) string {
+func checkMovieDB(tv, lang bool, name, originalName string, date []string) string {
 
 	var language string
 	var tvOrMovie = "movie"
@@ -76,14 +77,23 @@ func checkMovieDB(tv, lang bool, name string, date []string) string {
 
 	var year string
 	if len(date) > 0 {
-		if tvOrMovie == "movie" {
-			year = "&year=" + date[0]
+		dateInt, err := strconv.Atoi(date[0])
+		if err != nil {
+			log.Println(err)
 		} else {
-			year = "&first_air_date_year=" + date[0]
+			if tvOrMovie == "movie" && dateInt > 0 {
+				year = "&year=" + date[0]
+			} else if dateInt > 0 {
+				year = "&first_air_date_year=" + date[0]
+			}
 		}
 	}
-
-	url := "https://api.themoviedb.org/3/search/" + tvOrMovie + "?api_key=" + apiV3 + language + "&query=" + name + year
+	var url string
+	if len(originalName) > 0 {
+		url = "https://api.themoviedb.org/3/search/" + tvOrMovie + "?api_key=" + apiV3 + language + "&query=" + originalName + year
+	} else {
+		url = "https://api.themoviedb.org/3/search/" + tvOrMovie + "?api_key=" + apiV3 + language + "&query=" + name + year
+	}
 	log.Println(url)
 	return url
 
@@ -100,13 +110,13 @@ func slugRemoveYearSerieForSearchMovieDB(name string) (new string) {
 	return slugify.Slugify(new)
 }
 
-func dbSeries(lang bool, name string, date ...string) (movieDBTv, error) {
-	url := checkMovieDB(true, lang, name, date)
+func dbSeries(lang bool, name, original string, date ...string) (movieDBTv, error) {
+	url := checkMovieDB(true, lang, name, original, date)
 	return readJSONFromUrlTV(url)
 }
 
-func dbMovies(lang bool, name string, date ...string) (movieDBMovie, error) {
-	url := checkMovieDB(false, lang, name, date)
+func dbMovies(lang bool, name, original string, date ...string) (movieDBMovie, error) {
+	url := checkMovieDB(false, lang, name, original, date)
 	return readJSONFromUrlMovie(url)
 }
 

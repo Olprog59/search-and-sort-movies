@@ -25,7 +25,12 @@ func MyWatcher(location string) {
 					folder, file := filepath.Split(event.Name)
 					re := regexp.MustCompile(regexFile)
 					if re.MatchString(filepath.Ext(file)) {
-						folder = filepath.Dir(folder)
+						folder = filepath.Clean(folder)
+						// Quand c'est en local
+						//fmt.Println(folder)
+						//_, end := filepath.Split(GetEnv("dlna"))
+						//fmt.Println(end)
+						//if end != folder {
 						if GetEnv("dlna") != folder {
 							if err := watch.Remove(folder); err != nil {
 								log.Println(err)
