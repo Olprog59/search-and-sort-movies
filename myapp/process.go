@@ -66,7 +66,12 @@ func start(complete, dir, file string) {
 		}
 
 	} else {
-		serie, _ := dbSeries(false, serieName, "", strconv.Itoa(year))
+		originalName := file[:len(file)-len(filepath.Ext(name))]
+		originalName = url.QueryEscape(originalName)
+		if count > 1 {
+			originalName = ""
+		}
+		serie, _ := dbSeries(false, serieName, originalName, strconv.Itoa(year))
 		if len(serie.Results) > 0 {
 			_, season, _ := slugSerieSeasonEpisode(serieNumber)
 			checkFolderSerie(complete, file, name, serieName, season)
