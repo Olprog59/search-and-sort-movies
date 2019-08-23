@@ -42,3 +42,6 @@ app.db
 searchMoviesConfig/\.movies\.json
 
 searchMoviesConfig/\.series\.json
+
+.updateApp
+search-and-sort-movies*

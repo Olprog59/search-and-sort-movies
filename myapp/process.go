@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"log"
+	"net/url"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -28,12 +29,16 @@ func Process(complete string) {
 
 func start(complete, dir, file string) {
 	name, serieName, serieNumber, year := slugFile(file)
-
 	// Si c'est un film
 	if serieName == "" {
 		extension := filepath.Ext(name)
 		nameClean := name[:len(name)-len(extension)]
-		movie, _ := dbMovies(false, nameClean, strconv.Itoa(year))
+		originalName := file[:len(file)-len(extension)]
+		originalName = url.QueryEscape(originalName)
+		if count > 1 {
+			originalName = ""
+		}
+		movie, _ := dbMovies(false, nameClean, originalName, strconv.Itoa(year))
 		if len(movie.Results) > 0 {
 			var path string
 			if year != 0 {
@@ -61,8 +66,7 @@ func start(complete, dir, file string) {
 		}
 
 	} else {
-		serie, _ := dbSeries(false, serieName, strconv.Itoa(year))
-
+		serie, _ := dbSeries(false, serieName, "", strconv.Itoa(year))
 		if len(serie.Results) > 0 {
 			_, season, _ := slugSerieSeasonEpisode(serieNumber)
 			checkFolderSerie(complete, file, name, serieName, season)
@@ -118,8 +122,6 @@ func createFolder(folder string) {
 }
 
 func moveOrRenameFile(filePathOld, filePathNew string) bool {
-	fmt.Println(filePathOld)
-	fmt.Println(filePathNew)
 	err := os.Rename(filePathOld, filePathNew)
 	if err != nil {
 		log.Printf("Move Or Rename File : %s", err)
