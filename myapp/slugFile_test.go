@@ -82,7 +82,7 @@ func Test_slugFile(t *testing.T) {
 			2017,
 		},
 		{"slugFile", args{
-			"new.girl.101.trois.gars.une.fille-Zone-Telechargement.Ws.avi",
+			"new.girl.episode.101.trois.gars.une.fille-Zone-Telechargement.Ws.avi",
 		},
 			"new-girl-s00e101.avi",
 			"new-girl",
@@ -122,7 +122,7 @@ func Test_slugFile(t *testing.T) {
 			0,
 		},
 		{"slugFile", args{
-			"Inaz Ares 21 VOSTFR-Zone-Telechargement1 org.mkv",
+			"Inaz Ares episode 21 VOSTFR-Zone-Telechargement1 org.mkv",
 		},
 			"inaz-ares-s00e21.mkv",
 			"inaz-ares",
@@ -130,7 +130,7 @@ func Test_slugFile(t *testing.T) {
 			0,
 		},
 		{"slugFile", args{
-			"Inaz Ares 22 VOSTFR-Zone-Telechargement1 org.mkv",
+			"Inaz Ares episode 22 VOSTFR-Zone-Telechargement1 org.mkv",
 		},
 			"inaz-ares-s00e22.mkv",
 			"inaz-ares",
@@ -176,6 +176,22 @@ func Test_slugFile(t *testing.T) {
 			"",
 			"",
 			2018,
+		},
+		{"slugFile", args{
+			"The_Vampire Diaries S04E23 MULTI Ici ou Ailleurs  BluRay720p  2013.mkv",
+		},
+			"the-vampire-diaries-s04e23.mkv",
+			"the-vampire-diaries",
+			"s04e23",
+			0,
+		},
+		{"slugFile", args{
+			"Project.Blue.Book.S01E01.FRENCH.720p.HDTV.x264-HuSSLe.WwW.Zone-Telechargement.NET.mkv",
+		},
+			"project-blue-book-s01e01.mkv",
+			"project-blue-book",
+			"s01e01",
+			0,
 		},
 	}
 	for _, tt := range tests {
