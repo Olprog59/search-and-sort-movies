@@ -1,7 +1,6 @@
 package myapp
 
 import (
-	"bitbucket.org/kameleon83/search-and-sort-movies/myapp"
 	"errors"
 	"fmt"
 	"io"
@@ -59,7 +58,6 @@ func start(complete, dir, file string) {
 				start(complete, dir, file)
 			} else {
 				message := fmt.Sprintln(name[:len(name)-len(filepath.Ext(name))] + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + name[:len(name)-len(filepath.Ext(name))] + ". Test manuellement si tu le trouves ;-)")
-				//EnvoiDeMail("Search and sort movies Problem", message)
 				log.Println(message)
 				count = 0
 			}
@@ -72,6 +70,10 @@ func start(complete, dir, file string) {
 			originalName = ""
 		}
 		serie, _ := dbSeries(false, serieName, originalName, strconv.Itoa(year))
+		//log.Println("-----------------------------")
+		//log.Println(serie)
+		//log.Println(serie.Results)
+		//log.Println("-----------------------------")
 		if len(serie.Results) > 0 {
 			_, season, _ := slugSerieSeasonEpisode(serieNumber)
 			checkFolderSerie(complete, file, name, serieName, season)
@@ -108,7 +110,7 @@ func checkFolderSerie(complete, file, name, serieName string, season int) (strin
 	} else {
 		if moveOrRenameFile(complete, finalFilePath) {
 			log.Printf("%s a bien été déplacé dans %s", name, finalFilePath)
-			if filepath.Dir(complete) != myapp.GetEnv("dlna") {
+			if filepath.Dir(complete) != GetEnv("dlna") {
 				err := os.Remove(filepath.Dir(complete))
 				if err != nil {
 					log.Println("error de suppression de dossier")

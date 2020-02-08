@@ -89,7 +89,7 @@ func checkMovieDB(tv, lang bool, name, originalName string, date []string) strin
 		}
 	}
 	var url string
-	if len(originalName) > 0 {
+	if len(originalName) > 0 && tvOrMovie == "movie" {
 		url = "https://api.themoviedb.org/3/search/" + tvOrMovie + "?api_key=" + apiV3 + language + "&query=" + originalName + year
 	} else {
 		url = "https://api.themoviedb.org/3/search/" + tvOrMovie + "?api_key=" + apiV3 + language + "&query=" + name + year
@@ -129,7 +129,7 @@ func readJSONFromUrlTV(url string) (movieDBTv, error) {
 	}
 
 	defer resp.Body.Close()
-	json.NewDecoder(resp.Body).Decode(&movie)
+	_ = json.NewDecoder(resp.Body).Decode(&movie)
 
 	return movie, nil
 }

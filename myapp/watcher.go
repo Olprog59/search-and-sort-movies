@@ -41,6 +41,8 @@ func MyWatcher(location string) {
 				if event.Op&fsnotify.Create == fsnotify.Create {
 					_, file := filepath.Split(event.Name)
 					f, _ := os.Stat(event.Name)
+					log.Println(f)
+					log.Println(event.Name)
 					if f.IsDir() {
 						log.Println(event.Name)
 						err = filepath.Walk(event.Name, func(path string, info os.FileInfo, err error) error {
