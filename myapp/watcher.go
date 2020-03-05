@@ -6,6 +6,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"time"
 )
 
 func MyWatcher(location string) {
@@ -18,6 +19,7 @@ func MyWatcher(location string) {
 	done := make(chan bool)
 
 	go func() {
+		var size int64
 		for {
 			select {
 			case event := <-watch.Events:
@@ -38,12 +40,22 @@ func MyWatcher(location string) {
 						}
 					}
 				}
-				if event.Op&fsnotify.Create == fsnotify.Create {
-					_, file := filepath.Split(event.Name)
-					f, _ := os.Stat(event.Name)
-					if f.Size() < 1000000 {
-						continue
+				if event.Op&fsnotify.Write == fsnotify.Write {
+					time.Sleep(1000 * time.Millisecond)
+					if event.Name == "" {
+						break
 					}
+					_, file := filepath.Split(event.Name)
+					f, err := os.Stat(event.Name)
+					if err != nil {
+						break
+					}
+					if size != f.Size() {
+						size = f.Size()
+						break
+					}
+					size = 0
+					log.Printf("Name: %s\nSize: %d", f.Name(), f.Size())
 					log.Println(f)
 					log.Println(event.Name)
 					if f.IsDir() {
@@ -66,6 +78,11 @@ func MyWatcher(location string) {
 						log.Println("Détection de : ", file)
 						Process(event.Name)
 					}
+
+				}
+
+				if event.Op&fsnotify.Create == fsnotify.Create {
+					size = 0
 				}
 			case err := <-watch.Errors:
 				log.Println("error:", err)
