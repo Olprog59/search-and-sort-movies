@@ -41,6 +41,9 @@ func MyWatcher(location string) {
 				if event.Op&fsnotify.Create == fsnotify.Create {
 					_, file := filepath.Split(event.Name)
 					f, _ := os.Stat(event.Name)
+					if f.Size() < 1000000 {
+						continue
+					}
 					log.Println(f)
 					log.Println(event.Name)
 					if f.IsDir() {

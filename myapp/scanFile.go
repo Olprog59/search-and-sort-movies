@@ -11,7 +11,9 @@ const regexFile = `(.mkv|.mp4|.avi|.flv)`
 
 func startScan() {
 	if count, file := fileInFolder(); count > 0 {
-		go boucleFiles(file)
+		boucleFiles(file)
+		// remove goroutine car je dois tester voir si cela cause le tri non complet des fichiers
+		// go boucleFiles(file)
 	}
 }
 
