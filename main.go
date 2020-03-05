@@ -30,6 +30,8 @@ func init() {
 
 func main() {
 	myapp.Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean)
+	fmt.Printf("\n\nBuild Version: %s\nBuild Date: %s\n\n", BuildVersion, BuildDate)
+	log.Printf("\n\nBuild Version: %s\nBuild Date: %s\n\n", BuildVersion, BuildDate)
 	// Write log to file : log_SearchAndSort
 	f, err := os.OpenFile(myapp.LOGFILE, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
