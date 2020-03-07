@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net/url"
 	"os"
@@ -111,12 +112,6 @@ func checkFolderSerie(complete, file, name, serieName string, season int) (strin
 	} else {
 		if moveOrRenameFile(complete, finalFilePath) {
 			log.Printf("%s a bien été déplacé dans %s", name, finalFilePath)
-			if filepath.Dir(complete) != GetEnv("dlna") {
-				err := os.Remove(filepath.Dir(complete))
-				if err != nil {
-					log.Println("error de suppression de dossier")
-				}
-			}
 		}
 	}
 	return complete, finalFilePath
@@ -135,11 +130,19 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 		log.Printf("Move Or Rename File : %s", err)
 		return false
 	}
+	if filepath.Dir(filePathOld) != GetEnv("dlna") {
+		file, _ := ioutil.ReadDir(filePathOld)
+		if len(file) == 0 {
+			err := os.Remove(filepath.Dir(filePathOld))
+			if err != nil {
+				log.Println("error de suppression de dossier")
+			}
+		}
+	}
 	return true
 }
 
 func copyFile(oldFile, newFile string) {
-
 	var wg sync.WaitGroup
 
 	wg.Add(1)
