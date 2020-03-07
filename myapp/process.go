@@ -48,8 +48,9 @@ func start(complete, dir, file string) {
 			if runtime.GOOS == "windows" {
 				copyFile(complete, movies+string(os.PathSeparator)+path)
 			} else {
-				moveOrRenameFile(complete, path)
-				log.Printf("%s a bien été déplacé dans %s", name, path)
+				if moveOrRenameFile(complete, path) {
+					log.Printf("%s a bien été déplacé dans %s", name, path)
+				}
 			}
 		} else {
 			if count < 3 {
