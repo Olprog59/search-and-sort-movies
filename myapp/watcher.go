@@ -2,6 +2,7 @@ package myapp
 
 import (
 	"github.com/fsnotify/fsnotify"
+	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -9,8 +10,11 @@ import (
 	"time"
 )
 
+var watch *fsnotify.Watcher
+var err error
+
 func MyWatcher(location string) {
-	watch, err := fsnotify.NewWatcher()
+	watch, err = fsnotify.NewWatcher()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -19,71 +23,19 @@ func MyWatcher(location string) {
 	done := make(chan bool)
 
 	go func() {
-		var size int64
 		for {
 			select {
 			case event := <-watch.Events:
-				if event.Op&fsnotify.Remove == fsnotify.Remove || event.Op&fsnotify.Rename == fsnotify.Rename {
-					folder, file := filepath.Split(event.Name)
+				if event.Op&fsnotify.Create == fsnotify.Create {
 					re := regexp.MustCompile(regexFile)
-					if re.MatchString(filepath.Ext(file)) {
-						folder = filepath.Clean(folder)
-						// Quand c'est en local
-						//fmt.Println(folder)
-						//_, end := filepath.Split(GetEnv("dlna"))
-						//fmt.Println(end)
-						//if end != folder {
-						if GetEnv("dlna") != folder {
-							if err := watch.Remove(folder); err != nil {
-								log.Println(err)
-							}
+					if !_checkIfDir(event) {
+						if re.MatchString(filepath.Ext(event.Name)) {
+							go _fsNotifyCreateFile(event, re)
 						}
 					}
-				}
-				if event.Op&fsnotify.Write == fsnotify.Write {
-					time.Sleep(1000 * time.Millisecond)
-					if event.Name == "" {
-						break
-					}
-					_, file := filepath.Split(event.Name)
-					f, err := os.Stat(event.Name)
-					if err != nil {
-						break
-					}
-					if size != f.Size() {
-						size = f.Size()
-						break
-					}
-					size = 0
-					log.Printf("Name: %s\nSize: %d", f.Name(), f.Size())
-					log.Println(f)
-					log.Println(event.Name)
-					if f.IsDir() {
-						log.Println(event.Name)
-						err = filepath.Walk(event.Name, func(path string, info os.FileInfo, err error) error {
-							//files = append(files, path)
-							re := regexp.MustCompile(regexFile)
-							if re.MatchString(filepath.Ext(path)) {
-								println("c'est parti pour " + filepath.Dir(path))
-								err = watch.Add(filepath.Dir(path))
-								if err != nil {
-									print(err)
-								}
-							}
-							return nil
-						})
-					}
-					re := regexp.MustCompile(regexFile)
-					if re.MatchString(filepath.Ext(file)) {
-						log.Println("Détection de : ", file)
-						Process(event.Name)
-					}
 
 				}
 
-				if event.Op&fsnotify.Create == fsnotify.Create {
-					size = 0
-				}
 			case err := <-watch.Errors:
 				log.Println("error:", err)
 			}
@@ -95,4 +47,68 @@ func MyWatcher(location string) {
 	}
 
 	<-done
+}
+
+func _ticker(event fsnotify.Event, c *chan bool) {
+	ticker := time.NewTicker(5 * time.Second)
+	var size int64
+	go func() {
+		for range ticker.C {
+			f, err := os.Stat(event.Name)
+			if err != nil {
+				log.Println(err)
+			}
+			log.Printf("Name: %s\nInfo size: %d - Size: %d\n\n", event.Name, f.Size(), size)
+			if f.Size() != size || f.Size() < 100000 {
+				size = f.Size()
+				continue
+			}
+			ticker.Stop()
+			*c <- true
+		}
+	}()
+}
+
+func _stat(event fsnotify.Event) (os.FileInfo, fsnotify.Event) {
+	f, err := os.Stat(event.Name)
+	if err != nil {
+		log.Println(err)
+	}
+	return f, event
+}
+
+func _checkIfDir(event fsnotify.Event) bool {
+	f, e := _stat(event)
+	if f.IsDir() {
+		err := watch.Add(e.Name)
+		if err != nil {
+			log.Println(err)
+		}
+		return false
+	}
+	return false
+}
+
+func _fsNotifyCreateFile(event fsnotify.Event, re *regexp.Regexp) {
+	f, _ := _stat(event)
+
+	finish := make(chan bool)
+	go _ticker(event, &finish)
+	<-finish
+
+	if re.MatchString(filepath.Ext(f.Name())) {
+		log.Println("Détection de : ", filepath.Base(f.Name()))
+		folder := filepath.Dir(f.Name())
+		if folder != GetEnv("dlna") {
+			files, _ := ioutil.ReadDir(filepath.Dir(f.Name()))
+			if len(files) == 1 {
+				err := watch.Remove(f.Name())
+				if err != nil {
+					log.Println(err)
+				}
+			}
+		}
+		Process(event.Name)
+	}
+
 }
