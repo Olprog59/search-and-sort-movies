@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"os/exec"
 	"strconv"
 	"strings"
 	"time"
@@ -19,7 +18,6 @@ type Application struct {
 }
 
 var app Application
-var tickerTime int64
 
 func LaunchAppCheckUpdate(oldVersion string, name string) {
 	app.OldVersion = oldVersion
@@ -27,8 +25,10 @@ func LaunchAppCheckUpdate(oldVersion string, name string) {
 	ticker()
 }
 
+const duration = 10 * time.Second
+
 func ticker() {
-	tick := time.NewTicker(1 * time.Minute)
+	tick := time.NewTicker(duration)
 	go func() {
 		for range tick.C {
 			removeFileUpdate()
@@ -37,11 +37,9 @@ func ticker() {
 			same := checkIfNewVersion()
 			if same {
 				log.Println("démarrage de la mise à jour")
-				log.Println("il faut couper le ticker après avoir download l'app de mise à jour")
 				if downloadApp() {
 					log.Println("Ca y est c'est dl!!")
 					executeUpdate()
-					tick.Stop()
 					os.Exit(0)
 				}
 			}
@@ -81,14 +79,6 @@ func checkIfSiteIsOnline() {
 		log.Println("Le site n'est pas accessible. Un nouveau test se fera dans 1 minute")
 		time.Sleep(1 * time.Minute)
 		checkIfSiteIsOnline()
-	}
-}
-
-func executeUpdate() {
-	cmd := exec.Command("nohup", "./"+FileUpdateName, "&")
-	err := cmd.Start()
-	if err != nil {
-		log.Println("Erreur à l'éxécution de 'searchAndSortMoviesUpdate' !!!")
 	}
 }
 
