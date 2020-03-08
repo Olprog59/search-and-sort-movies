@@ -1,6 +1,7 @@
 package myapp
 
 import (
+	"encoding/json"
 	"flag"
 	"fmt"
 	"os"
@@ -10,11 +11,28 @@ import (
 func Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean string) {
 	vers := flag.Bool("v", false, "Indique la version de l'application")
 	scan := flag.Bool("scan", false, "Lancer le scan au démarrage de l'application")
-	sendmail := flag.Bool("email", false, "Envoie email test")
+	jsonFormat := flag.Bool("j", false, "Retour json")
 	flag.Parse()
 
+	buildInfo := BuildInfo{
+		BuildName:    BuildName,
+		BuildVersion: BuildVersion,
+		BuildDate:    BuildDate,
+		BuildClean:   BuildClean,
+		BuildHash:    BuildHash,
+		Os:           runtime.GOOS,
+		Architecture: runtime.GOARCH,
+	}
+
 	if *vers {
-		// flag.PrintDefaults()
+		if *jsonFormat {
+			prettyJson, err := json.MarshalIndent(&buildInfo, "", " ")
+			if err != nil {
+				fmt.Println(err)
+			}
+			fmt.Printf("%s\n", string(prettyJson))
+			os.Exit(1)
+		}
 		fmt.Printf("Name: %s\n", BuildName)
 		fmt.Printf("Version: %s\n", BuildVersion)
 		fmt.Printf("Git Commit Hash: %s\n", BuildHash)
@@ -27,11 +45,6 @@ func Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean string) {
 
 	if *scan {
 		startScan()
-	}
-
-	if *sendmail {
-		//SendMail("", "")
-		os.Exit(1)
 	}
 
 }

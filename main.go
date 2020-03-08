@@ -18,7 +18,7 @@ var (
 	BuildHash    string
 	BuildDate    string
 	BuildClean   string
-	BuildName    = "search-and-sort-movies"
+	BuildName    = "search-and-sort-movies-" + runtime.GOOS + "-" + runtime.GOARCH
 	count        int
 	ticker       *time.Ticker
 )
@@ -29,9 +29,10 @@ func init() {
 }
 
 func main() {
+	//isFlags := make(chan bool)
 	myapp.Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean)
-	fmt.Printf("\n\nBuild Version: %s\nBuild Date: %s\n\n", BuildVersion, BuildDate)
-	log.Printf("\n\nBuild Version: %s\nBuild Date: %s\n\n", BuildVersion, BuildDate)
+	//<- isFlags
+
 	// Write log to file : log_SearchAndSort
 	f, err := os.OpenFile(myapp.LOGFILE, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
@@ -39,6 +40,12 @@ func main() {
 	}
 	defer f.Close()
 	log.SetOutput(f)
+
+	log.Printf("\n\nBuild Version: %s\nBuild Date: %s\n\n", BuildVersion, BuildDate)
+	// Start test update application auto
+	myapp.LaunchAppCheckUpdate(BuildVersion, BuildName)
+
+	// End test update application auto
 
 	// Check if it's the first connection
 	if firstConnect() {
