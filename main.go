@@ -10,7 +10,6 @@ import (
 	"runtime"
 	"search-and-sort-movies/myapp"
 	"strings"
-	"time"
 )
 
 var (
@@ -19,8 +18,8 @@ var (
 	BuildDate    string
 	BuildClean   string
 	BuildName    = "search-and-sort-movies-" + runtime.GOOS + "-" + runtime.GOARCH
-	count        int
-	ticker       *time.Ticker
+	//count        int
+	//ticker       *time.Ticker
 )
 
 func init() {
