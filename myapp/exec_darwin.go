@@ -4,13 +4,14 @@ import (
 	"log"
 	"os"
 	"os/exec"
+	"path/filepath"
 	"syscall"
 )
 
 func executeUpdate() {
 	folder, err := os.Getwd()
 
-	binary, lookErr := exec.LookPath("sh")
+	binary, lookErr := exec.LookPath("bash")
 	if lookErr != nil {
 		panic(lookErr)
 	}

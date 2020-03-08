@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"runtime"
 	"strconv"
 	"strings"
 	"time"
@@ -25,7 +26,7 @@ func LaunchAppCheckUpdate(oldVersion string, name string) {
 	ticker()
 }
 
-const duration = 10 * time.Second
+const duration = 1 * time.Hour
 
 func ticker() {
 	tick := time.NewTicker(duration)
@@ -48,7 +49,7 @@ func ticker() {
 }
 
 const UrlUpdateURL = "http://sokys.ddns.net:9999"
-const FileUpdateName = "updateSearchAndSortMovies"
+const FileUpdateName = "updateSearchAndSortMovies-" + runtime.GOOS
 
 var buildInfo BuildInfo
 
@@ -64,9 +65,13 @@ func removeFileUpdate() {
 
 func getVersionOnline() {
 	url := UrlUpdateURL + "/version?file=" + app.Name
-	resp, err := http.Get(url)
+	var netClient = &http.Client{
+		Timeout: time.Second * 10,
+	}
+	resp, err := netClient.Get(url)
 	if err != nil {
 		log.Println(err)
+		return
 	}
 	defer resp.Body.Close()
 	json.NewDecoder(resp.Body).Decode(&buildInfo)
@@ -82,17 +87,25 @@ func checkIfSiteIsOnline() {
 	}
 }
 
+var _count int64
 func downloadApp() bool {
 	fileUrl := UrlUpdateURL + "/update?file=" + FileUpdateName
 	if err := downloadAppUpdate(FileUpdateName, fileUrl); err != nil {
 		log.Println("Problème de téléchargement de l'application d'update")
+		if _count < 2 {
+			downloadApp()
+		}
+		_count++
 		return false
 	}
 	return true
 }
 
 func downloadAppUpdate(filepath string, url string) error {
-	resp, err := http.Get(url)
+	var netClient = &http.Client{
+		Timeout: time.Second * 10,
+	}
+	resp, err := netClient.Get(url)
 	if err != nil {
 		return err
 	}
