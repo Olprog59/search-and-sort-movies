@@ -14,6 +14,16 @@ func Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean string) {
 	jsonFormat := flag.Bool("j", false, "Retour jsonFormat")
 	flag.Parse()
 
+	buildInfo := BuildInfo{
+		BuildName:    BuildName,
+		BuildVersion: BuildVersion,
+		BuildDate:    BuildDate,
+		BuildClean:   BuildClean,
+		BuildHash:    BuildHash,
+		Os:           runtime.GOOS,
+		Architecture: runtime.GOARCH,
+	}
+
 	if *vers {
 		if *jsonFormat {
 			prettyJson, err := json.MarshalIndent(&buildInfo, "", " ")

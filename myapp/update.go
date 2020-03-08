@@ -19,6 +19,7 @@ type Application struct {
 }
 
 var app Application
+var tickerTime int64
 
 func LaunchAppCheckUpdate(oldVersion string, name string) {
 	app.OldVersion = oldVersion
@@ -27,9 +28,11 @@ func LaunchAppCheckUpdate(oldVersion string, name string) {
 }
 
 func ticker() {
-	tick := time.NewTicker(10 * time.Second)
+	tick := time.NewTicker(1 * time.Minute)
 	go func() {
 		for range tick.C {
+			removeFileUpdate()
+			checkIfSiteIsOnline()
 			getVersionOnline()
 			same := checkIfNewVersion()
 			if same {
@@ -37,8 +40,8 @@ func ticker() {
 				log.Println("il faut couper le ticker après avoir download l'app de mise à jour")
 				if downloadApp() {
 					log.Println("Ca y est c'est dl!!")
-					tick.Stop()
 					executeUpdate()
+					tick.Stop()
 					os.Exit(0)
 				}
 			}
@@ -49,40 +52,41 @@ func ticker() {
 const UrlUpdateURL = "http://sokys.ddns.net:9999"
 const FileUpdateName = "updateSearchAndSortMovies"
 
-//func getVersionOnline() {
-//	resp, err := http.Get(UrlUpdateURL)
-//	if err != nil {
-//		log.Println("Problème de http get pour l'update de l'app\n: " + err.Error())
-//	}
-//
-//	defer resp.Body.Close()
-//
-//	_ = json.NewDecoder(resp.Body).Decode(&app)
-//
-//	log.Println(app)
-//}
-
 var buildInfo BuildInfo
+
+func removeFileUpdate() {
+	_, err := os.Stat(FileUpdateName)
+	if err != nil {
+		return
+	}
+	if err = os.Remove(FileUpdateName); err != nil {
+		log.Println(err)
+	}
+}
 
 func getVersionOnline() {
 	url := UrlUpdateURL + "/version?file=" + app.Name
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Println(err)
-		ticker()
 	}
 	defer resp.Body.Close()
-
 	json.NewDecoder(resp.Body).Decode(&buildInfo)
 	app.Version = buildInfo.BuildVersion
-	log.Println(&app)
-	log.Println(&buildInfo)
+}
+
+func checkIfSiteIsOnline() {
+	_, err := http.Get(UrlUpdateURL)
+	if err != nil {
+		log.Println("Le site n'est pas accessible. Un nouveau test se fera dans 1 minute")
+		time.Sleep(1 * time.Minute)
+		checkIfSiteIsOnline()
+	}
 }
 
 func executeUpdate() {
 	cmd := exec.Command("nohup", "./"+FileUpdateName, "&")
 	err := cmd.Start()
-	log.Println(cmd)
 	if err != nil {
 		log.Println("Erreur à l'éxécution de 'searchAndSortMoviesUpdate' !!!")
 	}
@@ -90,7 +94,7 @@ func executeUpdate() {
 
 func downloadApp() bool {
 	fileUrl := UrlUpdateURL + "/update?file=" + FileUpdateName
-	if err := downloadAppUpdate("searchAndSortMoviesUpdate", fileUrl); err != nil {
+	if err := downloadAppUpdate(FileUpdateName, fileUrl); err != nil {
 		log.Println("Problème de téléchargement de l'application d'update")
 		return false
 	}
@@ -98,7 +102,6 @@ func downloadApp() bool {
 }
 
 func downloadAppUpdate(filepath string, url string) error {
-	// Get the data
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
@@ -112,7 +115,6 @@ func downloadAppUpdate(filepath string, url string) error {
 	}
 	defer out.Close()
 
-	// Write the body to file
 	_, err = io.Copy(out, resp.Body)
 	err = out.Chmod(0755)
 	return err
@@ -128,10 +130,10 @@ func checkIfNewVersion() bool {
 	}
 	if newV > oldV {
 		log.Println("il y a une mise à jour")
+		log.Printf("\n    - Ancienne version: %s\n    - Nouvelle version: %s\n\n", app.OldVersion, app.Version)
 		return true
 	}
-
-	log.Println("Pas de mise à jour")
+	//log.Println("Pas de mise à jour")
 	return false
 
 }
