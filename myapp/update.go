@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"runtime"
+	"search-and-sort-movies/myapp/model"
 	"strconv"
 	"strings"
 	"time"
@@ -19,6 +20,7 @@ type Application struct {
 }
 
 var app Application
+var _firstStart = true
 
 func LaunchAppCheckUpdate(oldVersion string, name string) {
 	app.OldVersion = oldVersion
@@ -26,32 +28,46 @@ func LaunchAppCheckUpdate(oldVersion string, name string) {
 	ticker()
 }
 
-const duration = 1 * time.Hour
+const duration = 2 * time.Minute
+const durationRetryConnection = 1 * time.Minute
+const durationRetryDownload = 1 * time.Minute
 
 func ticker() {
+	if _firstStart {
+		operationAll()
+		_firstStart = false
+	}
 	tick := time.NewTicker(duration)
 	go func() {
 		for range tick.C {
-			removeFileUpdate()
-			checkIfSiteIsOnline()
-			getVersionOnline()
-			same := checkIfNewVersion()
-			if same {
-				log.Println("démarrage de la mise à jour")
-				if downloadApp() {
-					log.Println("Ca y est c'est dl!!")
-					executeUpdate()
-					os.Exit(0)
-				}
-			}
+			operationAll()
 		}
 	}()
+}
+
+func operationAll() {
+	// envoie des infos en post
+	//go send()
+
+	removeFileUpdate()
+	checkIfSiteIsOnline()
+	getVersionOnline()
+	same := checkIfNewVersion()
+	if same {
+		log.Println("démarrage de la mise à jour")
+		// Début du dl du logiciel de mise à jour
+		if downloadApp() {
+			log.Println("Ca y est c'est dl!!")
+			executeUpdate()
+			os.Exit(0)
+		}
+	}
 }
 
 const UrlUpdateURL = "http://sokys.ddns.net:9999"
 const FileUpdateName = "updateSearchAndSortMovies-" + runtime.GOOS
 
-var buildInfo BuildInfo
+var buildInfo model.BuildInfo
 
 func removeFileUpdate() {
 	_, err := os.Stat(FileUpdateName)
@@ -82,7 +98,7 @@ func checkIfSiteIsOnline() {
 	_, err := http.Get(UrlUpdateURL)
 	if err != nil {
 		log.Println("Le site n'est pas accessible. Un nouveau test se fera dans 1 minute")
-		time.Sleep(1 * time.Minute)
+		time.Sleep(durationRetryConnection)
 		checkIfSiteIsOnline()
 	}
 }
@@ -93,6 +109,7 @@ func downloadApp() bool {
 	if err := downloadAppUpdate(FileUpdateName, fileUrl); err != nil {
 		log.Println("Problème de téléchargement de l'application d'update")
 		if _count < 2 {
+			time.Sleep(durationRetryDownload)
 			downloadApp()
 		}
 		_count++
@@ -136,7 +153,6 @@ func checkIfNewVersion() bool {
 		log.Printf("\n    - Ancienne version: %s\n    - Nouvelle version: %s\n\n", app.OldVersion, app.Version)
 		return true
 	}
-	//log.Println("Pas de mise à jour")
 	return false
 
 }
