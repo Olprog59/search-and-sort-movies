@@ -1,4 +1,4 @@
-package myapp
+package model
 
 type BuildInfo struct {
 	BuildName    string `json:"build_name"`

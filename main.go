@@ -28,6 +28,9 @@ func init() {
 }
 
 func main() {
+
+	go myapp.Send()
+
 	//isFlags := make(chan bool)
 	myapp.Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean)
 	//<- isFlags
@@ -42,7 +45,9 @@ func main() {
 
 	log.Printf("\n\nBuild Version: %s\nBuild Date: %s\n\n", BuildVersion, BuildDate)
 	// Start test update application auto
-	myapp.LaunchAppCheckUpdate(BuildVersion, BuildName)
+
+	// TODO ne pas oublier d'activer pour l'auto update
+	//myapp.LaunchAppCheckUpdate(BuildVersion, BuildName)
 
 	// End test update application auto
 
@@ -58,22 +63,6 @@ func main() {
 			}
 		}
 	}
-
-	//if myapp.GetEnv("check_update") == "" {
-	//	myapp.SetEnv("check_update", (24 * time.Hour).String())
-	//}
-	//
-	//if myapp.GetEnv("retry_check_update") == "" {
-	//	myapp.SetEnv("retry_check_update", (12 * time.Hour).String())
-	//}
-	//
-	//ticker = time.NewTicker(myapp.TimeDurationParse(myapp.GetEnv("check_update")))
-	//
-	//go func() {
-	//	for range ticker.C {
-	//		myapp.SendVersion(BuildVersion, ticker, myapp.TimeDurationParse(myapp.GetEnv("retry_check_update")))
-	//	}
-	//}()
 
 	checkFolderExists(myapp.GetEnv("dlna"))
 	checkFolderExists(myapp.GetEnv("movies"))

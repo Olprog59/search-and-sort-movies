@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"search-and-sort-movies/myapp/model"
 )
 
 func Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean string) {
@@ -16,7 +17,7 @@ func Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean string) {
 
 	flag.Parse()
 
-	buildInfo := BuildInfo{
+	buildInfo := model.BuildInfo{
 		BuildName:    BuildName,
 		BuildVersion: BuildVersion,
 		BuildDate:    BuildDate,
