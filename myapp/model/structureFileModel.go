@@ -2,20 +2,12 @@ package model
 
 import "time"
 
-type AllFiles struct {
-	Movie Movie `json:"movie"`
-	Serie Serie `json:"serie"`
-}
-
-type Movie struct {
-	Files []File `json:"files"`
+type Video struct {
+	Movie []File  `json:"files"`
+	Serie []Serie `json:"series"`
 }
 
 type Serie struct {
-	Folder []Folder `json:"folder"`
-}
-
-type Folder struct {
 	Name    string
 	Seasons []Season `json:"seasons"`
 }
@@ -28,5 +20,5 @@ type Season struct {
 type File struct {
 	Name   string    `json:"name"`
 	Date   time.Time `json:"date"`
-	Taille string    `json:"taille"`
+	Taille int64     `json:"taille"`
 }

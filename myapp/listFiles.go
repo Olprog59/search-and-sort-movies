@@ -8,39 +8,41 @@ import (
 	"search-and-sort-movies/myapp/model"
 )
 
-func getAllFiles() model.AllFiles {
-	return model.AllFiles{
+func getVideos() model.Video {
+	return model.Video{
 		Movie: getMovies(),
 		Serie: getSeries(),
 	}
 }
 
-func getMovies() model.Movie {
-	var movies model.Movie
+var videos model.Video
+
+func getMovies() []model.File {
+	videos.Movie = []model.File{}
 	err := filepath.Walk(GetEnv("movies"), func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			log.Printf("prevent panic by handling failure accessing a path %q: %v\n", path, err)
 			return err
 		}
-		if info.IsDir() {
+		if info.IsDir() || info.Name()[0] == '.' {
 			return nil
 		}
 		var file model.File
 		file.Name = info.Name()
 		file.Date = info.ModTime()
-		movies.Files = append(movies.Files, file)
-
+		file.Taille = info.Size()
+		videos.Movie = append(videos.Movie, file)
 		return nil
 	})
 	if err != nil {
 		log.Println(err)
 	}
-	return movies
+	return videos.Movie
 }
 
-func getSeries() model.Serie {
-	var series model.Serie
-	var folders model.Folder
+func getSeries() []model.Serie {
+	videos.Serie = []model.Serie{}
+	var serie model.Serie
 	var seasons model.Season
 	var re = regexp.MustCompile(`(?mi)season-\d+`)
 	err := filepath.Walk(GetEnv("series"), func(path string, info os.FileInfo, err error) error {
@@ -52,20 +54,20 @@ func getSeries() model.Serie {
 			return nil
 		}
 		if info.IsDir() && !re.MatchString(info.Name()) {
-			log.Printf("series folder: %d", len(series.Folder))
-			if info.Name() != folders.Name && series.Folder != nil {
-				series.Folder = append(series.Folder, folders)
-				folders = model.Folder{}
-				folders.Name = info.Name()
+			log.Printf("series folder: %d", len(serie.Seasons))
+			if info.Name() != serie.Name && serie.Seasons != nil {
+				videos.Serie = append(videos.Serie, serie)
+				serie = model.Serie{}
+				serie.Name = info.Name()
 				return nil
 			} else {
-				folders.Name = info.Name()
+				serie.Name = info.Name()
 				return nil
 			}
 		} else if info.IsDir() && re.MatchString(info.Name()) {
 			log.Printf("folders seasons: %d", len(seasons.Files))
 			if info.Name() != seasons.Name && seasons.Files != nil {
-				folders.Seasons = append(folders.Seasons, seasons)
+				serie.Seasons = append(serie.Seasons, seasons)
 				seasons = model.Season{}
 				seasons.Name = info.Name()
 				return nil
@@ -77,15 +79,15 @@ func getSeries() model.Serie {
 			var file model.File
 			file.Name = info.Name()
 			file.Date = info.ModTime()
+			file.Taille = info.Size()
 			seasons.Files = append(seasons.Files, file)
 			return nil
 		}
-		return nil
 	})
 	if err != nil {
 		log.Println(err)
 	}
-	folders.Seasons = append(folders.Seasons, seasons)
-	series.Folder = append(series.Folder, folders)
-	return series
+	serie.Seasons = append(serie.Seasons, seasons)
+	videos.Serie = append(videos.Serie, serie)
+	return videos.Serie
 }

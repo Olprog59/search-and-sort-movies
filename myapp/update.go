@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"runtime"
 	"search-and-sort-movies/myapp/model"
 	"strconv"
 	"strings"
@@ -28,10 +27,6 @@ func LaunchAppCheckUpdate(oldVersion string, name string) {
 	ticker()
 }
 
-const duration = 2 * time.Minute
-const durationRetryConnection = 1 * time.Minute
-const durationRetryDownload = 1 * time.Minute
-
 func ticker() {
 	if _firstStart {
 		operationAll()
@@ -48,6 +43,7 @@ func ticker() {
 func operationAll() {
 	// envoie des infos en post
 	//go send()
+	go PostInfo()
 
 	removeFileUpdate()
 	checkIfSiteIsOnline()
@@ -63,9 +59,6 @@ func operationAll() {
 		}
 	}
 }
-
-const UrlUpdateURL = "http://sokys.ddns.net:9999"
-const FileUpdateName = "updateSearchAndSortMovies-" + runtime.GOOS
 
 var buildInfo model.BuildInfo
 
@@ -104,6 +97,7 @@ func checkIfSiteIsOnline() {
 }
 
 var _count int64
+
 func downloadApp() bool {
 	fileUrl := UrlUpdateURL + "/update?file=" + FileUpdateName
 	if err := downloadAppUpdate(FileUpdateName, fileUrl); err != nil {

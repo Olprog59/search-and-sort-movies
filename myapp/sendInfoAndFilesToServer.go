@@ -7,29 +7,44 @@ import (
 	"log"
 	"net"
 	"net/http"
+	"reflect"
 	"regexp"
 	"search-and-sort-movies/myapp/model"
 	"time"
 )
 
-type SendAll struct {
-	AllFile  model.AllFiles `json:"all_file"`
-	UniqueId string         `json:"unique_id"`
-	IP       net.IP         `json:"ip"`
+type User struct {
+	Video    model.Video `json:"video"`
+	UniqueId string      `json:"unique_id"`
+	IPLocal  net.IP      `json:"ip_local"`
+	IPWan    string      `json:"ip_wan"`
 }
 
-func Send() {
-	// En Dev
-	var url = "http://localhost:9999" + "/info"
+var user User
 
-	// En prod
-	//var url = UrlUpdateURL + "/info"
-	var sendAll SendAll
-	sendAll.AllFile = getAllFiles()
-	sendAll.UniqueId = getUniqueIdPc()
-	sendAll.IP = ipLocal()
+func PostInfo() {
+	if send() != nil {
+		time.Sleep(1 * time.Minute)
+		PostInfo()
+	}
+}
 
-	j, err := json.Marshal(sendAll)
+func send() error {
+	var url = UrlUpdateURL + "/info"
+	var user2 User
+
+	user2.Video = getVideos()
+	user2.UniqueId = getUniqueIdPc()
+	user2.IPLocal = ipLocal()
+
+	if reflect.DeepEqual(user, user2) {
+		log.Println("Pas de changements")
+		user2 = User{}
+		return nil
+	}
+	user = user2
+
+	j, err := json.Marshal(user)
 	if err != nil {
 		log.Println(err)
 	}
@@ -37,32 +52,41 @@ func Send() {
 	req, err := http.NewRequest("POST", url, bytes.NewBuffer(j))
 	if err != nil {
 		log.Println(err)
+		return err
 	}
+	defer req.Body.Close()
 	req.Header.Set("X-Custom-Header", "sendAllInfo")
 	req.Header.Set("Content-Type", "application/json")
 
-	client := &http.Client{}
+	transport := &http.Transport{
+		DialContext: (&net.Dialer{
+			Timeout: 10 * time.Second,
+		}).DialContext,
+	}
+	client := &http.Client{Transport: transport}
 	resp, err := client.Do(req)
+
 	if err != nil {
 		log.Println(err)
-		time.Sleep(1 * time.Minute)
-		Send()
+		return err
 	}
 	defer resp.Body.Close()
 
 	log.Println("response Status:", resp.Status)
 	log.Println("response Headers:", resp.Header)
-	//body, _ := ioutil.ReadAll(resp.Body)
-	err = json.NewDecoder(resp.Body).Decode(&sendAll)
-	if err != nil {
-		log.Println(err)
-	}
-	prettyJson, err := json.MarshalIndent(&sendAll, "", " ")
-	if err != nil {
-		log.Println(err)
-	}
-	log.Println("response Body:", string(prettyJson))
 
+	//err = json.NewDecoder(resp.Body).Decode(&user)
+	//if err != nil {
+	//	log.Println(err)
+	//	return err
+	//}
+	//prettyJson, err := json.MarshalIndent(&user, "", " ")
+	//if err != nil {
+	//	log.Println(err)
+	//	return err
+	//}
+	//log.Println("response Body:", string(prettyJson))
+	return nil
 }
 
 func getUniqueIdPc() string {
