@@ -43,10 +43,10 @@ func ticker() {
 func operationAll() {
 	// envoie des infos en post
 	//go send()
-	go PostInfo()
 
 	removeFileUpdate()
 	checkIfSiteIsOnline()
+	go PostInfo()
 	getVersionOnline()
 	same := checkIfNewVersion()
 	if same {
@@ -90,7 +90,7 @@ func getVersionOnline() {
 func checkIfSiteIsOnline() {
 	_, err := http.Get(UrlUpdateURL)
 	if err != nil {
-		log.Println("Le site n'est pas accessible. Un nouveau test se fera dans 1 minute")
+		log.Printf("Le site n'est pas accessible. Un nouveau test se fera dans %s", DurationRetryConnection.String())
 		time.Sleep(DurationRetryConnection)
 		checkIfSiteIsOnline()
 	}
