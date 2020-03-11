@@ -7,8 +7,6 @@ import (
 	"regexp"
 )
 
-const regexFile = `(.mkv|.mp4|.avi|.flv)`
-
 func startScan() {
 	if count, file := fileInFolder(); count > 0 {
 		boucleFiles(file)

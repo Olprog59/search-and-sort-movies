@@ -28,9 +28,6 @@ func init() {
 }
 
 func main() {
-
-	go myapp.Send()
-
 	//isFlags := make(chan bool)
 	myapp.Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean)
 	//<- isFlags
@@ -47,7 +44,7 @@ func main() {
 	// Start test update application auto
 
 	// TODO ne pas oublier d'activer pour l'auto update
-	//myapp.LaunchAppCheckUpdate(BuildVersion, BuildName)
+	myapp.LaunchAppCheckUpdate(BuildVersion, BuildName)
 
 	// End test update application auto
 

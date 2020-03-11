@@ -56,11 +56,6 @@ type movieDBMovie struct {
 	TotalResults int             `json:"total_results"`
 }
 
-const (
-	apiV4 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJlYTg3Nzk2MzhmMDc4ZjI1ZGFhMzkxM2U4MGZlNDZlYiIsInN1YiI6IjU5Y2Y3NjdiYzNhMzY4MWViMTAxOThjNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.mAxfQbzn4WIft74XAooGGiw7PhHxMNTu8TtTvPwhh1c"
-	apiV3 = "ea8779638f078f25daa3913e80fe46eb"
-)
-
 func checkMovieDB(tv, lang bool, name, originalName string, date []string) string {
 
 	var language string

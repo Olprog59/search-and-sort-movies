@@ -18,12 +18,6 @@ type Config struct {
 	Group            string `json:"group"`
 }
 
-const (
-	FOLDER_CONFIG = "./searchMoviesConfig"
-	LOGFILE       = FOLDER_CONFIG + string(os.PathSeparator) + "log_SearchAndSort"
-	ConfigFile    = FOLDER_CONFIG + string(os.PathSeparator) + ".config.json"
-)
-
 // GetEnv :
 func GetEnv(key string) string {
 	checkIfConfigFileIsExist()
