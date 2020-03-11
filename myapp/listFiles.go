@@ -54,7 +54,6 @@ func getSeries() []model.Serie {
 			return nil
 		}
 		if info.IsDir() && !re.MatchString(info.Name()) {
-			log.Printf("series folder: %d", len(serie.Seasons))
 			if info.Name() != serie.Name && serie.Seasons != nil {
 				videos.Serie = append(videos.Serie, serie)
 				serie = model.Serie{}
@@ -65,7 +64,6 @@ func getSeries() []model.Serie {
 				return nil
 			}
 		} else if info.IsDir() && re.MatchString(info.Name()) {
-			log.Printf("folders seasons: %d", len(seasons.Files))
 			if info.Name() != seasons.Name && seasons.Files != nil {
 				serie.Seasons = append(serie.Seasons, seasons)
 				seasons = model.Season{}

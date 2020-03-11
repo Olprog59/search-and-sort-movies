@@ -39,7 +39,6 @@ func send() error {
 	user2.IPWan = ipWan()
 
 	if reflect.DeepEqual(user, user2) {
-		log.Println("Pas de changements")
 		user2 = User{}
 		return nil
 	}
@@ -72,21 +71,7 @@ func send() error {
 		return err
 	}
 	defer resp.Body.Close()
-
-	log.Println("response Status:", resp.Status)
-	log.Println("response Headers:", resp.Header)
-
-	//err = json.NewDecoder(resp.Body).Decode(&user)
-	//if err != nil {
-	//	log.Println(err)
-	//	return err
-	//}
-	//prettyJson, err := json.MarshalIndent(&user, "", " ")
-	//if err != nil {
-	//	log.Println(err)
-	//	return err
-	//}
-	//log.Println("response Body:", string(prettyJson))
+	log.Println("Mise à jour de la bdd sur le server distant de sam")
 	return nil
 }
 
