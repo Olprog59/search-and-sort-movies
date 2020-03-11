@@ -12,9 +12,9 @@ const (
 
 	regexFile = `(.mkv|.mp4|.avi|.flv)`
 
-	duration                = 1 * time.Hour
-	durationRetryConnection = 1 * time.Hour
-	durationRetryDownload   = 1 * time.Hour
+	DURATION                = 1 * time.Hour
+	DurationRetryConnection = 1 * time.Hour
+	DurationRetryDownload   = 1 * time.Hour
 
 	// Dev
 	//UrlUpdateURL = "http://localhost:9999" + "/info"
@@ -22,8 +22,8 @@ const (
 	// Prod
 	UrlUpdateURL   = "http://sokys.ddns.net:9999"
 	FileUpdateName = "updateSearchAndSortMovies-" + runtime.GOOS
-	FOLDER_CONFIG  = "./searchMoviesConfig"
+	FolderConfig   = "./searchMoviesConfig"
 
-	LOGFILE    = FOLDER_CONFIG + string(os.PathSeparator) + "log_SearchAndSort"
-	ConfigFile = FOLDER_CONFIG + string(os.PathSeparator) + ".config.json"
+	LOGFILE    = FolderConfig + string(os.PathSeparator) + "log_SearchAndSort"
+	ConfigFile = FolderConfig + string(os.PathSeparator) + ".config.json"
 )

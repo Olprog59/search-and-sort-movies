@@ -36,6 +36,7 @@ func send() error {
 	user2.Video = getVideos()
 	user2.UniqueId = getUniqueIdPc()
 	user2.IPLocal = ipLocal()
+	user2.IPWan = ipWan()
 
 	if reflect.DeepEqual(user, user2) {
 		log.Println("Pas de changements")
@@ -119,4 +120,15 @@ func ipLocal() net.IP {
 		}
 	}
 	return nil
+}
+
+func ipWan() string {
+	resp, err := http.Get("https://ifconfig.me/all.json")
+	if err != nil {
+		log.Println("Pas possible d'accéder à ifconfig.me/all.json")
+	}
+	defer resp.Body.Close()
+	var ip model.IPWan
+	_ = json.NewDecoder(resp.Body).Decode(&ip)
+	return ip.IPAddr
 }

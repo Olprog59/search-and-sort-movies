@@ -51,8 +51,8 @@ func SetEnv(key, value string) {
 
 // CheckIfConfigFileIsExist : Create file is not exist
 func checkIfConfigFileIsExist() {
-	if _, err := os.Stat(FOLDER_CONFIG); os.IsNotExist(err) {
-		os.Mkdir(FOLDER_CONFIG, os.ModeSticky|0755)
+	if _, err := os.Stat(FolderConfig); os.IsNotExist(err) {
+		os.Mkdir(FolderConfig, os.ModeSticky|0755)
 	}
 
 	// detect if file exists
