@@ -32,7 +32,7 @@ func ticker() {
 		operationAll()
 		_firstStart = false
 	}
-	tick := time.NewTicker(duration)
+	tick := time.NewTicker(DURATION)
 	go func() {
 		for range tick.C {
 			operationAll()
@@ -91,7 +91,7 @@ func checkIfSiteIsOnline() {
 	_, err := http.Get(UrlUpdateURL)
 	if err != nil {
 		log.Println("Le site n'est pas accessible. Un nouveau test se fera dans 1 minute")
-		time.Sleep(durationRetryConnection)
+		time.Sleep(DurationRetryConnection)
 		checkIfSiteIsOnline()
 	}
 }
@@ -103,7 +103,7 @@ func downloadApp() bool {
 	if err := downloadAppUpdate(FileUpdateName, fileUrl); err != nil {
 		log.Println("Problème de téléchargement de l'application d'update")
 		if _count < 2 {
-			time.Sleep(durationRetryDownload)
+			time.Sleep(DurationRetryDownload)
 			downloadApp()
 		}
 		_count++
