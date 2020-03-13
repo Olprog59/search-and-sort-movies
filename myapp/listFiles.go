@@ -59,10 +59,25 @@ func getSeries() []model.Serie {
 				videos.Serie = append(videos.Serie, serie)
 				serie = model.Serie{}
 				serie.Name = info.Name()
+				if serie.Name != "" {
+					serie.Image = model.GetImage(serie.Name, true)
+				}
+				return nil
+			} else if info.Name() != serie.Name && len(seasons.Files) > 0 {
+				serie.Seasons = append(serie.Seasons, seasons)
+				seasons = model.Season{}
+				videos.Serie = append(videos.Serie, serie)
+				serie = model.Serie{}
+				serie.Name = info.Name()
+				if serie.Name != "" {
+					serie.Image = model.GetImage(serie.Name, true)
+				}
 				return nil
 			} else {
 				serie.Name = info.Name()
-				serie.Image = model.GetImage(serie.Name, true)
+				if serie.Name != "" {
+					serie.Image = model.GetImage(serie.Name, true)
+				}
 				return nil
 			}
 		} else if info.IsDir() && re.MatchString(info.Name()) {
