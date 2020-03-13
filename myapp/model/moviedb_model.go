@@ -53,16 +53,17 @@ func GetImage(movie string, serie bool) string {
 
 	movie, year := splitVideos(movie, serie)
 	if serie {
-		if year != "" {
-			url += "&first_air_date_year=$year"
-		}
 		url = fmt.Sprintf("https://api.themoviedb.org/3/search/tv?api_key=%s&query=%s&page=1&include_adult=true", apiMovieDB, movie)
-	} else {
 		if year != "" {
-			url += "&year=$year"
+			url += "&first_air_date_year=" + year
 		}
+	} else {
 		url = fmt.Sprintf("https://api.themoviedb.org/3/search/movie?api_key=%s&query=%s&page=1&include_adult=true", apiMovieDB, movie)
+		if year != "" {
+			url += "&year=" + year
+		}
 	}
+	log.Println(url)
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Println("Pas possible d'accéder à https://api.themoviedb.org/")
@@ -100,7 +101,7 @@ func splitVideosyear(movie string) (string, string) {
 	var re = regexp.MustCompile(`(?m)\d{4}`)
 	if re.MatchString(movie) {
 		year := re.FindString(movie)
-		// -2 pour retirer le caractère avant (+ | -)
+		// -1 pour retirer le caractère avant (+ | -)
 		movie = movie[0 : len(movie)-len(year)-1]
 		return movie, year
 	}
