@@ -56,6 +56,10 @@ func getSeries() []model.Serie {
 		}
 		if info.IsDir() && !re.MatchString(info.Name()) {
 			if info.Name() != serie.Name && serie.Seasons != nil {
+				if len(seasons.Files) > 0 {
+					serie.Seasons = append(serie.Seasons, seasons)
+					seasons = model.Season{}
+				}
 				videos.Serie = append(videos.Serie, serie)
 				serie = model.Serie{}
 				serie.Name = info.Name()
