@@ -51,7 +51,7 @@ const apiMovieDB = "ea8779638f078f25daa3913e80fe46eb"
 func GetImage(movie string, serie bool) string {
 	var url string
 
-	movie, year := splitVideos(movie)
+	movie, year := splitVideos(movie, serie)
 	if year != "" {
 		url += "&year=$year"
 	}
@@ -83,9 +83,9 @@ func GetImage(movie string, serie bool) string {
 	return ""
 }
 
-func splitVideos(movie string) (string, string) {
+func splitVideos(movie string, serie bool) (string, string) {
 	ext := filepath.Ext(movie)
-	if ext != "" {
+	if ext != "" && !serie {
 		movie = movie[0 : len(movie)-len(ext)]
 	}
 	movie = slugify.Slugify(movie)
@@ -101,5 +101,5 @@ func splitVideosyear(movie string) (string, string) {
 		movie = movie[0 : len(movie)-len(year)-1]
 		return movie, year
 	}
-	return "", ""
+	return movie, ""
 }

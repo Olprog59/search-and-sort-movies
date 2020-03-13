@@ -3,6 +3,7 @@ package myapp
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"github.com/denisbrodbeck/machineid"
 	"log"
 	"net"
@@ -34,6 +35,7 @@ func send() error {
 	var user2 User
 
 	user2.Video = getVideos()
+	fmt.Println(user2.Video)
 	user2.UniqueId = getUniqueIdPc()
 	user2.IPLocal = ipLocal()
 	user2.IPWan = ipWan()
