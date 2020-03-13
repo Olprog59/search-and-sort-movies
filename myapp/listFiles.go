@@ -62,7 +62,7 @@ func getSeries() []model.Serie {
 				return nil
 			} else {
 				serie.Name = info.Name()
-				serie.Image = model.GetImage(serie.Name, false)
+				serie.Image = model.GetImage(serie.Name, true)
 				return nil
 			}
 		} else if info.IsDir() && re.MatchString(info.Name()) {
