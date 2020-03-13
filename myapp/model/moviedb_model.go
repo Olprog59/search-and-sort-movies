@@ -52,12 +52,15 @@ func GetImage(movie string, serie bool) string {
 	var url string
 
 	movie, year := splitVideos(movie, serie)
-	if year != "" {
-		url += "&year=$year"
-	}
 	if serie {
+		if year != "" {
+			url += "&first_air_date_year=$year"
+		}
 		url = fmt.Sprintf("https://api.themoviedb.org/3/search/tv?api_key=%s&query=%s&page=1&include_adult=true", apiMovieDB, movie)
 	} else {
+		if year != "" {
+			url += "&year=$year"
+		}
 		url = fmt.Sprintf("https://api.themoviedb.org/3/search/movie?api_key=%s&query=%s&page=1&include_adult=true", apiMovieDB, movie)
 	}
 	resp, err := http.Get(url)
