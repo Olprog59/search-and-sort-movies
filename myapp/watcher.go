@@ -58,11 +58,12 @@ func _ticker(event fsnotify.Event, c *chan bool) {
 			if err != nil {
 				log.Println(err)
 			}
-			log.Printf("Name: %s\nInfo size: %d - Size: %d\n\n", event.Name, f.Size(), size)
+			//log.Printf("Name: %s\n\tInfo size: %d - Size: %d\n\n", event.Name, f.Size(), size)
 			if f.Size() != size || f.Size() < 100000 {
 				size = f.Size()
 				continue
 			}
+			log.Println()
 			ticker.Stop()
 			*c <- true
 		}
