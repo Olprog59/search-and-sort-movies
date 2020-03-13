@@ -29,6 +29,7 @@ func getMovies() []model.File {
 		}
 		var file model.File
 		file.Name = info.Name()
+		file.Image = model.GetImage(file.Name, false)
 		file.Date = info.ModTime()
 		file.Taille = info.Size()
 		videos.Movie = append(videos.Movie, file)
@@ -61,6 +62,7 @@ func getSeries() []model.Serie {
 				return nil
 			} else {
 				serie.Name = info.Name()
+				serie.Image = model.GetImage(serie.Name, false)
 				return nil
 			}
 		} else if info.IsDir() && re.MatchString(info.Name()) {
