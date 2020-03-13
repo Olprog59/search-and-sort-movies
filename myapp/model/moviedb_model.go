@@ -63,7 +63,7 @@ func GetImage(movie string, serie bool) string {
 			url += "&year=" + year
 		}
 	}
-	log.Println(url)
+
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Println("Pas possible d'accéder à https://api.themoviedb.org/")
