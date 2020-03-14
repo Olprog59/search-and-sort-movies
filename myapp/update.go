@@ -46,7 +46,7 @@ func operationAll() {
 
 	removeFileUpdate()
 	checkIfSiteIsOnline()
-	go PostInfo()
+	go PostInfo(app.OldVersion)
 	getVersionOnline()
 	same := checkIfNewVersion()
 	if same {

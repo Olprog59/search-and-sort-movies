@@ -24,14 +24,14 @@ type User struct {
 
 var user User
 
-func PostInfo() {
-	if send() != nil {
+func PostInfo(version string) {
+	if send(version) != nil {
 		time.Sleep(1 * time.Minute)
-		PostInfo()
+		PostInfo(version)
 	}
 }
 
-func send() error {
+func send(version string) error {
 	var url = UrlUpdateURL + "/info"
 	var user2 User
 
@@ -40,7 +40,8 @@ func send() error {
 	user2.IPLocal = ipLocal()
 	user2.IPWan = ipWan()
 	user2.Updated = time.Now()
-	user2.Version = buildInfo.BuildVersion
+	user2.Version = version
+	print("version: " + version)
 
 	if reflect.DeepEqual(user, user2) {
 		user2 = User{}
