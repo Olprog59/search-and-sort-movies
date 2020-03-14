@@ -28,10 +28,12 @@ func getMovies() []model.File {
 			return nil
 		}
 		var file model.File
+		var id int64
 		file.Name = info.Name()
-		file.Image = model.GetImage(file.Name, false)
+		file.Image, id = model.GetImage(file.Name, false)
 		file.Date = info.ModTime()
 		file.Taille = info.Size()
+		file.TrailerKey, file.TrailerSite = model.GetTrailer(id, false)
 		videos.Movie = append(videos.Movie, file)
 		return nil
 	})
@@ -63,9 +65,7 @@ func getSeries() []model.Serie {
 				videos.Serie = append(videos.Serie, serie)
 				serie = model.Serie{}
 				serie.Name = info.Name()
-				if serie.Name != "" {
-					serie.Image = model.GetImage(serie.Name, true)
-				}
+				serie = getMovieDb(serie)
 				return nil
 			} else if info.Name() != serie.Name && len(seasons.Files) > 0 {
 				serie.Seasons = append(serie.Seasons, seasons)
@@ -73,15 +73,11 @@ func getSeries() []model.Serie {
 				videos.Serie = append(videos.Serie, serie)
 				serie = model.Serie{}
 				serie.Name = info.Name()
-				if serie.Name != "" {
-					serie.Image = model.GetImage(serie.Name, true)
-				}
+				serie = getMovieDb(serie)
 				return nil
 			} else {
 				serie.Name = info.Name()
-				if serie.Name != "" {
-					serie.Image = model.GetImage(serie.Name, true)
-				}
+				serie = getMovieDb(serie)
 				return nil
 			}
 		} else if info.IsDir() && re.MatchString(info.Name()) {
@@ -109,4 +105,13 @@ func getSeries() []model.Serie {
 	serie.Seasons = append(serie.Seasons, seasons)
 	videos.Serie = append(videos.Serie, serie)
 	return videos.Serie
+}
+
+func getMovieDb(serie model.Serie) model.Serie {
+	var id int64
+	if serie.Name != "" {
+		serie.Image, id = model.GetImage(serie.Name, true)
+		serie.TrailerKey, serie.TrailerSite = model.GetTrailer(id, true)
+	}
+	return serie
 }

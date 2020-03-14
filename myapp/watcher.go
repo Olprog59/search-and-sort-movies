@@ -7,6 +7,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"search-and-sort-movies/myapp/constants"
 	"time"
 )
 
@@ -27,7 +28,7 @@ func MyWatcher(location string) {
 			select {
 			case event := <-watch.Events:
 				if event.Op&fsnotify.Create == fsnotify.Create {
-					re := regexp.MustCompile(regexFile)
+					re := regexp.MustCompile(constants.RegexFile)
 					if !_checkIfDir(event) {
 						if re.MatchString(filepath.Ext(event.Name)) {
 							go _fsNotifyCreateFile(event, re)

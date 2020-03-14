@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"reflect"
 	"regexp"
+	"search-and-sort-movies/myapp/constants"
 	"search-and-sort-movies/myapp/model"
 	"time"
 )
@@ -32,7 +33,7 @@ func PostInfo(version string) {
 }
 
 func send(version string) error {
-	var url = UrlUpdateURL + "/info"
+	var url = constants.UrlUpdateURL + "/info"
 	var user2 User
 
 	user2.Video = getVideos()
@@ -41,7 +42,6 @@ func send(version string) error {
 	user2.IPWan = ipWan()
 	user2.Updated = time.Now()
 	user2.Version = version
-	print("version: " + version)
 
 	if reflect.DeepEqual(user, user2) {
 		user2 = User{}

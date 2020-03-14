@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"search-and-sort-movies/myapp/constants"
 	"strconv"
 	"strings"
 
@@ -85,9 +86,9 @@ func checkMovieDB(tv, lang bool, name, originalName string, date []string) strin
 	}
 	var url string
 	if len(originalName) > 0 && tvOrMovie == "movie" {
-		url = "https://api.themoviedb.org/3/search/" + tvOrMovie + "?api_key=" + apiV3 + language + "&query=" + originalName + year
+		url = "https://api.themoviedb.org/3/search/" + tvOrMovie + "?api_key=" + constants.ApiV3 + language + "&query=" + originalName + year
 	} else {
-		url = "https://api.themoviedb.org/3/search/" + tvOrMovie + "?api_key=" + apiV3 + language + "&query=" + name + year
+		url = "https://api.themoviedb.org/3/search/" + tvOrMovie + "?api_key=" + constants.ApiV3 + language + "&query=" + name + year
 	}
 	log.Println(url)
 	return url
