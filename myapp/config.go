@@ -5,6 +5,7 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
+	"search-and-sort-movies/myapp/constants"
 )
 
 // Config :
@@ -22,13 +23,13 @@ type Config struct {
 func GetEnv(key string) string {
 	checkIfConfigFileIsExist()
 
-	jsonType := readJSONFile(ConfigFile)
+	jsonType := readJSONFile(constants.ConfigFile)
 
 	if jsonType[key] == nil {
 		SetEnv(key, "")
 	}
 
-	jsonType = readJSONFile(ConfigFile)
+	jsonType = readJSONFile(constants.ConfigFile)
 
 	return jsonType[key].(string)
 }
@@ -37,7 +38,7 @@ func GetEnv(key string) string {
 func SetEnv(key, value string) {
 	checkIfConfigFileIsExist()
 	// open file using READ & WRITE permission
-	jsonType := readJSONFile(ConfigFile)
+	jsonType := readJSONFile(constants.ConfigFile)
 
 	jsonType[key] = value
 
@@ -46,17 +47,17 @@ func SetEnv(key, value string) {
 		log.Println(err)
 	}
 
-	writeJSONFile(ConfigFile, j)
+	writeJSONFile(constants.ConfigFile, j)
 }
 
 // CheckIfConfigFileIsExist : Create file is not exist
 func checkIfConfigFileIsExist() {
-	if _, err := os.Stat(FolderConfig); os.IsNotExist(err) {
-		os.Mkdir(FolderConfig, os.ModeSticky|0755)
+	if _, err := os.Stat(constants.FolderConfig); os.IsNotExist(err) {
+		os.Mkdir(constants.FolderConfig, os.ModeSticky|0755)
 	}
 
 	// detect if file exists
-	var _, err = os.Stat(ConfigFile)
+	var _, err = os.Stat(constants.ConfigFile)
 
 	// create file if not exists
 	if os.IsNotExist(err) {
@@ -73,7 +74,7 @@ func checkIfConfigFileIsExist() {
 			log.Println(err)
 		}
 
-		writeJSONFile(ConfigFile, j)
+		writeJSONFile(constants.ConfigFile, j)
 	}
 }
 

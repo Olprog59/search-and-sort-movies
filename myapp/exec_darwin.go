@@ -5,6 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"search-and-sort-movies/myapp/constants"
 	"syscall"
 )
 
@@ -15,7 +16,7 @@ func executeUpdate() {
 	if lookErr != nil {
 		panic(lookErr)
 	}
-	err = syscall.Exec(binary, []string{binary, "-c", filepath.Clean(folder + "/" + FileUpdateName)}, os.Environ())
+	err = syscall.Exec(binary, []string{binary, "-c", filepath.Clean(folder + "/" + constants.FileUpdateName)}, os.Environ())
 	if err != nil {
 		log.Println(err.Error())
 	}

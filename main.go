@@ -9,6 +9,7 @@ import (
 	"path"
 	"runtime"
 	"search-and-sort-movies/myapp"
+	"search-and-sort-movies/myapp/constants"
 	"strings"
 )
 
@@ -33,7 +34,7 @@ func main() {
 	//<- isFlags
 
 	// Write log to file : log_SearchAndSort
-	f, err := os.OpenFile(myapp.LOGFILE, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	f, err := os.OpenFile(constants.LOGFILE, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Fatalf("error opening file: %v", err)
 	}
@@ -81,7 +82,7 @@ func checkFolderExists(folder string) {
 }
 
 func firstConnect() bool {
-	_, err := os.Stat(myapp.ConfigFile)
+	_, err := os.Stat(constants.ConfigFile)
 
 	if os.IsNotExist(err) {
 		log.Println(err)
@@ -91,7 +92,7 @@ func firstConnect() bool {
 }
 
 func readJSONFileConsole() {
-	f, err := ioutil.ReadFile(myapp.ConfigFile)
+	f, err := ioutil.ReadFile(constants.ConfigFile)
 
 	if err != nil {
 		log.Println(err)

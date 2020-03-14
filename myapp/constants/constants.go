@@ -1,4 +1,4 @@
-package myapp
+package constants
 
 import (
 	"os"
@@ -7,10 +7,10 @@ import (
 )
 
 const (
-	apiV4 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJlYTg3Nzk2MzhmMDc4ZjI1ZGFhMzkxM2U4MGZlNDZlYiIsInN1YiI6IjU5Y2Y3NjdiYzNhMzY4MWViMTAxOThjNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.mAxfQbzn4WIft74XAooGGiw7PhHxMNTu8TtTvPwhh1c"
-	apiV3 = "ea8779638f078f25daa3913e80fe46eb"
+	//apiV4 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJlYTg3Nzk2MzhmMDc4ZjI1ZGFhMzkxM2U4MGZlNDZlYiIsInN1YiI6IjU5Y2Y3NjdiYzNhMzY4MWViMTAxOThjNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.mAxfQbzn4WIft74XAooGGiw7PhHxMNTu8TtTvPwhh1c"
+	ApiV3 = "ea8779638f078f25daa3913e80fe46eb"
 
-	regexFile = `(.mkv|.mp4|.avi|.flv)`
+	RegexFile = `(.mkv|.mp4|.avi|.flv)`
 
 	// Dev
 	//DURATION                = 1 * time.Minute

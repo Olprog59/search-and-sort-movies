@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"path/filepath"
 	"regexp"
+	"search-and-sort-movies/myapp/constants"
 	"strings"
 )
 
@@ -46,19 +47,75 @@ type Result struct {
 	PosterPath       string  `json:"poster_path"`
 }
 
-const apiMovieDB = "ea8779638f078f25daa3913e80fe46eb"
+func UnmarshalTrailer(data []byte) (Trailer, error) {
+	var r Trailer
+	err := json.Unmarshal(data, &r)
+	return r, err
+}
 
-func GetImage(movie string, serie bool) string {
+func (r *Trailer) Marshal() ([]byte, error) {
+	return json.Marshal(r)
+}
+
+type Trailer struct {
+	ID      int64           `json:"id"`
+	Results []ResultTrailer `json:"results"`
+}
+
+type ResultTrailer struct {
+	ID       string `json:"id"`
+	Iso6391  string `json:"iso_639_1"`
+	Iso31661 string `json:"iso_3166_1"`
+	Key      string `json:"key"`
+	Name     string `json:"name"`
+	Site     string `json:"site"`
+	Size     int64  `json:"size"`
+	Type     string `json:"type"`
+}
+
+func GetTrailer(id int64, serie bool) (string, string) {
+	if id == 0 {
+		return "", ""
+	}
+	var videos string
+	if serie {
+		videos = "tv"
+	} else {
+		videos = "movie"
+	}
+	url := fmt.Sprintf("https://api.themoviedb.org/3/%s/%d/videos?api_key=%s&language=en-US", videos, id, constants.ApiV3)
+	resp, err := http.Get(url)
+	if err != nil {
+		log.Println("Pas possible d'accéder à https://api.themoviedb.org/")
+	}
+	defer resp.Body.Close()
+
+	var bodyBytes []byte
+	if resp.Body != nil {
+		bodyBytes, _ = ioutil.ReadAll(resp.Body)
+	}
+	var trailer Trailer
+	trailer, err = UnmarshalTrailer(bodyBytes)
+	if err != nil {
+		log.Println(err)
+	}
+	if len(trailer.Results) > 0 {
+		return trailer.Results[0].Key, trailer.Results[0].Site
+	}
+	return "", ""
+}
+
+func GetImage(movie string, serie bool) (string, int64) {
 	var url string
 
 	movie, year := splitVideos(movie, serie)
 	if serie {
-		url = fmt.Sprintf("https://api.themoviedb.org/3/search/tv?api_key=%s&query=%s&page=1&include_adult=true", apiMovieDB, movie)
+		url = fmt.Sprintf("https://api.themoviedb.org/3/search/tv?api_key=%s&query=%s&page=1&include_adult=true", constants.ApiV3, movie)
 		if year != "" {
 			url += "&first_air_date_year=" + year
 		}
 	} else {
-		url = fmt.Sprintf("https://api.themoviedb.org/3/search/movie?api_key=%s&query=%s&page=1&include_adult=true", apiMovieDB, movie)
+		url = fmt.Sprintf("https://api.themoviedb.org/3/search/movie?api_key=%s&query=%s&page=1&include_adult=true", constants.ApiV3, movie)
 		if year != "" {
 			url += "&year=" + year
 		}
@@ -81,10 +138,10 @@ func GetImage(movie string, serie bool) string {
 	}
 	if len(moviedb.Results) > 0 {
 		if moviedb.Results[0].PosterPath != "" {
-			return "https://image.tmdb.org/t/p/w500" + moviedb.Results[0].PosterPath
+			return "https://image.tmdb.org/t/p/w500" + moviedb.Results[0].PosterPath, moviedb.Results[0].ID
 		}
 	}
-	return ""
+	return "", 0
 }
 
 func splitVideos(movie string, serie bool) (string, string) {

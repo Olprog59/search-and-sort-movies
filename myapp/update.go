@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"search-and-sort-movies/myapp/constants"
 	"search-and-sort-movies/myapp/model"
 	"strconv"
 	"strings"
@@ -32,7 +33,7 @@ func ticker() {
 		operationAll()
 		_firstStart = false
 	}
-	tick := time.NewTicker(DURATION)
+	tick := time.NewTicker(constants.DURATION)
 	go func() {
 		for range tick.C {
 			operationAll()
@@ -44,36 +45,36 @@ func operationAll() {
 	// envoie des infos en post
 	//go send()
 
-	removeFileUpdate()
-	checkIfSiteIsOnline()
+	//removeFileUpdate()
+	//checkIfSiteIsOnline()
 	go PostInfo(app.OldVersion)
-	getVersionOnline()
-	same := checkIfNewVersion()
-	if same {
-		log.Println("démarrage de la mise à jour")
-		// Début du dl du logiciel de mise à jour
-		if downloadApp() {
-			log.Println("Ca y est c'est dl!!")
-			executeUpdate()
-			os.Exit(0)
-		}
-	}
+	//getVersionOnline()
+	//same := checkIfNewVersion()
+	//if same {
+	//	log.Println("démarrage de la mise à jour")
+	//	// Début du dl du logiciel de mise à jour
+	//	if downloadApp() {
+	//		log.Println("Ca y est c'est dl!!")
+	//		executeUpdate()
+	//		os.Exit(0)
+	//	}
+	//}
 }
 
 var buildInfo model.BuildInfo
 
 func removeFileUpdate() {
-	_, err := os.Stat(FileUpdateName)
+	_, err := os.Stat(constants.FileUpdateName)
 	if err != nil {
 		return
 	}
-	if err = os.Remove(FileUpdateName); err != nil {
+	if err = os.Remove(constants.FileUpdateName); err != nil {
 		log.Println(err)
 	}
 }
 
 func getVersionOnline() {
-	url := UrlUpdateURL + "/version?file=" + app.Name
+	url := constants.UrlUpdateURL + "/version?file=" + app.Name
 	var netClient = &http.Client{
 		Timeout: time.Second * 10,
 	}
@@ -88,10 +89,10 @@ func getVersionOnline() {
 }
 
 func checkIfSiteIsOnline() {
-	_, err := http.Get(UrlUpdateURL)
+	_, err := http.Get(constants.UrlUpdateURL)
 	if err != nil {
-		log.Printf("Le site n'est pas accessible. Un nouveau test se fera dans %s", DurationRetryConnection.String())
-		time.Sleep(DurationRetryConnection)
+		log.Printf("Le site n'est pas accessible. Un nouveau test se fera dans %s", constants.DurationRetryConnection.String())
+		time.Sleep(constants.DurationRetryConnection)
 		checkIfSiteIsOnline()
 	}
 }
@@ -99,11 +100,11 @@ func checkIfSiteIsOnline() {
 var _count int64
 
 func downloadApp() bool {
-	fileUrl := UrlUpdateURL + "/update?file=" + FileUpdateName
-	if err := downloadAppUpdate(FileUpdateName, fileUrl); err != nil {
+	fileUrl := constants.UrlUpdateURL + "/update?file=" + constants.FileUpdateName
+	if err := downloadAppUpdate(constants.FileUpdateName, fileUrl); err != nil {
 		log.Println("Problème de téléchargement de l'application d'update")
 		if _count < 2 {
-			time.Sleep(DurationRetryDownload)
+			time.Sleep(constants.DurationRetryDownload)
 			downloadApp()
 		}
 		_count++

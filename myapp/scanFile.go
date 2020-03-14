@@ -5,6 +5,7 @@ import (
 	"os"
 	"path/filepath"
 	"regexp"
+	"search-and-sort-movies/myapp/constants"
 )
 
 func startScan() {
@@ -22,7 +23,7 @@ func fileInFolder() (int, []string) {
 		if info.IsDir() {
 			return nil
 		}
-		re := regexp.MustCompile(regexFile)
+		re := regexp.MustCompile(constants.RegexFile)
 		if re.MatchString(filepath.Ext(path)) {
 			files = append(files, path)
 			count++
