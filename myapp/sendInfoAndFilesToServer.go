@@ -19,6 +19,7 @@ type User struct {
 	IPLocal  net.IP      `json:"ip_local"`
 	IPWan    string      `json:"ip_wan"`
 	Updated  time.Time   `json:"updated_time"`
+	Version  string      `json:"version"`
 }
 
 var user User
@@ -39,6 +40,7 @@ func send() error {
 	user2.IPLocal = ipLocal()
 	user2.IPWan = ipWan()
 	user2.Updated = time.Now()
+	user2.Version = buildInfo.BuildVersion
 
 	if reflect.DeepEqual(user, user2) {
 		user2 = User{}
