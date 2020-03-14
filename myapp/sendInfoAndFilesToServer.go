@@ -3,7 +3,6 @@ package myapp
 import (
 	"bytes"
 	"encoding/json"
-	"fmt"
 	"github.com/denisbrodbeck/machineid"
 	"log"
 	"net"
@@ -19,6 +18,7 @@ type User struct {
 	UniqueId string      `json:"unique_id"`
 	IPLocal  net.IP      `json:"ip_local"`
 	IPWan    string      `json:"ip_wan"`
+	Updated  time.Time   `json:"updated_time"`
 }
 
 var user User
@@ -35,10 +35,10 @@ func send() error {
 	var user2 User
 
 	user2.Video = getVideos()
-	fmt.Println(user2.Video)
 	user2.UniqueId = getUniqueIdPc()
 	user2.IPLocal = ipLocal()
 	user2.IPWan = ipWan()
+	user2.Updated = time.Now()
 
 	if reflect.DeepEqual(user, user2) {
 		user2 = User{}
