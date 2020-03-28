@@ -11,6 +11,7 @@ import (
 	"regexp"
 	"search-and-sort-movies/myapp/constants"
 	"strings"
+	"time"
 )
 
 func UnmarshalMovieDBModel(data []byte) (MovieDBModel, error) {
@@ -87,6 +88,8 @@ func GetTrailer(id int64, serie bool) (string, string) {
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Println("Pas possible d'accéder à https://api.themoviedb.org/")
+		time.Sleep(1 * time.Minute)
+		GetTrailer(id, serie)
 	}
 	defer resp.Body.Close()
 
@@ -124,6 +127,8 @@ func GetImage(movie string, serie bool) (string, int64) {
 	resp, err := http.Get(url)
 	if err != nil {
 		log.Println("Pas possible d'accéder à https://api.themoviedb.org/")
+		time.Sleep(1 * time.Minute)
+		GetImage(movie, serie)
 	}
 	defer resp.Body.Close()
 

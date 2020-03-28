@@ -116,6 +116,8 @@ func ipWan() string {
 	resp, err := http.Get("https://ifconfig.me/all.json")
 	if err != nil {
 		log.Println("Pas possible d'accéder à ifconfig.me/all.json")
+		time.Sleep(1 * time.Minute)
+		ipWan()
 	}
 	defer resp.Body.Close()
 	var ip model.IPWan
