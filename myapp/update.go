@@ -45,20 +45,21 @@ func operationAll() {
 	// envoie des infos en post
 	//go send()
 
-	//removeFileUpdate()
-	//checkIfSiteIsOnline()
-	go PostInfo(app.OldVersion)
-	//getVersionOnline()
-	//same := checkIfNewVersion()
-	//if same {
-	//	log.Println("démarrage de la mise à jour")
-	//	// Début du dl du logiciel de mise à jour
-	//	if downloadApp() {
-	//		log.Println("Ca y est c'est dl!!")
-	//		executeUpdate()
-	//		os.Exit(0)
-	//	}
-	//}
+	removeFileUpdate()
+	checkIfSiteIsOnline()
+	getVersionOnline()
+	different := checkIfNewVersion()
+	if different {
+		log.Println("démarrage de la mise à jour")
+		// Début du dl du logiciel de mise à jour
+		if downloadApp() {
+			log.Println("Ca y est c'est dl!!")
+			executeUpdate()
+			os.Exit(0)
+		}
+	} else {
+		go PostInfo(app.OldVersion)
+	}
 }
 
 var buildInfo model.BuildInfo
