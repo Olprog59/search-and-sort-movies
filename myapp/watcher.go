@@ -31,7 +31,7 @@ func MyWatcher(location string) {
 					re := regexp.MustCompile(constants.RegexFile)
 					if !_checkIfDir(event) {
 						if re.MatchString(filepath.Ext(event.Name)) {
-							go _fsNotifyCreateFile(event, re)
+							_fsNotifyCreateFile(event, re)
 						}
 					}
 
