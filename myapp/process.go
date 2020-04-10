@@ -130,10 +130,13 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 		log.Printf("Move Or Rename File : %s", err)
 		return false
 	}
-	if filepath.Dir(filePathOld) != GetEnv("dlna") {
-		file, _ := ioutil.ReadDir(filePathOld)
+	folder := filepath.Dir(filePathOld)
+	if folder != GetEnv("dlna") {
+		file, _ := ioutil.ReadDir(folder)
 		if len(file) == 0 {
-			err := os.Remove(filepath.Dir(filePathOld))
+			_ = watch.Remove(folder)
+			log.Println("remove 1 : ", folder)
+			err := os.Remove(folder)
 			if err != nil {
 				log.Println("error de suppression de dossier")
 			}
@@ -217,7 +220,7 @@ func checkIfSizeIsSame(oldFile, newFile string) error {
 func removeAfterCopy(oldFile string) {
 	go func() {
 		time.Sleep(time.Second * 10)
-
+		log.Println("remove 2 : ", oldFile)
 		err := os.Remove(oldFile)
 		if err != nil {
 			log.Println(err)

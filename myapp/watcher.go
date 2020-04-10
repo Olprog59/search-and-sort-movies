@@ -2,7 +2,6 @@ package myapp
 
 import (
 	"github.com/fsnotify/fsnotify"
-	"io/ioutil"
 	"log"
 	"os"
 	"path/filepath"
@@ -31,18 +30,17 @@ func MyWatcher(location string) {
 					re := regexp.MustCompile(constants.RegexFile)
 					if !_checkIfDir(event) {
 						if re.MatchString(filepath.Ext(event.Name)) {
-							_fsNotifyCreateFile(event, re)
+							go _fsNotifyCreateFile(event, re)
 						}
 					}
-
 				}
-
 			case err := <-watch.Errors:
 				log.Println("error:", err)
 			}
 		}
 	}()
 
+	log.Printf("add watcher %s\n", location)
 	if err := watch.Add(location); err != nil {
 		log.Fatal(err)
 	}
@@ -51,8 +49,9 @@ func MyWatcher(location string) {
 }
 
 func _ticker(event fsnotify.Event, c *chan bool) {
-	ticker := time.NewTicker(5 * time.Second)
-	var size int64
+	ticker := time.NewTicker(1 * time.Second)
+	//ticker := time.NewTicker(5 * time.Second)
+	var size int64 = -1
 	go func() {
 		for range ticker.C {
 			f, err := os.Stat(event.Name)
@@ -60,11 +59,10 @@ func _ticker(event fsnotify.Event, c *chan bool) {
 				log.Println(err)
 			}
 			//log.Printf("Name: %s\n\tInfo size: %d - Size: %d\n\n", event.Name, f.Size(), size)
-			if f.Size() != size || f.Size() < 100000 {
+			if f.Size() != size {
 				size = f.Size()
 				continue
 			}
-			log.Println()
 			ticker.Stop()
 			*c <- true
 		}
@@ -81,36 +79,44 @@ func _stat(event fsnotify.Event) (os.FileInfo, fsnotify.Event) {
 
 func _checkIfDir(event fsnotify.Event) bool {
 	f, e := _stat(event)
-	if f.IsDir() {
+	if f.IsDir() && filepath.Dir(f.Name()) != GetEnv("dlna") {
 		err := watch.Add(e.Name)
+		log.Printf("add watcher %s\n", e.Name)
 		if err != nil {
 			log.Println(err)
 		}
-		return false
+		return true
 	}
 	return false
 }
 
 func _fsNotifyCreateFile(event fsnotify.Event, re *regexp.Regexp) {
-	f, _ := _stat(event)
+	_, e := _stat(event)
 
 	finish := make(chan bool)
 	go _ticker(event, &finish)
 	<-finish
 
-	if re.MatchString(filepath.Ext(f.Name())) {
-		log.Println("Détection de : ", filepath.Base(f.Name()))
-		folder := filepath.Dir(f.Name())
-		if folder != GetEnv("dlna") {
-			files, _ := ioutil.ReadDir(filepath.Dir(f.Name()))
-			if len(files) == 1 {
-				err := watch.Remove(f.Name())
-				if err != nil {
-					log.Println(err)
-				}
-			}
-		}
+	if re.MatchString(filepath.Ext(e.Name)) {
+		log.Println("Détection de :", filepath.Base(e.Name))
+		//folder := filepath.Dir(e.Name)
 		Process(event.Name)
+		//if folder != GetEnv("dlna") {
+		//	files, _ := ioutil.ReadDir(folder)
+		//	var countFile = 0
+		//	for _, file := range files {
+		//		if file.Name()[0] != '.'{
+		//			countFile++
+		//		}
+		//	}
+		//	fmt.Println(countFile)
+		//	if countFile == 0 {
+		//		log.Printf("remove watcher %s\n", e.Name)
+		//		err := watch.Remove(folder)
+		//		if err != nil {
+		//			log.Println(err)
+		//		}
+		//	}
+		//}
 	}
-
 }
