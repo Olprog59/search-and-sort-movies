@@ -13,7 +13,7 @@ import (
 var watch *fsnotify.Watcher
 var err error
 
-func MyWatcher(location string) {
+func MyWaTcher(location string) {
 	watch, err = fsnotify.NewWatcher()
 	if err != nil {
 		log.Fatal(err)
@@ -36,6 +36,7 @@ func MyWatcher(location string) {
 				}
 			case err := <-watch.Errors:
 				log.Println("error:", err)
+				//close(done)
 			}
 		}
 	}()
@@ -79,6 +80,7 @@ func _stat(event fsnotify.Event) (os.FileInfo, fsnotify.Event) {
 
 func _checkIfDir(event fsnotify.Event) bool {
 	f, e := _stat(event)
+	log.Printf("f: %v, e: %v", f, e)
 	if f.IsDir() && filepath.Dir(f.Name()) != GetEnv("dlna") {
 		err := watch.Add(e.Name)
 		log.Printf("add watcher %s\n", e.Name)
