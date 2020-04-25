@@ -32,11 +32,10 @@ searchAndSort
 debug
 .vscode
 .idea
-a_trier
+a_trier/
 movies
 series
 app.db
-dlna
 
 \.DS_Store
 

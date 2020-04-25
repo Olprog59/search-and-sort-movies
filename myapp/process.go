@@ -38,7 +38,7 @@ func start(complete, dir, file string) {
 		if count > 1 {
 			originalName = ""
 		}
-		movie, _ := dbMovies(false, nameClean, originalName, strconv.Itoa(year))
+		movie, _ := dbMovies(false, nameClean, originalName)
 		if len(movie.Results) > 0 {
 			var path string
 			if year != 0 {
@@ -71,11 +71,7 @@ func start(complete, dir, file string) {
 		if count > 1 {
 			originalName = ""
 		}
-		serie, _ := dbSeries(false, serieName, originalName, strconv.Itoa(year))
-		//log.Println("-----------------------------")
-		//log.Println(serie)
-		//log.Println(serie.Results)
-		//log.Println("-----------------------------")
+		serie, _ := dbSeries(false, serieName, originalName)
 		if len(serie.Results) > 0 {
 			_, season, _ := slugSerieSeasonEpisode(serieNumber)
 			checkFolderSerie(complete, file, name, serieName, season)

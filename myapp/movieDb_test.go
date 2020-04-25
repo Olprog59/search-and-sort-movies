@@ -10,7 +10,6 @@ func Test_checkMovieDB(t *testing.T) {
 		lang     bool
 		name     string
 		original string
-		date     []string
 	}
 	tests := []struct {
 		name string
@@ -24,7 +23,6 @@ func Test_checkMovieDB(t *testing.T) {
 				false,
 				"transformers-the-last-knight",
 				"transformers-the-last-knight",
-				[]string{"2017"},
 			},
 			"https://api.themoviedb.org/3/search/movie?api_key=ea8779638f078f25daa3913e80fe46eb&query=transformers-the-last-knight&year=2017",
 		},
@@ -35,7 +33,6 @@ func Test_checkMovieDB(t *testing.T) {
 				false,
 				"the-flash-2014",
 				"the-flash-2014",
-				[]string{"2014"},
 			},
 			"https://api.themoviedb.org/3/search/tv?api_key=ea8779638f078f25daa3913e80fe46eb&query=the-flash&first_air_date_year=2014",
 		},
@@ -46,14 +43,13 @@ func Test_checkMovieDB(t *testing.T) {
 				false,
 				"brooklyn-nine-nine",
 				"brooklyn-nine-nine",
-				nil,
 			},
 			"https://api.themoviedb.org/3/search/tv?api_key=ea8779638f078f25daa3913e80fe46eb&query=brooklyn-nine-nine",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := checkMovieDB(tt.args.tv, tt.args.lang, tt.args.name, tt.args.original, tt.args.date); got != tt.want {
+			if got := checkMovieDB(tt.args.tv, tt.args.lang, tt.args.name, tt.args.original); got != tt.want {
 				t.Errorf("checkMovieDB() = %v, want %v", got, tt.want)
 			}
 		})
