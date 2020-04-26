@@ -1,4 +1,4 @@
-package myapp
+package update
 
 import (
 	"log"
@@ -12,7 +12,7 @@ import (
 func executeUpdate() {
 	folder, err := os.Getwd()
 
-	binary, lookErr := exec.LookPath("sh")
+	binary, lookErr := exec.LookPath("bash")
 	if lookErr != nil {
 		panic(lookErr)
 	}

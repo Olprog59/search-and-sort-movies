@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"search-and-sort-movies/myapp"
 	"search-and-sort-movies/myapp/constants"
+	"search-and-sort-movies/myapp/update"
 	"strings"
 )
 
@@ -45,7 +46,7 @@ func main() {
 	// Start test update application auto
 
 	// TODO ne pas oublier d'activer pour l'auto update
-	myapp.LaunchAppCheckUpdate(BuildVersion, BuildName)
+	update.LaunchAppCheckUpdate(BuildVersion, BuildName)
 
 	// End test update application auto
 

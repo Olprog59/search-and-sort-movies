@@ -13,7 +13,7 @@ import (
 var watch *fsnotify.Watcher
 var err error
 
-func MyWaTcher(location string) {
+func MyWatcher(location string) {
 	watch, err = fsnotify.NewWatcher()
 	if err != nil {
 		log.Fatal(err)
