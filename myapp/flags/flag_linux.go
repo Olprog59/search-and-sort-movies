@@ -1,4 +1,4 @@
-package myapp
+package flags
 
 import (
 	"encoding/json"
@@ -6,13 +6,14 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"search-and-sort-movies/myapp"
 	"search-and-sort-movies/myapp/model"
 )
 
 func Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean string) {
 	vers := flag.Bool("v", false, "Indique la version de l'application")
 	scan := flag.Bool("scan", false, "Lancer le scan au démarrage de l'application")
-	jsonFormat := flag.Bool("j", false, "Retour json")
+	jsonFormat := flag.Bool("j", false, "Retour jsonFormat")
 	flag.Parse()
 
 	buildInfo := model.BuildInfo{
@@ -45,7 +46,6 @@ func Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean string) {
 	}
 
 	if *scan {
-		startScan()
+		myapp.StartScan()
 	}
-
 }

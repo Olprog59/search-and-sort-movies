@@ -8,7 +8,7 @@ import (
 	"search-and-sort-movies/myapp/constants"
 )
 
-func startScan() {
+func StartScan() {
 	if count, file := fileInFolder(); count > 0 {
 		//boucleFiles(file)
 		// remove goroutine car je dois tester voir si cela cause le tri non complet des fichiers

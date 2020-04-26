@@ -20,36 +20,35 @@ type Application struct {
 	Name       string `json:"name"`
 }
 
-var app Application
 var _firstStart = true
 
-func LaunchAppCheckUpdate(oldVersion string, name string) {
-	app.OldVersion = oldVersion
-	app.Name = name
-	ticker()
+func (a *Application) LaunchAppCheckUpdate(oldVersion string, name string) {
+	a.OldVersion = oldVersion
+	a.Name = name
+	a.ticker()
 }
 
-func ticker() {
+func (a *Application) ticker() {
 	if _firstStart {
-		operationAll()
+		a.operationAll()
 		_firstStart = false
 	}
 	tick := time.NewTicker(constants.DURATION)
 	go func() {
 		for range tick.C {
-			operationAll()
+			a.operationAll()
 		}
 	}()
 }
 
-func operationAll() {
+func (a *Application) operationAll() {
 	// envoie des infos en post
 	//go send()
 
 	removeFileUpdate()
 	checkIfSiteIsOnline()
-	getVersionOnline()
-	different := checkIfNewVersion()
+	a.getVersionOnline()
+	different := a.checkIfNewVersion()
 	if different {
 		log.Println("démarrage de la mise à jour")
 		// Début du dl du logiciel de mise à jour
@@ -59,7 +58,7 @@ func operationAll() {
 			os.Exit(0)
 		}
 	} else {
-		go myapp.PostInfo(app.OldVersion)
+		go myapp.PostInfo(a.OldVersion)
 	}
 }
 
@@ -75,8 +74,8 @@ func removeFileUpdate() {
 	}
 }
 
-func getVersionOnline() {
-	url := constants.UrlUpdateURL + "/version?file=" + app.Name
+func (a *Application) getVersionOnline() {
+	url := constants.UrlUpdateURL + "/version?file=" + a.Name
 	var netClient = &http.Client{
 		Timeout: time.Second * 10,
 	}
@@ -87,7 +86,7 @@ func getVersionOnline() {
 	}
 	defer resp.Body.Close()
 	_ = json.NewDecoder(resp.Body).Decode(&buildInfo)
-	app.Version = buildInfo.BuildVersion
+	a.Version = buildInfo.BuildVersion
 }
 
 func checkIfSiteIsOnline() {
@@ -137,21 +136,20 @@ func downloadAppUpdate(filepath string, url string) error {
 	return err
 }
 
-func checkIfNewVersion() bool {
+func (a *Application) checkIfNewVersion() bool {
 	var oldV, newV int64
-	if strToInt64(app.OldVersion) != 0 {
-		oldV = strToInt64(app.OldVersion)
+	if strToInt64(a.OldVersion) != 0 {
+		oldV = strToInt64(a.OldVersion)
 	}
-	if strToInt64(app.Version) != 0 {
-		newV = strToInt64(app.Version)
+	if strToInt64(a.Version) != 0 {
+		newV = strToInt64(a.Version)
 	}
 	if newV > oldV {
 		log.Println("il y a une mise à jour")
-		log.Printf("\n    - Ancienne version: %s\n    - Nouvelle version: %s\n\n", app.OldVersion, app.Version)
+		log.Printf("\n    - Ancienne version: %s\n    - Nouvelle version: %s\n\n", a.OldVersion, a.Version)
 		return true
 	}
 	return false
-
 }
 
 func strToInt64(version string) (vv int64) {

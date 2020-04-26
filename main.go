@@ -10,6 +10,7 @@ import (
 	"runtime"
 	"search-and-sort-movies/myapp"
 	"search-and-sort-movies/myapp/constants"
+	"search-and-sort-movies/myapp/flags"
 	"search-and-sort-movies/myapp/update"
 	"strings"
 )
@@ -31,7 +32,7 @@ func init() {
 
 func main() {
 	//isFlags := make(chan bool)
-	myapp.Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean)
+	flags.Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean)
 	//<- isFlags
 
 	// Write log to file : log_SearchAndSort
@@ -46,7 +47,8 @@ func main() {
 	// Start test update application auto
 
 	// TODO ne pas oublier d'activer pour l'auto update
-	update.LaunchAppCheckUpdate(BuildVersion, BuildName)
+	var applicationUpdate update.Application
+	applicationUpdate.LaunchAppCheckUpdate(BuildVersion, BuildName)
 
 	// End test update application auto
 
