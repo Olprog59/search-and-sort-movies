@@ -52,6 +52,6 @@ func Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean string) {
 	}
 
 	if *windows {
-		HiddenWindow()
+		hiddenWindow()
 	}
 }

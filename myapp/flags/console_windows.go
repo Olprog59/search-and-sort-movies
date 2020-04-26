@@ -1,8 +1,8 @@
-package myapp
+package flags
 
 import "github.com/gonutz/w32"
 
-func HiddenWindow() {
+func hiddenWindow() {
 	console := w32.GetConsoleWindow()
 	if console != 0 {
 		_, consoleProcID := w32.GetWindowThreadProcessId(console)
