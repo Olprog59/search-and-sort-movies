@@ -71,11 +71,25 @@ type OriginalLanguage string
 //	It OriginalLanguage = "it"
 //)
 
-func getBingName(name string) string {
+func loopGetBingName(name string) string {
+	slug := slugify.New(slugify.Configuration{
+		ReplaceCharacter: '+',
+	})
+	name = slug.Slugify(name)
+	var proposition = getBingName(name)
 
-	var proposition = ""
+	for proposition != "" {
+		name = slug.Slugify(proposition)
+		proposition = getBingName(name)
+	}
+	return name
+}
+
+func getBingName(name string) string {
+	var proposition string
 
 	resp, _ := http.Get("https://www.bing.com/search?q=" + name)
+	log.Println("https://www.bing.com/search?q=" + name)
 
 	if resp.StatusCode != http.StatusOK {
 		log.Fatalf("response status code was %d\n", resp.StatusCode)
@@ -118,7 +132,7 @@ func getBingName(name string) string {
 						if atom.A == token.DataAtom {
 							tokenType = doc.Next()
 							token = doc.Token()
-							log.Println(html.TextToken == tokenType, atom.Strong == token.DataAtom)
+							//log.Println(html.TextToken == tokenType, atom.Strong == token.DataAtom)
 							if html.TextToken == tokenType {
 								proposition = fmt.Sprintf("%v", token)
 							}
@@ -150,11 +164,10 @@ func getBingName(name string) string {
 			}
 		}
 	}
-	log.Println(proposition)
 	return proposition
 }
 
-func checkMovieDB(tv, lang bool, name, originalName string) string {
+func (m *myFile) checkMovieDB(tv, lang bool, name string) string {
 
 	var language string
 
@@ -166,26 +179,28 @@ func checkMovieDB(tv, lang bool, name, originalName string) string {
 		name = slugRemoveYearSerieForSearchMovieDB(name)
 	}
 
-	slugify.New(slugify.Configuration{
+	slug := slugify.New(slugify.Configuration{
 		ReplaceCharacter: '+',
 	})
-	slugify.Slugify(originalName)
-	slugify.Slugify(name)
-	if newName := getBingName(originalName); newName != "" {
-		originalName = slugify.Slugify(newName)
-	}
-	if newName := getBingName(name); newName != "" {
-		name = slugify.Slugify(newName)
-	}
+
 	var url string
-	if len(originalName) > 0 {
-		url = "https://api.themoviedb.org/3/search/multi?api_key=" + constants.ApiV3 + language + "&query=" + originalName
-	} else {
-		url = "https://api.themoviedb.org/3/search/multi?api_key=" + constants.ApiV3 + language + "&query=" + name
+
+	//if len(originalName) > 0 {
+	//	slug.Slugify(originalName)
+	//	if newName := loopGetBingName(originalName); newName != "" {
+	//		originalName = slug.Slugify(newName)
+	//	}
+	//	url = "https://api.themoviedb.org/3/search/multi?api_key=" + constants.ApiV3 + language + "&query=" + originalName
+	//} else {
+	slug.Slugify(name)
+	if newName := loopGetBingName(name); newName != "" {
+		name = slug.Slugify(newName)
 	}
+	url = "https://api.themoviedb.org/3/search/multi?api_key=" + constants.ApiV3 + language + "&query=" + name
+	//}
+	m.bingName = name
 	log.Println(url)
 	return url
-
 }
 
 /**
@@ -202,13 +217,13 @@ func slugRemoveYearSerieForSearchMovieDB(name string) (new string) {
 	return slugify.Slugify(new)
 }
 
-func dbSeries(lang bool, name, original string) (MoviesDb, error) {
-	url := checkMovieDB(true, lang, name, original)
+func (m *myFile) dbSeries(lang bool, name string) (MoviesDb, error) {
+	url := m.checkMovieDB(true, lang, name)
 	return readJSONFromUrlTV(url)
 }
 
-func dbMovies(lang bool, name, original string) (MoviesDb, error) {
-	url := checkMovieDB(false, lang, name, original)
+func (m *myFile) dbMovies(lang bool, name string) (MoviesDb, error) {
+	url := m.checkMovieDB(false, lang, name)
 	return readJSONFromUrlMovie(url)
 }
 

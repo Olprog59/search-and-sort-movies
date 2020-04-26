@@ -9,7 +9,6 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
-	"net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -27,28 +26,30 @@ var (
 )
 
 type myFile struct {
-	file                 string
-	complete             string
-	name                 string
-	nameWithoutExtension string
-	transName            string
-	serieName            string
-	serieNumber          string
-	season               int
-	year                 int
-	episode              int
-	count                int
+	file           string
+	fileWithoutDir string
+	complete       string
+	name           string
+	bingName       string
+	transName      string
+	serieName      string
+	serieNumber    string
+	season         string
+	year           int
+	episode        string
+	count          int
 }
 
 func (m *myFile) Process() {
 	m.count = 0
-	m.complete = m.file
-	_, m.file = filepath.Split(m.complete)
+	_, m.complete = filepath.Split(m.file)
+	m.fileWithoutDir = m.complete
+	log.Println("complete: ", m.complete)
 	m.start("")
 }
 
 func (m *myFile) start(serieOrMovieOrBoth string) {
-	m.name, m.serieName, m.serieNumber, m.year = slugFile(m.file)
+	m.slugFile()
 	if m.serieName == "" || serieOrMovieOrBoth == "serie" {
 		m.isMovie()
 	} else {
@@ -57,50 +58,46 @@ func (m *myFile) start(serieOrMovieOrBoth string) {
 }
 
 func (m *myFile) isMovie() {
-	extension := filepath.Ext(m.name)
-	m.nameWithoutExtension = m.name[:len(m.name)-len(extension)]
-	originalName := m.file[:len(m.file)-len(extension)]
-	originalName = url.QueryEscape(originalName)
-	if m.count > 1 {
-		originalName = ""
-	}
+	extension := filepath.Ext(m.file)
+	log.Println("name: ", m.name)
 	var movie MoviesDb
 	if m.transName != "" {
-		movie, _ = dbMovies(false, m.transName, originalName)
+		movie, _ = m.dbMovies(false, m.transName)
 	} else {
-		movie, _ = dbMovies(false, m.nameWithoutExtension, originalName)
+		movie, _ = m.dbMovies(false, m.name)
 	}
 	if len(movie.Results) > 0 {
+		if m.bingName != "" {
+			m.name = slugify.Slugify(m.bingName)
+		}
 		var path1 string
+		m.complete = m.name + extension
 		if m.year != 0 {
-			path1 = movies + string(os.PathSeparator) + m.nameWithoutExtension + "-" + strconv.Itoa(m.year) + extension
+			path1 = movies + string(os.PathSeparator) + m.name + "-" + strconv.Itoa(m.year) + extension
 		} else {
-			path1 = movies + string(os.PathSeparator) + m.nameWithoutExtension + extension
+			path1 = movies + string(os.PathSeparator) + m.complete
 		}
 		if runtime.GOOS == "windows" {
-			copyFile(m.complete, movies+string(os.PathSeparator)+path1)
+			copyFile(m.file, movies+string(os.PathSeparator)+path1)
 			m.createFileForLearning()
 		} else {
-			if moveOrRenameFile(m.complete, path1) {
-				log.Printf("%s a bien été déplacé dans %s", m.name, path1)
+			if moveOrRenameFile(m.file, path1) {
+				log.Printf("%s a bien été déplacé dans %s", m.fileWithoutDir, path1)
 				m.createFileForLearning()
 			}
 		}
 	} else {
-		log.Printf("isMovie : %s", m.nameWithoutExtension)
-		m.isNotFindInMovieDb(m.nameWithoutExtension, "movie")
+		log.Printf("isMovie : %s", m.name)
+		m.isNotFindInMovieDb(m.name, "movie")
 	}
 }
 
 func (m *myFile) isSerie() {
-	originalName := m.file[:len(m.file)-len(filepath.Ext(m.name))-len(m.serieName)]
-	originalName = url.QueryEscape(originalName)
-	if m.count > 1 {
-		originalName = ""
-	}
-	serie, _ := dbSeries(false, m.serieName, originalName)
+	serie, _ := m.dbSeries(false, m.serieName)
 	if len(serie.Results) > 0 {
-		m.slugSerieSeasonEpisode()
+		if m.bingName != "" {
+			m.serieName = slugify.Slugify(m.bingName)
+		}
 		m.checkFolderSerie()
 	} else {
 		m.isNotFindInMovieDb(m.serieName, "serie")
@@ -125,7 +122,7 @@ func (m *myFile) isNotFindInMovieDb(name, serieOrMovie string) {
 
 func (m *myFile) checkFolderSerie() (string, string) {
 	// serieName, exist := folderExist(series, serieName)
-	newFolder := string(os.PathSeparator) + m.serieName + string(os.PathSeparator) + "season-" + strconv.Itoa(m.season)
+	newFolder := string(os.PathSeparator) + m.serieName + string(os.PathSeparator) + "season-" + m.season
 	folderOk := series + string(os.PathSeparator) + m.serieName
 	if _, err := os.Stat(folderOk); os.IsNotExist(err) {
 		log.Printf("Création du dossier : %s\n", m.serieName)
@@ -136,14 +133,14 @@ func (m *myFile) checkFolderSerie() (string, string) {
 		createFolder(series + newFolder)
 	}
 
-	finalFilePath := series + newFolder + string(os.PathSeparator) + m.name
+	finalFilePath := series + newFolder + string(os.PathSeparator) + m.complete
 
 	if runtime.GOOS == "windows" {
-		copyFile(m.complete, finalFilePath)
+		copyFile(m.file, finalFilePath)
 		m.createFileForLearning()
 	} else {
-		if moveOrRenameFile(m.complete, finalFilePath) {
-			log.Printf("%s a bien été déplacé dans %s", m.name, finalFilePath)
+		if moveOrRenameFile(m.file, finalFilePath) {
+			log.Printf("%s a bien été déplacé dans %s", m.fileWithoutDir, finalFilePath)
 			m.createFileForLearning()
 		}
 	}
@@ -154,7 +151,7 @@ func (m *myFile) translateName() {
 	slugify.New(slugify.Configuration{
 		ReplaceCharacter: ' ',
 	})
-	var n = m.nameWithoutExtension
+	var n = m.name
 	n = slugify.Slugify(n)
 	resp, _ := http.Get("https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=" + n)
 
@@ -299,7 +296,7 @@ func (m *myFile) createFileForLearning() {
 	if err != nil {
 		log.Println(err)
 	}
-	_, err = f.Write([]byte(fmt.Sprintf("%s, %s\n", m.file, m.name)))
+	_, err = f.Write([]byte(fmt.Sprintf("%s, %s\n", m.fileWithoutDir, m.complete)))
 	if err != nil {
 		log.Println(err)
 	}

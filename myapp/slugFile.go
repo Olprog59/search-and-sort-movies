@@ -11,79 +11,80 @@ import (
 	"github.com/Machiel/slugify"
 )
 
-func slugFile(file string) (name, serieName, serieNumberReturn string, year int) {
-	ext := filepath.Ext(file)
-	file = strings.ToLower(file[:len(file)-len(ext)])
-	file = slugify.Slugify(file)
+func (m *myFile) slugFile() {
+	ext := filepath.Ext(m.complete)
+	m.name = strings.ToLower(m.complete[:len(m.complete)-len(ext)])
+	m.name = slugify.Slugify(m.name)
+
 	var err error
 
 	video := regexp.MustCompile(`(?mi)-(french|dvdrip|multi|vostfr|dvd-r|bluray|bdrip|brrip|cam|ts|tc|vcd|md|ld|r[0-9]|xvid|divx|scr|dvdscr|repack|hdlight|720p|480p|1080p|2160p|uhd)`)
 	yearReg := regexp.MustCompile(`(?mi)-[0-9]{4}`)
 
 	serie := regexp.MustCompile(`(?mi)((s\d{1,2})(?:\W+)?(e?\d{1,2}))|(?:e\d{1,2})|(episode-(\d{2,3})-)`)
-	match := serie.FindAllStringSubmatch(file, -1)
-	var saison string
-	var episode string
+	match := serie.FindAllStringSubmatch(m.name, -1)
+
 	if len(match) > 0 {
 		for _, v := range match {
 			if v[2] == "" && v[4] == "" {
-				episode = formatSaisonNumberOuEpisode(v[0])
+				m.episode = formatSaisonNumberOuEpisode(v[0], 'e')
 			} else if v[5] != "" {
-				saison = "s00"
-				episode = "e" + v[5]
+				m.season = "s00"
+				m.episode = "e" + v[5]
 			} else {
-				saison = formatSaisonNumberOuEpisode(v[2])
-				episode = formatSaisonNumberOuEpisode(v[3])
+				m.season = formatSaisonNumberOuEpisode(v[2], 's')
+				m.episode = formatSaisonNumberOuEpisode(v[3], 'e')
 			}
 			break
 		}
-		serieNumberReturn = fmt.Sprintf("%s%s", saison, episode)
-		if len(serie.FindStringIndex(file)) > 0 {
-			serieName = file[:serie.FindStringIndex(file)[0]-1]
-			if len(yearReg.FindStringIndex(serieName)) > 0 {
-				year, err = strconv.Atoi(yearReg.FindString(serieName)[1:])
+		m.serieNumber = fmt.Sprintf("%s%s", m.season, m.episode)
+		if len(serie.FindStringIndex(m.name)) > 0 {
+			m.serieName = m.complete[:serie.FindStringIndex(m.name)[0]-1]
+			if len(yearReg.FindStringIndex(m.serieName)) > 0 {
+				m.year, err = strconv.Atoi(yearReg.FindString(m.serieName)[1:])
 				if err != nil {
 					log.Println(err)
 				}
-				name = serieName[:yearReg.FindStringIndex(serieName)[0]]
-				name = name + "-" + serieNumberReturn
+				m.name = m.serieName[:yearReg.FindStringIndex(m.serieName)[0]]
+				m.name = m.name + "-" + m.serieNumber
 			} else {
-				name = serieName + "-" + serieNumberReturn
+				m.name = m.serieName + "-" + m.serieNumber
 			}
 		}
 	} else {
-		if len(video.FindStringIndex(file)) > 0 {
-			name = file[:video.FindStringIndex(file)[0]]
-			if len(yearReg.FindStringIndex(file)) > 0 {
-				year, err = strconv.Atoi(yearReg.FindString(file)[1:])
+		if len(video.FindStringIndex(m.name)) > 0 {
+			m.name = m.name[:video.FindStringIndex(m.name)[0]]
+			if len(yearReg.FindStringIndex(m.name)) > 0 {
+				m.year, err = strconv.Atoi(yearReg.FindString(m.name)[1:])
 				if err != nil {
 					log.Println(err)
 				}
-				if len(yearReg.FindStringIndex(name)) > 0 {
-					name = name[:yearReg.FindStringIndex(name)[0]]
+				if len(yearReg.FindStringIndex(m.name)) > 0 {
+					m.name = m.name[:yearReg.FindStringIndex(m.name)[0]]
 				}
 			}
 		} else {
-			if len(yearReg.FindStringIndex(file)) > 0 {
-				year, err = strconv.Atoi(yearReg.FindString(file)[1:])
+			if len(yearReg.FindStringIndex(m.name)) > 0 {
+				m.year, err = strconv.Atoi(yearReg.FindString(m.name)[1:])
 				if err != nil {
 					log.Println(err)
 				}
-				name = file[:yearReg.FindStringIndex(file)[0]]
-			} else {
-				name = file
+				m.name = m.name[:yearReg.FindStringIndex(m.name)[0]]
 			}
+			//else {
+			//	m.complete = m.c
+			//}
 		}
 	}
-
-	return slugify.Slugify(name) + ext, slugify.Slugify(serieName), serieNumberReturn, year
+	m.complete = slugify.Slugify(m.name) + ext
+	m.serieName = slugify.Slugify(m.serieName)
 }
 
-func formatSaisonNumberOuEpisode(num string) string {
-	if len(num) == 2 {
-		if num[0] == 's' || num[0] == 'e' {
-			num = fmt.Sprintf("%s0%s", string(num[0]), string(num[1]))
-		}
+func formatSaisonNumberOuEpisode(num string, seasonOrEpisode byte) string {
+	if len(num) == 2 && (num[0] == 's' || num[0] == 'e') {
+		num = fmt.Sprintf("%s0%s", string(num[0]), string(num[1]))
+	} else if num[0] != seasonOrEpisode {
+		num = fmt.Sprintf("%s%s", string(seasonOrEpisode), num)
 	}
 	return num
 }
@@ -198,26 +199,27 @@ func formatSaisonNumberOuEpisode(num string) string {
 //	return 0, nil
 //}
 
-func (m *myFile) slugSerieSeasonEpisode() {
-	serie := regexp.MustCompile(`[s][0-9]{1,2}[e][0-9]{1,2}`)
-	seasonNumber := regexp.MustCompile(`[s][0-9]{1,2}`)
-	episodeNumber := regexp.MustCompile(`[e][0-9]{1,2}`)
-	episodeNumber2 := regexp.MustCompile(`[0-9]{2,3}`)
-	if serie.MatchString(m.serieNumber) {
-		m.season, _ = strconv.Atoi(strings.Join(seasonNumber.FindAllString(m.serieNumber, -1), "")[1:])
-		m.episode, _ = strconv.Atoi(strings.Join(episodeNumber.FindAllString(m.serieNumber, -1), "")[1:])
-		m.serieNumber = checkIfTwoNumberToSeasonOrEpisode(m.season, m.episode)
-		return
-	} else if episodeNumber2.MatchString(m.serieNumber) {
-		m.season = 0
-		m.episode, _ = strconv.Atoi(m.serieNumber)
-		m.serieNumber = checkIfTwoNumberToSeasonOrEpisode(m.season, m.episode)
-		return
-	}
-	m.serieNumber = ""
-	m.season = 0
-	m.episode = 0
-}
+//func (m *myFile) slugSerieSeasonEpisode() {
+//	serie := regexp.MustCompile(`[s][0-9]{1,2}[e][0-9]{1,2}`)
+//	seasonNumber := regexp.MustCompile(`[s][0-9]{1,2}`)
+//	episodeNumber := regexp.MustCompile(`[e][0-9]{1,2}`)
+//	episodeNumber2 := regexp.MustCompile(`[0-9]{2,3}`)
+//	log.Println("serienumber : ", m.serieNumber)
+//	if serie.MatchString(m.serieNumber) {
+//		m.season, _ = strconv.Atoi(strings.Join(seasonNumber.FindAllString(m.serieNumber, -1), "")[1:])
+//		m.episode, _ = strconv.Atoi(strings.Join(episodeNumber.FindAllString(m.serieNumber, -1), "")[1:])
+//		m.serieNumber = checkIfTwoNumberToSeasonOrEpisode(m.season, m.episode)
+//		return
+//	} else if episodeNumber2.MatchString(m.serieNumber) {
+//		m.season = 0
+//		m.episode, _ = strconv.Atoi(m.serieNumber)
+//		m.serieNumber = checkIfTwoNumberToSeasonOrEpisode(m.season, m.episode)
+//		return
+//	}
+//	m.serieNumber = ""
+//	m.season = 0
+//	m.episode = 0
+//}
 
 // removeLangInName :
 //func removeLangInName(s string) string {
