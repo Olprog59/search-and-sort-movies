@@ -8,14 +8,14 @@ import (
 	"time"
 )
 
-func TestMyWaTcher(t *testing.T) {
+func TestMyWatcher(t *testing.T) {
 
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	var err error
 	go func() {
 		for _, v := range listFiles {
 			time.Sleep(1 * time.Second)
-			err = ioutil.WriteFile(GetEnv("dlna")+"/"+v+".mkv", []byte("coucou"), 0777)
+			err = ioutil.WriteFile(GetEnv("dlna")+"/"+v, []byte("coucou"), 0777)
 		}
 	}()
 
@@ -26,49 +26,28 @@ func TestMyWaTcher(t *testing.T) {
 	go func() {
 		fmt.Println("coucou")
 	}()
-	MyWaTcher(GetEnv("dlna"))
+	MyWatcher(GetEnv("dlna"))
 }
 
 var listFiles = []string{
-	//"Casino Royale",
-	//"Quantum of Solace",
-	//"Skyfall",
-	//"8 mile",
-	//"L'armée des 12 singes",
-	//"2009 Lost Memories",
-	//"21 Grams",
-	//"25th Hour",
-	//"28 jours plus tards",
-	//"28 semaines plus tard",
-	"36 quai des orfèvres 1987",
-	"l ve es bel",
+	"36 quai des orfèvres 1987.mkv",
+	"l ve es bel.mkv",
 	"Boku no Hero Academia S4 - 03 VOSTFR 1080p-Zone-Telechargement.NET.mkv",
-	//"300",
-	//"L'age de glace",
-	//"Alexandre",
-	//"Ali",
-	//"Alice aux pays des merveilles",
-	//"Alien",
-	//"Alien 2",
-	//"Alien 3",
-	//"Alien 4",
-	//"American Gangster",
-	//"American History X",
-	//"American Psycho",
-	//"Any Given Sunday",
-	//"Apocalypse Now",
-	//"Armageddon",
-	//"L'arme Fatale",
-	//"L'arme Fatale 2",
-	//"L'arme Fatale 3",
-	//"L'arme Fatale 4",
-	//"Les associés",
-	//"L'associé du diable",
-	//"Metro 123",
-	//"Avatar",
-	//"Bad Boys",
-	//"Bad Boys 2",
-	//"Basic Instinct",
-	//"Batman",
-	//"Batman Begins",
+	"The.Flash.2014.S04E01.FASTSUB.VOSTFR.720p.HDTV.x264-ZT.WwW.Zone-Telechargement.Ws.mkv",
+	"Les.Tuche.French.DVDRIP-zone-telechargement.ws.avi",
+	"Kingsman.The.Golden.Circle.2017.FRENCH.BDRip.XviD-GZR.WwW.Zone-Telechargement.Ws.avi",
+	"new.girl.episode.101.trois.gars.une.fille-Zone-Telechargement.Ws.avi",
+	"Thor le monde des tenebres 720p-Shanks@Zone-Telechargement.Ws.mkv",
+	"Pitch.Perfect.3.2017.MULTI.1080p.BluRay.x264-VENUE.Zone-Telechargement1.Com.mkv",
+	"acts of violence 2018-Ww2.zone-telechargement1.com.mkv",
+	"Major 2nd - Episode 23 VOSTFR (720p)-Zone-Telechargement1 org.mkv",
+	"Inazuma Ares episode 21 VOSTFR-Zone-Telechargement1 org.mkv",
+	"Inazuma Ares episode 22 VOSTFR-Zone-Telechargement1 org.mkv",
+	"The.100.S05E13.FASTSUB.VOSTFR.720p.HDTV.x264-ZT.WwW.Zone-Telechargement1.ORG.mkv",
+	"la-nonne.mkv",
+	"The.Nun.2018.MULTi.TRUEFRENCH.1080p.HDLight.x264-RDH.WwW.Annuaire-Telechargement.CoM.mkv",
+	"The.Nun.VOSTFR.2018.TRUEFRENCH.1080p.HDLight.x264-RDH.WwW.Annuaire-Telechargement.CoM.mkv",
+	"The.Nun.MULTI.2018.TRUEFRENCH.1080p.HDLight.x264-RDH.WwW.Annuaire-Telechargement.CoM.mkv",
+	"The_Vampire Diaries S04E23 MULTI Ici ou Ailleurs  BluRay720p  2013.mkv",
+	"Project.Blue.Book.S01E01.FRENCH.720p.HDTV.x264-HuSSLe.WwW.Zone-Telechargement.NET.mkv",
 }

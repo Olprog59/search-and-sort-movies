@@ -1,4 +1,4 @@
-package myapp
+package update
 
 import (
 	"encoding/json"
@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"search-and-sort-movies/myapp"
 	"search-and-sort-movies/myapp/constants"
 	"search-and-sort-movies/myapp/model"
 	"strconv"
@@ -58,7 +59,7 @@ func operationAll() {
 			os.Exit(0)
 		}
 	} else {
-		go PostInfo(app.OldVersion)
+		go myapp.PostInfo(app.OldVersion)
 	}
 }
 
@@ -85,7 +86,7 @@ func getVersionOnline() {
 		return
 	}
 	defer resp.Body.Close()
-	json.NewDecoder(resp.Body).Decode(&buildInfo)
+	_ = json.NewDecoder(resp.Body).Decode(&buildInfo)
 	app.Version = buildInfo.BuildVersion
 }
 
@@ -156,7 +157,7 @@ func checkIfNewVersion() bool {
 func strToInt64(version string) (vv int64) {
 	tab := strings.Split(version, ".")
 	j := strings.Join(tab, "")
-	vv, err = strconv.ParseInt(j, 10, 64)
+	vv, err := strconv.ParseInt(j, 10, 64)
 	if err != nil {
 		return 0
 	}
