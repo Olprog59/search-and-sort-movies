@@ -1,4 +1,4 @@
-package myapp
+package flags
 
 import (
 	"encoding/json"
@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"os"
 	"runtime"
+	"search-and-sort-movies/myapp"
 	"search-and-sort-movies/myapp/model"
 )
 
@@ -47,7 +48,7 @@ func Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean string) {
 	}
 
 	if *scan {
-		startScan()
+		myapp.StartScan()
 	}
 
 	if *windows {
