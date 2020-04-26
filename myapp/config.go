@@ -53,7 +53,7 @@ func SetEnv(key, value string) {
 // CheckIfConfigFileIsExist : Create file is not exist
 func checkIfConfigFileIsExist() {
 	if _, err := os.Stat(constants.FolderConfig); os.IsNotExist(err) {
-		os.Mkdir(constants.FolderConfig, os.ModeSticky|0755)
+		_ = os.Mkdir(constants.FolderConfig, os.ModeSticky|0755)
 	}
 
 	// detect if file exists
@@ -62,12 +62,9 @@ func checkIfConfigFileIsExist() {
 	// create file if not exists
 	if os.IsNotExist(err) {
 		newJSON := &Config{
-			Dlna:             "", //pwd("dlna", true),
-			Series:           "", //pwd("dlna/Series", true),
-			Movies:           "", //pwd("dlna/Movies", true),
-			CheckUpdate:      "24h0m0s",
-			RetryCheckUpdate: "12h0m0s",
-			// Music:  pwd("dlna/Music", true),
+			Dlna:   "", //pwd("dlna", true),
+			Series: "", //pwd("dlna/Series", true),
+			Movies: "", //pwd("dlna/Movies", true),
 		}
 		j, err := json.MarshalIndent(newJSON, "", " ")
 		if err != nil {
@@ -87,7 +84,7 @@ func readJSONFile(file string) map[string]interface{} {
 	}
 	var jsonType map[string]interface{}
 
-	json.Unmarshal(f, &jsonType)
+	_ = json.Unmarshal(f, &jsonType)
 
 	return jsonType
 }
