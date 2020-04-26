@@ -27,6 +27,7 @@ const (
 	FileUpdateName = "updateSearchAndSortMovies-" + runtime.GOOS
 	FolderConfig   = "./searchMoviesConfig"
 
-	LOGFILE    = FolderConfig + string(os.PathSeparator) + "log_SearchAndSort"
-	ConfigFile = FolderConfig + string(os.PathSeparator) + ".config.json"
+	LOGFILE      = FolderConfig + string(os.PathSeparator) + "log_SearchAndSort"
+	ConfigFile   = FolderConfig + string(os.PathSeparator) + ".config.json"
+	LearningFile = FolderConfig + string(os.PathSeparator) + ".learning.csv"
 )

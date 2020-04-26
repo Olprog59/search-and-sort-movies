@@ -17,7 +17,7 @@ func slugFile(file string) (name, serieName, serieNumberReturn string, year int)
 	file = slugify.Slugify(file)
 	var err error
 
-	video := regexp.MustCompile(`(?mi)\-(french|dvdrip|multi|vostfr|dvd-r|bluray|bdrip|brrip|cam|ts|tc|vcd|md|ld|r[0-9]|xvid|divx|scr|dvdscr|repack|multi|hdlight|720p|480p|1080p|2160p|uhd)`)
+	video := regexp.MustCompile(`(?mi)-(french|dvdrip|multi|vostfr|dvd-r|bluray|bdrip|brrip|cam|ts|tc|vcd|md|ld|r[0-9]|xvid|divx|scr|dvdscr|repack|hdlight|720p|480p|1080p|2160p|uhd)`)
 	yearReg := regexp.MustCompile(`(?mi)-[0-9]{4}`)
 
 	serie := regexp.MustCompile(`(?mi)((s\d{1,2})(?:\W+)?(e?\d{1,2}))|(?:e\d{1,2})|(episode-(\d{2,3})-)`)
@@ -189,43 +189,44 @@ func formatSaisonNumberOuEpisode(num string) string {
 //	return slugify.Slugify(name) + ext, slugify.Slugify(serieName), serieNumberReturn, year
 //}
 
-func searchYear(str []string, reg *regexp.Regexp) (int, error) {
-	for _, val := range str {
-		if reg.MatchString(val) {
-			return strconv.Atoi(val)
-		}
-	}
-	return 0, nil
-}
+//func searchYear(str []string, reg *regexp.Regexp) (int, error) {
+//	for _, val := range str {
+//		if reg.MatchString(val) {
+//			return strconv.Atoi(val)
+//		}
+//	}
+//	return 0, nil
+//}
 
-func slugSerieSeasonEpisode(serieNumber string) (seasonAndEpisode string, season, episode int) {
+func (m *myFile) slugSerieSeasonEpisode() {
 	serie := regexp.MustCompile(`[s][0-9]{1,2}[e][0-9]{1,2}`)
 	seasonNumber := regexp.MustCompile(`[s][0-9]{1,2}`)
 	episodeNumber := regexp.MustCompile(`[e][0-9]{1,2}`)
 	episodeNumber2 := regexp.MustCompile(`[0-9]{2,3}`)
-	if serie.MatchString(serieNumber) {
-		season, _ = strconv.Atoi(strings.Join(seasonNumber.FindAllString(serieNumber, -1), "")[1:])
-		episode, _ = strconv.Atoi(strings.Join(episodeNumber.FindAllString(serieNumber, -1), "")[1:])
-		serieNumber = checkIfTwoNumberToSeasonOrEpisode(season, episode)
-		return serieNumber, season, episode
-	} else if episodeNumber2.MatchString(serieNumber) {
-		season = 0
-		episode, _ = strconv.Atoi(serieNumber)
-		serieNumber = checkIfTwoNumberToSeasonOrEpisode(season, episode)
-		return serieNumber, season, episode
-
+	if serie.MatchString(m.serieNumber) {
+		m.season, _ = strconv.Atoi(strings.Join(seasonNumber.FindAllString(m.serieNumber, -1), "")[1:])
+		m.episode, _ = strconv.Atoi(strings.Join(episodeNumber.FindAllString(m.serieNumber, -1), "")[1:])
+		m.serieNumber = checkIfTwoNumberToSeasonOrEpisode(m.season, m.episode)
+		return
+	} else if episodeNumber2.MatchString(m.serieNumber) {
+		m.season = 0
+		m.episode, _ = strconv.Atoi(m.serieNumber)
+		m.serieNumber = checkIfTwoNumberToSeasonOrEpisode(m.season, m.episode)
+		return
 	}
-	return "", 0, 0
+	m.serieNumber = ""
+	m.season = 0
+	m.episode = 0
 }
 
 // removeLangInName :
-func removeLangInName(s string) string {
-	reg := regexp.MustCompile(`^fr$|^en$|^ru$|^us$`)
-	if reg.MatchString(s) {
-		return ""
-	}
-	return s
-}
+//func removeLangInName(s string) string {
+//	reg := regexp.MustCompile(`^fr$|^en$|^ru$|^us$`)
+//	if reg.MatchString(s) {
+//		return ""
+//	}
+//	return s
+//}
 
 func checkIfTwoNumberToSeasonOrEpisode(season, episode int) string {
 	strSeason := strconv.Itoa(season)

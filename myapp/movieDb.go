@@ -6,7 +6,6 @@ import (
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 	"io"
-	"io/ioutil"
 	"log"
 	"net/http"
 	"regexp"
@@ -16,11 +15,11 @@ import (
 	"github.com/Machiel/slugify"
 )
 
-func UnmarshalMovies(data []byte) (MoviesDb, error) {
-	var r MoviesDb
-	err := json.Unmarshal(data, &r)
-	return r, err
-}
+//func UnmarshalMovies(data []byte) (MoviesDb, error) {
+//	var r MoviesDb
+//	err := json.Unmarshal(data, &r)
+//	return r, err
+//}
 
 func (r *MoviesDb) Marshal() ([]byte, error) {
 	return json.Marshal(r)
@@ -59,49 +58,18 @@ type Result struct {
 
 type MediaType string
 
-const (
-	Movie  MediaType = "movie"
-	Person MediaType = "person"
-	Tv     MediaType = "tv"
-)
+//const (
+//	Movie  MediaType = "movie"
+//	Person MediaType = "person"
+//	Tv     MediaType = "tv"
+//)
 
 type OriginalLanguage string
 
-const (
-	En OriginalLanguage = "en"
-	It OriginalLanguage = "it"
-)
-
-func translateName(name string) (translate string, original string) {
-
-	log.SetFlags(log.Lshortfile | log.Llongfile)
-	var url = "https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q="
-
-	resp, _ := http.Get(url + name)
-
-	if resp.StatusCode != http.StatusOK {
-		log.Fatalf("response status code was %d\n", resp.StatusCode)
-	}
-
-	ctype := resp.Header.Get("Content-Type")
-	if !strings.HasPrefix(ctype, "application/json") {
-		log.Fatalf("response content type was %s not text/html\n", ctype)
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		log.Println(err)
-	}
-
-	var arr [][][]string
-	_ = json.Unmarshal(body, &arr)
-	if err != nil {
-		log.Println(err)
-	}
-	defer resp.Body.Close()
-
-	return arr[0][0][0], arr[0][0][1]
-}
+//const (
+//	En OriginalLanguage = "en"
+//	It OriginalLanguage = "it"
+//)
 
 func getBingName(name string) string {
 

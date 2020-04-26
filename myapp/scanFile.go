@@ -40,7 +40,9 @@ func boucleFiles(files []string) {
 	log.Println("Démarrage du tri !")
 	for _, f := range files {
 		log.Println("File : " + f)
-		Process(f)
+		var m myFile
+		m.file = f
+		m.Process()
 	}
 	log.Println("Tri terminé !")
 }

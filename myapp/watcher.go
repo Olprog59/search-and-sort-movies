@@ -102,7 +102,9 @@ func _fsNotifyCreateFile(event fsnotify.Event, re *regexp.Regexp) {
 	if re.MatchString(filepath.Ext(e.Name)) {
 		log.Println("Détection de :", filepath.Base(e.Name))
 		//folder := filepath.Dir(e.Name)
-		Process(event.Name)
+		var m myFile
+		m.file = event.Name
+		m.Process()
 		//if folder != GetEnv("dlna") {
 		//	files, _ := ioutil.ReadDir(folder)
 		//	var countFile = 0
