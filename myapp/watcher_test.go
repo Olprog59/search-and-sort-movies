@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"io/ioutil"
 	"log"
+	"os"
 	"testing"
 	"time"
 )
@@ -23,13 +24,12 @@ func TestMyWaTcher(t *testing.T) {
 		t.Fatal("Failed to create tmp file")
 	}
 
-	//for _, v := range listFiles {
-	//	os.Remove("/Users/olprog/go/src/search-and-sort-movies/a_trier/"+v+".mkv")
-	//}
-	//defer os.RemoveAll("/Users/olprog/go/src/search-and-sort-movies/a_trier/Coucou_file.mkv")
-
 	go func() {
 		fmt.Println("coucou")
+		time.Sleep(4 * time.Second)
+		_ = os.Mkdir(GetEnv("dlna")+"/dossier1/", 0777)
+		time.Sleep(2 * time.Second)
+		_ = os.Mkdir(GetEnv("dlna")+"/dossier1/sous-dossier/", 0777)
 	}()
 	MyWaTcher(GetEnv("dlna"))
 }
@@ -74,4 +74,84 @@ var listFiles = []string{
 	"Basic Instinct",
 	"Batman",
 	"Batman Begins",
+
+	"dossier1/Casino Royale",
+	"dossier1/Quantum of Solace",
+	"dossier1/Skyfall",
+	"dossier1/8 mile",
+	"dossier1/L'armée des 12 singes",
+	"dossier1/2009 Lost Memories",
+	"dossier1/21 Grams",
+	"dossier1/25th Hour",
+	"dossier1/28 jours plus tards",
+	"dossier1/28 semaines plus tard",
+	"dossier1/300",
+	"dossier1/36 quai des orfèvres",
+	"dossier1/L'age de glace",
+	"dossier1/Alexandre",
+	"dossier1/Ali",
+	"dossier1/Alice aux pays des merveilles",
+	"dossier1/Alien",
+	"dossier1/Alien 2",
+	"dossier1/Alien 3",
+	"dossier1/Alien 4",
+	"dossier1/American Gangster",
+	"dossier1/American History X",
+	"dossier1/American Psycho",
+	"dossier1/Any Given Sunday",
+	"dossier1/Apocalypse Now",
+	"dossier1/Armageddon",
+	"dossier1/L'arme Fatale",
+	"dossier1/L'arme Fatale 2",
+	"dossier1/L'arme Fatale 3",
+	"dossier1/L'arme Fatale 4",
+	"dossier1/Les associés",
+	"dossier1/L'associé du diable",
+	"dossier1/Metro 123",
+	"dossier1/Avatar",
+	"dossier1/Bad Boys",
+	"dossier1/Bad Boys 2",
+	"dossier1/Basic Instinct",
+	"dossier1/Batman",
+	"dossier1/Batman Begins",
+
+	"dossier1/sous-dossier/Casino Royale",
+	"dossier1/sous-dossier/Quantum of Solace",
+	"dossier1/sous-dossier/Skyfall",
+	"dossier1/sous-dossier/8 mile",
+	"dossier1/sous-dossier/L'armée des 12 singes",
+	"dossier1/sous-dossier/2009 Lost Memories",
+	"dossier1/sous-dossier/21 Grams",
+	"dossier1/sous-dossier/25th Hour",
+	"dossier1/sous-dossier/28 jours plus tards",
+	"dossier1/sous-dossier/28 semaines plus tard",
+	"dossier1/sous-dossier/300",
+	"dossier1/sous-dossier/36 quai des orfèvres",
+	"dossier1/sous-dossier/L'age de glace",
+	"dossier1/sous-dossier/Alexandre",
+	"dossier1/sous-dossier/Ali",
+	"dossier1/sous-dossier/Alice aux pays des merveilles",
+	"dossier1/sous-dossier/Alien",
+	"dossier1/sous-dossier/Alien 2",
+	"dossier1/sous-dossier/Alien 3",
+	"dossier1/sous-dossier/Alien 4",
+	"dossier1/sous-dossier/American Gangster",
+	"dossier1/sous-dossier/American History X",
+	"dossier1/sous-dossier/American Psycho",
+	"dossier1/sous-dossier/Any Given Sunday",
+	"dossier1/sous-dossier/Apocalypse Now",
+	"dossier1/sous-dossier/Armageddon",
+	"dossier1/sous-dossier/L'arme Fatale",
+	"dossier1/sous-dossier/L'arme Fatale 2",
+	"dossier1/sous-dossier/L'arme Fatale 3",
+	"dossier1/sous-dossier/L'arme Fatale 4",
+	"dossier1/sous-dossier/Les associés",
+	"dossier1/sous-dossier/L'associé du diable",
+	"dossier1/sous-dossier/Metro 123",
+	"dossier1/sous-dossier/Avatar",
+	"dossier1/sous-dossier/Bad Boys",
+	"dossier1/sous-dossier/Bad Boys 2",
+	"dossier1/sous-dossier/Basic Instinct",
+	"dossier1/sous-dossier/Batman",
+	"dossier1/sous-dossier/Batman Begins",
 }
