@@ -2,7 +2,6 @@ package myapp
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
@@ -16,79 +15,85 @@ import (
 )
 
 var (
-	dlna   = GetEnv("dlna")
-	movies = GetEnv("movies")
-	series = GetEnv("series")
-	count  = 0
+	//dlna   = GetEnv("dlna")
+	movies   = GetEnv("movies")
+	series   = GetEnv("series")
+	count    = 0
+	complete = ""
+	dir      = ""
+	file     = ""
 )
 
-func Process(complete string) {
-	dir, file := filepath.Split(complete)
-	go start(complete, dir, file)
+func Process(completeName string) {
+	complete = completeName
+	_, file = filepath.Split(complete)
+	go start("")
 }
 
-func start(complete, dir, file string) {
+func start(serieOrMovieOrBoth string) {
 	name, serieName, serieNumber, year := slugFile(file)
-	// Si c'est un film
-	if serieName == "" {
-		extension := filepath.Ext(name)
-		nameClean := name[:len(name)-len(extension)]
-		originalName := file[:len(file)-len(extension)]
-		originalName = url.QueryEscape(originalName)
-		if count > 1 {
-			originalName = ""
-		}
-		movie, _ := dbMovies(false, nameClean, originalName)
-		if len(movie.Results) > 0 {
-			var path string
-			if year != 0 {
-				path = movies + string(os.PathSeparator) + nameClean + "-" + strconv.Itoa(year) + extension
-			} else {
-				path = movies + string(os.PathSeparator) + nameClean + extension
-			}
-			if runtime.GOOS == "windows" {
-				copyFile(complete, movies+string(os.PathSeparator)+path)
-			} else {
-				if moveOrRenameFile(complete, path) {
-					log.Printf("%s a bien été déplacé dans %s", name, path)
-				}
-			}
-		} else {
-			if count < 3 {
-				count++
-				time.Sleep(2000 * time.Millisecond)
-				start(complete, dir, file)
-			} else {
-				message := fmt.Sprintln(name[:len(name)-len(filepath.Ext(name))] + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + name[:len(name)-len(filepath.Ext(name))] + ". Test manuellement si tu le trouves ;-)")
-				log.Println(message)
-				count = 0
-			}
-		}
-
+	if serieName == "" || serieOrMovieOrBoth == "serie" {
+		isMovie(name, year)
 	} else {
-		originalName := file[:len(file)-len(filepath.Ext(name))-len(serieName)]
-		originalName = url.QueryEscape(originalName)
-		if count > 1 {
-			originalName = ""
-		}
-		serie, _ := dbSeries(false, serieName, originalName)
-		if len(serie.Results) > 0 {
-			_, season, _ := slugSerieSeasonEpisode(serieNumber)
-			checkFolderSerie(complete, file, name, serieName, season)
-		} else {
-			if count < 3 {
-				count++
-				time.Sleep(2000 * time.Millisecond)
-				start(complete, dir, file)
-			} else {
-				log.Println(serieName + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + serieName + ".\n Test manuellement si tu le trouves ;-)")
-				count = 0
-			}
-		}
+		isSerie(name, serieName, serieNumber)
 	}
 }
 
-func checkFolderSerie(complete, file, name, serieName string, season int) (string, string) {
+func isMovie(name string, year int) {
+	extension := filepath.Ext(name)
+	nameClean := name[:len(name)-len(extension)]
+	originalName := file[:len(file)-len(extension)]
+	originalName = url.QueryEscape(originalName)
+	if count > 1 {
+		originalName = ""
+	}
+	movie, _ := dbMovies(false, nameClean, originalName)
+	if len(movie.Results) > 0 {
+		var path string
+		if year != 0 {
+			path = movies + string(os.PathSeparator) + nameClean + "-" + strconv.Itoa(year) + extension
+		} else {
+			path = movies + string(os.PathSeparator) + nameClean + extension
+		}
+		if runtime.GOOS == "windows" {
+			copyFile(complete, movies+string(os.PathSeparator)+path)
+		} else {
+			if moveOrRenameFile(complete, path) {
+				log.Printf("%s a bien été déplacé dans %s", name, path)
+			}
+		}
+	} else {
+		isNotFindInMovieDb(name[:len(name)-len(filepath.Ext(name))], "movie")
+	}
+}
+
+func isSerie(name, serieName, serieNumber string) {
+	originalName := file[:len(file)-len(filepath.Ext(name))-len(serieName)]
+	originalName = url.QueryEscape(originalName)
+	if count > 1 {
+		originalName = ""
+	}
+	serie, _ := dbSeries(false, serieName, originalName)
+	if len(serie.Results) > 0 {
+		_, season, _ := slugSerieSeasonEpisode(serieNumber)
+		checkFolderSerie(name, serieName, season)
+	} else {
+		isNotFindInMovieDb(serieName, "serie")
+	}
+}
+
+func isNotFindInMovieDb(name, serieOrMovie string) {
+	if count < 3 {
+		count++
+		time.Sleep(2000 * time.Millisecond)
+		start(serieOrMovie)
+	} else {
+		log.Println(name + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + name + ".\n Test manuellement si tu le trouves ;-)")
+		count = 0
+	}
+}
+
+func checkFolderSerie(name, serieName string, season int) (string, string) {
 	// serieName, exist := folderExist(series, serieName)
 	newFolder := string(os.PathSeparator) + serieName + string(os.PathSeparator) + "season-" + strconv.Itoa(season)
 	folderOk := series + string(os.PathSeparator) + serieName

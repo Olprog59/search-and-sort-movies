@@ -80,3 +80,41 @@ func Test_slugRemoveYearSerieForSearchMovieDB(t *testing.T) {
 		})
 	}
 }
+
+func Test_translateName(t *testing.T) {
+	type args struct {
+		name string
+	}
+	tests := []struct {
+		name          string
+		args          args
+		wantTranslate string
+		wantOriginal  string
+	}{
+		{
+			"translateName", args{
+				"28+jours+plus+tards",
+			},
+			"28 days later",
+			"28 jours plus tards",
+		},
+		{
+			"translateName", args{
+				"28+semaines+plus+tard",
+			},
+			"28 weeks later",
+			"28 semaines plus tard",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			gotTranslate, gotOriginal := translateName(tt.args.name)
+			if gotTranslate != tt.wantTranslate {
+				t.Errorf("translateName() gotTranslate = %v, want %v", gotTranslate, tt.wantTranslate)
+			}
+			if gotOriginal != tt.wantOriginal {
+				t.Errorf("translateName() gotOriginal = %v, want %v", gotOriginal, tt.wantOriginal)
+			}
+		})
+	}
+}
