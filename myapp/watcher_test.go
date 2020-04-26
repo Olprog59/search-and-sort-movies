@@ -13,8 +13,8 @@ func TestMyWatcher(t *testing.T) {
 	log.SetFlags(log.LstdFlags | log.Lshortfile)
 	var err error
 	go func() {
+		time.Sleep(2 * time.Second)
 		for _, v := range listFiles {
-			time.Sleep(1 * time.Second)
 			err = ioutil.WriteFile(GetEnv("dlna")+"/"+v, []byte("coucou"), 0777)
 		}
 	}()
