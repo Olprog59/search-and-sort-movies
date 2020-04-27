@@ -79,11 +79,11 @@ func (m *myFile) isMovie() {
 		}
 		if runtime.GOOS == "windows" {
 			copyFile(m.file, movies+string(os.PathSeparator)+path1)
-			m.createFileForLearning()
+			m.createFileForLearning(true)
 		} else {
 			if moveOrRenameFile(m.file, path1) {
 				log.Printf("%s a bien été déplacé dans %s", m.fileWithoutDir, path1)
-				m.createFileForLearning()
+				m.createFileForLearning(true)
 			}
 		}
 	} else {
@@ -116,6 +116,7 @@ func (m *myFile) isNotFindInMovieDb(name, serieOrMovie string) {
 		m.start(serieOrMovie)
 	} else {
 		log.Println(name + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + name + ".\n Test manuellement si tu le trouves ;-)")
+		m.createFileForLearning(false)
 		m.count = 0
 	}
 }
@@ -137,11 +138,11 @@ func (m *myFile) checkFolderSerie() (string, string) {
 
 	if runtime.GOOS == "windows" {
 		copyFile(m.file, finalFilePath)
-		m.createFileForLearning()
+		m.createFileForLearning(true)
 	} else {
 		if moveOrRenameFile(m.file, finalFilePath) {
 			log.Printf("%s a bien été déplacé dans %s", m.fileWithoutDir, finalFilePath)
-			m.createFileForLearning()
+			m.createFileForLearning(true)
 		}
 	}
 	return m.complete, finalFilePath
@@ -291,12 +292,12 @@ func removeAfterCopy(oldFile string) {
 }
 
 // création d'un fichier pour le learning
-func (m *myFile) createFileForLearning() {
+func (m *myFile) createFileForLearning(videosTry bool) {
 	f, err := os.OpenFile(path.Clean(constants.LearningFile), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
 		log.Println(err)
 	}
-	_, err = f.Write([]byte(fmt.Sprintf("%s, %s\n", m.fileWithoutDir, m.complete)))
+	_, err = f.Write([]byte(fmt.Sprintf("%s, %s, %t\n", m.fileWithoutDir, m.complete, videosTry)))
 	if err != nil {
 		log.Println(err)
 	}
