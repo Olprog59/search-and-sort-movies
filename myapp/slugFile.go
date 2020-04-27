@@ -26,6 +26,9 @@ func (m *myFile) slugFile() {
 	match := serie.FindAllStringSubmatch(m.name, -1)
 
 	if len(match) > 0 {
+		if len(match) > 1 {
+			match = match[len(match)-1:]
+		}
 		for _, v := range match {
 			if v[7] != "" && v[8] != "" {
 				m.season = formatSaisonNumberOuEpisode(v[7], 's')
@@ -40,14 +43,20 @@ func (m *myFile) slugFile() {
 				m.season = formatSaisonNumberOuEpisode(v[2], 's')
 				m.episode = formatSaisonNumberOuEpisode(v[3], 'e')
 
-			} else if v[2] == "" && v[4] == "" {
+			} else {
 				m.episode = formatSaisonNumberOuEpisode(v[0], 'e')
+				m.season = "s00"
 			}
 			break
 		}
 		m.serieNumber = fmt.Sprintf("%s%s", m.season, m.episode)
 		if len(serie.FindStringIndex(m.name)) > 0 {
-			m.serieName = slugify.Slugify(m.complete[:serie.FindStringIndex(m.name)[0]-1])
+			findIndex := serie.FindAllIndex([]byte(m.name), -1)
+			//if len(findIndex) > 1{
+			m.serieName = slugify.Slugify(m.complete[:findIndex[len(findIndex)-1][0]-1])
+			//}else{
+			//	m.serieName = slugify.Slugify(m.complete[:serie.FindStringIndex(m.name)[0]-1])
+			//}
 			if len(yearReg.FindStringIndex(m.serieName)) > 0 {
 				m.year, err = strconv.Atoi(yearReg.FindString(m.serieName)[1:])
 				if err != nil {
