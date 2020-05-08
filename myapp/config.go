@@ -10,13 +10,10 @@ import (
 
 // Config :
 type Config struct {
-	Dlna             string `json:"dlna"`
-	Series           string `json:"series"`
-	Movies           string `json:"movies"`
-	CheckUpdate      string `json:"check_update"`
-	RetryCheckUpdate string `json:"retry_check_update"`
-	User             string `json:"user"`
-	Group            string `json:"group"`
+	Dlna   string `json:"dlna"`
+	Series string `json:"series"`
+	Movies string `json:"movies"`
+	Port   string `json:"port"`
 }
 
 // GetEnv :

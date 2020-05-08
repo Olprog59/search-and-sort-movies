@@ -38,7 +38,7 @@ func send(version string) error {
 
 	user2.Video = getVideos()
 	user2.UniqueId = getUniqueIdPc()
-	user2.IPLocal = ipLocal()
+	user2.IPLocal = IpLocal()
 	user2.IPWan = ipWan()
 	user2.Updated = time.Now()
 	user2.Version = version
@@ -87,10 +87,11 @@ func getUniqueIdPc() string {
 	}
 	return id
 }
-func ipLocal() net.IP {
+func IpLocal() net.IP {
 	ifaces, _ := net.Interfaces()
 	// handle err
-	var re = regexp.MustCompile(`(?m)192.168.\d+.\d+`)
+	//var re = regexp.MustCompile(`(?m)192.168.\d+.\d+`)
+	var re = regexp.MustCompile(`(?m)(?:127|0).0.\d+.\d+`)
 	for _, i := range ifaces {
 		addrs, _ := i.Addrs()
 		// handle err
@@ -103,7 +104,7 @@ func ipLocal() net.IP {
 				ip = v.IP
 			}
 			if ip != nil {
-				if re.MatchString(ip.To4().String()) {
+				if !re.MatchString(ip.To4().String()) && ip.To4() != nil {
 					return ip
 				}
 			}
