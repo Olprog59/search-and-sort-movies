@@ -249,19 +249,19 @@ func formatSaisonNumberOuEpisode(num string, seasonOrEpisode byte) string {
 //	return s
 //}
 
-func checkIfTwoNumberToSeasonOrEpisode(season, episode int) string {
-	strSeason := strconv.Itoa(season)
-	strEpisode := strconv.Itoa(episode)
-	var str string
-	if len(strSeason) == 1 {
-		str = "s0" + strSeason
-	} else {
-		str = "s" + strSeason
-	}
-	if len(strEpisode) == 1 {
-		str = str + "e0" + strEpisode
-	} else {
-		str = str + "e" + strEpisode
-	}
-	return str
-}
+//func checkIfTwoNumberToSeasonOrEpisode(season, episode int) string {
+//	strSeason := strconv.Itoa(season)
+//	strEpisode := strconv.Itoa(episode)
+//	var str string
+//	if len(strSeason) == 1 {
+//		str = "s0" + strSeason
+//	} else {
+//		str = "s" + strSeason
+//	}
+//	if len(strEpisode) == 1 {
+//		str = str + "e0" + strEpisode
+//	} else {
+//		str = str + "e" + strEpisode
+//	}
+//	return str
+//}
