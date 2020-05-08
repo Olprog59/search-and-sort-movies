@@ -123,7 +123,7 @@ func (m *myFile) isNotFindInMovieDb(name, serieOrMovie string) {
 
 func (m *myFile) checkFolderSerie() (string, string) {
 	// serieName, exist := folderExist(series, serieName)
-	newFolder := string(os.PathSeparator) + m.serieName + string(os.PathSeparator) + "season-" + m.season
+	newFolder := string(os.PathSeparator) + m.serieName + string(os.PathSeparator) + "season-" + m.season[1:]
 	folderOk := series + string(os.PathSeparator) + m.serieName
 	if _, err := os.Stat(folderOk); os.IsNotExist(err) {
 		log.Printf("Création du dossier : %s\n", m.serieName)

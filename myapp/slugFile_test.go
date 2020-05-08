@@ -515,6 +515,23 @@ func Test_myFile_slugFile(t *testing.T) {
 			"s00",
 			"e28",
 		},
+		{
+			"slugFile", fields{
+				"",
+				"Boruto e81 Vostfr.mp4",
+				"",
+				"",
+				"",
+				"",
+				"",
+			},
+			"boruto-s00e81.mp4",
+			"boruto-s00e81",
+			"boruto",
+			"s00e81",
+			"s00",
+			"e81",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
