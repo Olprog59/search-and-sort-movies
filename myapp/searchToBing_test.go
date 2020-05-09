@@ -15,7 +15,7 @@ func Test_loopGetBingName(t *testing.T) {
 			"loopGetBingName", args{
 				"Boruto 81 Vostfr",
 			},
-			"boruto",
+			"boruto+81+vostfr",
 		},
 	}
 	for _, tt := range tests {
