@@ -26,7 +26,6 @@ GIT_STATUS=$(shell git status --porcelain)
 BUILD_VERSION:=$(shell git log --pretty=format:'%h' -n 1)
 BUILD_DATE:=$(shell date '+%Y-%m-%d_%k:%M:%S')
 
-LDFLAGS= -ldflags "-X 'main.BuildVersion=${VERSION}' -X 'main.BuildHash=${BUILD_VERSION}' -X 'main.BuildDate=${BUILD_DATE}' -X 'main.BuildClean=${BUILD_CLEAN}'"
 
 ifneq ($(wildcard $(VERSION_FILE)),)
 	VERSION:=$(shell cat $(VERSION_FILE))
@@ -39,6 +38,8 @@ ifeq ($(GIT_STATUS),)
 else
   BUILD_CLEAN=no
 endif
+
+LDFLAGS= -ldflags "-X 'main.BuildVersion=${VERSION}' -X 'main.BuildHash=${BUILD_VERSION}' -X 'main.BuildDate=${BUILD_DATE}' -X 'main.BuildClean=${BUILD_CLEAN}'"
 
 # Build the project
 all: link clean test vet linux darwin windows
@@ -53,7 +54,7 @@ link:
 	    ln -s $${CURRENT_DIR} $${BUILD_DIR}; \
 	fi
 
-linux: 
+linux:
 	cd ${BUILD_DIR}; \
 	GOOS=linux GOARCH=${GOARCH} go build ${LDFLAGS} -o ${BIN_DIR}/${BINARY}-linux-${GOARCH} . ; \
 	cd - >/dev/null

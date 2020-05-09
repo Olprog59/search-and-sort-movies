@@ -182,7 +182,7 @@ func Test_myFile_checkFolderSerie(t *testing.T) {
 				0,
 			},
 			"star-trek-discovery-s01e25",
-			"/Users/olprog/go/src/search-and-sort-movies/dlna/series/star-trek-discovery/season-01/star-trek-discovery-s01e25",
+			"/star-trek-discovery/season-01/star-trek-discovery-s01e25",
 		},
 	}
 	for _, tt := range tests {
