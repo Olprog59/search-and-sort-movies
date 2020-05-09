@@ -20,7 +20,9 @@ then
         VERSION=$(cat 'VERSION')
         NEW_VERSION="${VERSION%.*}.$((${VERSION##*.}+1))"
         printf $NEW_VERSION > 'VERSION'
-        $(git add VERSION && git commit -m "VERSION -> $NEW_VERSION")
+
+        git add VERSION && git commit -m "VERSION -> $NEW_VERSION"
+
         GIT_STATUS=$(git status --porcelain | wc -l | tr -d '[:space:]')
         if [ $GIT_STATUS = 0 ]
         then
