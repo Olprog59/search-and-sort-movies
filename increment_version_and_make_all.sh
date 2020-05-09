@@ -19,7 +19,7 @@ then
         # Increment version
         VERSION=$(cat 'VERSION')
         NEW_VERSION="${VERSION%.*}.$((${VERSION##*.}+1))"
-        printf "%s" NEW_VERSION > 'VERSION'
+        printf "%s" "$NEW_VERSION" > 'VERSION'
 
         git add VERSION && git commit -m "VERSION -> $NEW_VERSION"
 
