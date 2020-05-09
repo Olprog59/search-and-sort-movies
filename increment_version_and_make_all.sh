@@ -21,6 +21,14 @@ then
         NEW_VERSION="${VERSION%.*}.$((${VERSION##*.}+1))"
         printf "%s" "$NEW_VERSION" > 'VERSION'
 
+        echo "Attention, la version a changé en ${NEW_VERSION}. Souhaites-tu continuer à commit puis make le project?"
+        select yn in "Yes" "No"; do
+            case $yn in
+                Yes ) git add VERSION && git commit -m "VERSION -> $NEW_VERSION" ; break;;
+                No ) exit;;
+            esac
+        done
+
         git add VERSION && git commit -m "VERSION -> $NEW_VERSION"
 
         GIT_STATUS=$(git status --porcelain | wc -l | tr -d '[:space:]')
