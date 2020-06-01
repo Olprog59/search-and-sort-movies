@@ -77,12 +77,13 @@ func removeFileUpdate() {
 func (a *Application) getVersionOnline() {
 	url := constants.UrlUpdateURL + "/version?file=" + a.Name
 	var netClient = &http.Client{
-		Timeout: time.Second * 10,
+		Timeout: time.Second * 20,
 	}
 	resp, err := netClient.Get(url)
 	if err != nil {
 		log.Println(err)
-		return
+		time.Sleep(time.Minute * 20)
+		a.getVersionOnline()
 	}
 	defer resp.Body.Close()
 	_ = json.NewDecoder(resp.Body).Decode(&buildInfo)

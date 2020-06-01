@@ -297,7 +297,7 @@ func (m *myFile) createFileForLearning(videosTry bool) {
 	if err != nil {
 		log.Println(err)
 	}
-	_, err = f.Write([]byte(fmt.Sprintf("%s, %s, %t\n", m.fileWithoutDir, m.complete, videosTry)))
+	_, err = f.Write([]byte(fmt.Sprintf("%s;%s;%t\n", m.fileWithoutDir, m.complete, videosTry)))
 	if err != nil {
 		log.Println(err)
 	}
