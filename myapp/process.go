@@ -9,6 +9,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"net/url"
 	"os"
 	"path"
 	"path/filepath"
@@ -148,21 +149,30 @@ func (m *myFile) checkFolderSerie() (string, string) {
 	return m.complete, finalFilePath
 }
 
+// Ok test
 func (m *myFile) translateName() {
-	slugify.New(slugify.Configuration{
+	slug := slugify.New(slugify.Configuration{
 		ReplaceCharacter: ' ',
 	})
 	var n = m.name
-	n = slugify.Slugify(n)
-	resp, _ := http.Get("https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=" + n)
+	n = slug.Slugify(n)
+	resp, err := http.Get("https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=" + url.PathEscape(n))
+	if resp == nil || err != nil {
+		time.Sleep(1 * time.Minute)
+		m.translateName()
+		return
+	}
+	defer resp.Body.Close()
+
+	log.Println(resp.Request)
 
 	if resp.StatusCode != http.StatusOK {
-		log.Fatalf("response status code was %d\n", resp.StatusCode)
+		log.Printf("response status code was %d\n", resp.StatusCode)
 	}
 
 	ctype := resp.Header.Get("Content-Type")
 	if !strings.HasPrefix(ctype, "application/json") {
-		log.Fatalf("response content type was %s not text/html\n", ctype)
+		log.Printf("response content type was %s not text/html\n", ctype)
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
@@ -175,7 +185,6 @@ func (m *myFile) translateName() {
 	if err != nil {
 		log.Println(err)
 	}
-	defer resp.Body.Close()
 
 	m.transName = arr[0][0][0]
 }

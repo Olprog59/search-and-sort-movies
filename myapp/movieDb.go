@@ -7,6 +7,7 @@ import (
 	"regexp"
 	"search-and-sort-movies/myapp/constants"
 	"strings"
+	"time"
 
 	"github.com/Machiel/slugify"
 )
@@ -85,14 +86,7 @@ func (m *myFile) checkMovieDB(tv, lang bool, name string) string {
 
 	var url string
 
-	//if len(originalName) > 0 {
-	//	slug.Slugify(originalName)
-	//	if newName := loopGetBingName(originalName); newName != "" {
-	//		originalName = slug.Slugify(newName)
-	//	}
-	//	url = "https://api.themoviedb.org/3/search/multi?api_key=" + constants.ApiV3 + language + "&query=" + originalName
-	//} else {
-	slug.Slugify(name)
+	name = slug.Slugify(name)
 	if newName := loopGetBingName(name); newName != "" {
 		name = slug.Slugify(newName)
 	}
@@ -127,12 +121,16 @@ func (m *myFile) dbMovies(lang bool, name string) (MoviesDb, error) {
 	return readJSONFromUrlMovie(url)
 }
 
+// Ok Test
+// ex : https://api.themoviedb.org/3/search/multi?api_key=ea8779638f078f25daa3913e80fe46eb&query=naruto
 func readJSONFromUrlTV(url string) (MoviesDb, error) {
 	var movie MoviesDb
 
 	resp, err := http.Get(url)
-	if err != nil {
-		return movie, err
+
+	if resp == nil || err != nil {
+		time.Sleep(1 * time.Minute)
+		return readJSONFromUrlTV(url)
 	}
 
 	defer resp.Body.Close()
@@ -141,12 +139,15 @@ func readJSONFromUrlTV(url string) (MoviesDb, error) {
 	return movie, nil
 }
 
+// Ok Test
 func readJSONFromUrlMovie(url string) (MoviesDb, error) {
 	var movie MoviesDb
 
 	resp, err := http.Get(url)
-	if err != nil {
-		return movie, err
+
+	if resp == nil || err != nil {
+		time.Sleep(1 * time.Minute)
+		return readJSONFromUrlMovie(url)
 	}
 
 	defer resp.Body.Close()

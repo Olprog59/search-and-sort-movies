@@ -211,3 +211,54 @@ func Test_myFile_checkFolderSerie(t *testing.T) {
 		})
 	}
 }
+
+func Test_myFile_translateName(t *testing.T) {
+	type fields struct {
+		file           string
+		fileWithoutDir string
+		complete       string
+		name           string
+		bingName       string
+		transName      string
+		serieName      string
+		serieNumber    string
+		season         string
+		year           int
+		episode        string
+		count          int
+	}
+	tests := []struct {
+		name   string
+		fields fields
+		want   string
+	}{
+		{
+			"myFile_translateName", fields{name: "demain"}, "tomorrow",
+		},
+		{
+			"myFile_translateName", fields{name: "imorgon"}, "tomorrow",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			m := &myFile{
+				file:           tt.fields.file,
+				fileWithoutDir: tt.fields.fileWithoutDir,
+				complete:       tt.fields.complete,
+				name:           tt.fields.name,
+				bingName:       tt.fields.bingName,
+				transName:      tt.fields.transName,
+				serieName:      tt.fields.serieName,
+				serieNumber:    tt.fields.serieNumber,
+				season:         tt.fields.season,
+				year:           tt.fields.year,
+				episode:        tt.fields.episode,
+				count:          tt.fields.count,
+			}
+			m.translateName()
+			if m.transName != tt.want {
+				t.Errorf("translateName() got = %v, want %v", m.transName, tt.want)
+			}
+		})
+	}
+}

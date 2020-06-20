@@ -113,13 +113,15 @@ func IpLocal() net.IP {
 	return nil
 }
 
+// Ok Test
 func ipWan() string {
 	resp, err := http.Get("https://ifconfig.me/all.json")
-	if err != nil {
+	if err != nil || resp == nil {
 		log.Println("Pas possible d'accéder à ifconfig.me/all.json")
 		time.Sleep(1 * time.Minute)
-		ipWan()
+		return ipWan()
 	}
+
 	defer resp.Body.Close()
 	var ip model.IPWan
 	_ = json.NewDecoder(resp.Body).Decode(&ip)

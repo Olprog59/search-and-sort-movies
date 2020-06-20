@@ -74,6 +74,7 @@ type ResultTrailer struct {
 	Type     string `json:"type"`
 }
 
+// Ok Test
 func GetTrailer(id int64, serie bool) (string, string) {
 	if id == 0 {
 		return "", ""
@@ -86,17 +87,16 @@ func GetTrailer(id int64, serie bool) (string, string) {
 	}
 	url := fmt.Sprintf("https://api.themoviedb.org/3/%s/%d/videos?api_key=%s&language=en-US", videos, id, constants.ApiV3)
 	resp, err := http.Get(url)
-	if err != nil {
+	var bodyBytes []byte
+	if err != nil || resp == nil {
 		log.Println("Pas possible d'accéder à https://api.themoviedb.org/")
 		time.Sleep(1 * time.Minute)
-		GetTrailer(id, serie)
+		return GetTrailer(id, serie)
+	} else {
+		bodyBytes, _ = ioutil.ReadAll(resp.Body)
 	}
 	defer resp.Body.Close()
 
-	var bodyBytes []byte
-	if resp.Body != nil {
-		bodyBytes, _ = ioutil.ReadAll(resp.Body)
-	}
 	var trailer Trailer
 	trailer, err = UnmarshalTrailer(bodyBytes)
 	if err != nil {
@@ -108,6 +108,7 @@ func GetTrailer(id int64, serie bool) (string, string) {
 	return "", ""
 }
 
+// Ok Test
 func GetImage(movie string, serie bool) (string, int64) {
 	var url string
 
@@ -125,17 +126,16 @@ func GetImage(movie string, serie bool) (string, int64) {
 	}
 
 	resp, err := http.Get(url)
-	if err != nil {
+	var bodyBytes []byte
+	if err != nil || resp == nil {
 		log.Println("Pas possible d'accéder à https://api.themoviedb.org/")
 		time.Sleep(1 * time.Minute)
-		GetImage(movie, serie)
+		return GetImage(movie, serie)
+	} else {
+		bodyBytes, _ = ioutil.ReadAll(resp.Body)
 	}
 	defer resp.Body.Close()
 
-	var bodyBytes []byte
-	if resp.Body != nil {
-		bodyBytes, _ = ioutil.ReadAll(resp.Body)
-	}
 	var moviedb MovieDBModel
 	moviedb, err = UnmarshalMovieDBModel(bodyBytes)
 	if err != nil {
