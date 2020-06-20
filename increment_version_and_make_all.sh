@@ -124,6 +124,6 @@ then
 
 
 else
-    echo "Erreur de test - Vérifie avec : go test ./.. -v (--cover)"
+    echo "Erreur de test - Vérifie avec : go test ./... -v (--cover)"
 fi
 
