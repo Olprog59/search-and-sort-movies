@@ -26,3 +26,28 @@ func Test_loopGetBingName(t *testing.T) {
 		})
 	}
 }
+
+func Test_getBingName(t *testing.T) {
+	type args struct {
+		name string
+	}
+	tests := []struct {
+		name string
+		args args
+		want string
+	}{
+		{
+			"getBingName", args{
+				"narutto",
+			},
+			"naruto",
+		},
+	}
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := getBingName(tt.args.name); got != tt.want {
+				t.Errorf("getBingName() = %v, want %v", got, tt.want)
+			}
+		})
+	}
+}

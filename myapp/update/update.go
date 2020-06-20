@@ -96,6 +96,7 @@ func checkIfSiteIsOnline() {
 		log.Printf("Le site n'est pas accessible. Un nouveau test se fera dans %s", constants.DurationRetryConnection.String())
 		time.Sleep(constants.DurationRetryConnection)
 		checkIfSiteIsOnline()
+		return
 	}
 }
 

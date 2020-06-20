@@ -9,6 +9,7 @@ import (
 	"log"
 	"net/http"
 	"strings"
+	"time"
 )
 
 func loopGetBingName(name string) string {
@@ -25,20 +26,27 @@ func loopGetBingName(name string) string {
 	return name
 }
 
+// Ok Test
 func getBingName(name string) string {
 	var proposition string
 
-	resp, _ := http.Get("https://www.bing.com/search?q=" + name)
+	resp, err := http.Get("https://www.bing.com/search?q=" + name)
 	log.Println("https://www.bing.com/search?q=" + name)
+	if resp == nil || err != nil {
+		time.Sleep(1 * time.Minute)
+		return getBingName(name)
+	}
 
 	if resp.StatusCode != http.StatusOK {
-		log.Fatalf("response status code was %d\n", resp.StatusCode)
+		log.Printf("response status code was %d\n", resp.StatusCode)
+		return name
 	}
 
 	//check response content type
 	ctype := resp.Header.Get("Content-Type")
 	if !strings.HasPrefix(ctype, "text/html") {
-		log.Fatalf("response content type was %s not text/html\n", ctype)
+		log.Printf("response content type was %s not text/html\n", ctype)
+		return name
 	}
 
 	defer resp.Body.Close()

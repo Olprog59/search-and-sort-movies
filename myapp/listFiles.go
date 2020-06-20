@@ -48,6 +48,10 @@ func getSeries() []model.Serie {
 	var serie model.Serie
 	var seasons model.Season
 	var re = regexp.MustCompile(`(?mi)season-\d+`)
+	urlSeries := GetEnv("series")
+	if f, err := os.Stat(urlSeries); os.IsPermission(err) {
+		log.Printf("Error: %s : %s", urlSeries, f.Mode().Perm().String())
+	}
 	err := filepath.Walk(GetEnv("series"), func(path string, info os.FileInfo, err error) error {
 		if err != nil {
 			log.Printf("prevent panic by handling failure accessing a path %q: %v\n", path, err)
