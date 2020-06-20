@@ -156,14 +156,17 @@ func (a *Application) checkIfNewVersion() bool {
 
 func strToInt64(version string) (vv int64) {
 	tab := strings.Split(version, ".")
-	if len(tab[1]) == 1 {
-		tab[1] = "0" + tab[1]
-	}
-	if len(tab[2]) == 1 {
-		tab[2] = "0" + tab[2]
-	}
-	if len(tab[3]) == 1 {
-		tab[3] = "0" + tab[3]
+	// TODO : Correction Temporaire pour la mise à jour de 0.9.1.35 à 0.9.1.36
+	if version != "0.9.1.36" {
+		if len(tab[1]) == 1 {
+			tab[1] = "0" + tab[1]
+		}
+		if len(tab[2]) == 1 {
+			tab[2] = "0" + tab[2]
+		}
+		if len(tab[3]) == 1 {
+			tab[3] = "0" + tab[3]
+		}
 	}
 	j := strings.Join(tab, "")
 	vv, err := strconv.ParseInt(j, 10, 64)
