@@ -1,7 +1,6 @@
 package myapp
 
 import (
-	"reflect"
 	"testing"
 )
 
@@ -82,7 +81,7 @@ func Test_slugRemoveYearSerieForSearchMovieDB(t *testing.T) {
 	}
 }
 
-// Test Ok juste je n'ai pas rempli moviedb
+/*// Test Ok juste je n'ai pas rempli moviedb
 func Test_readJSONFromUrlTV(t *testing.T) {
 	var moviedb MoviesDb
 	type args struct {
@@ -114,9 +113,9 @@ func Test_readJSONFromUrlTV(t *testing.T) {
 			}
 		})
 	}
-}
+}*/
 
-func Test_readJSONFromUrlMovie(t *testing.T) {
+/*func Test_readJSONFromUrlMovie(t *testing.T) {
 	var moviedb MoviesDb
 	type args struct {
 		url string
@@ -147,4 +146,4 @@ func Test_readJSONFromUrlMovie(t *testing.T) {
 			}
 		})
 	}
-}
+}*/
