@@ -9,7 +9,7 @@ then
     printf "\t-M (Major) : 0.6.3.2 -> 1.0.0.0\n"
     printf "\t-m (minor) : 0.6.3.2 -> 0.7.0.0\n"
     printf "\t-p (patch) : 0.6.3.2 -> 0.6.4.0\n"
-    printf "\t-s (special when beta) : 0.6.3.2 -> 0.6.4.3\n"
+    printf "\t-s (special when beta) : 0.6.3.2 -> 0.6.3.3\n"
     exit;
 fi
 
