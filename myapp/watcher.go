@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"regexp"
 	"search-and-sort-movies/myapp/constants"
+	"sync"
 	"time"
 )
 
@@ -41,17 +42,19 @@ func MyWatcher(location string) {
 		}
 	}()
 
-	log.Printf("add watcher %s\n", location)
-	if err := watch.Add(location); err != nil {
-		log.Fatal(err)
+	log.Printf("Ajout d'un watcher sur le dossier : %s\n", location)
+	if len(location) > 0 {
+		if err := watch.Add(location); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	<-done
 }
 
 func _ticker(event fsnotify.Event, c *chan bool) {
-	ticker := time.NewTicker(1 * time.Second)
-	//ticker := time.NewTicker(5 * time.Second)
+	//ticker := time.NewTicker(1 * time.Second)
+	ticker := time.NewTicker(5 * time.Second)
 	var size int64 = -1
 	go func() {
 		for range ticker.C {
@@ -83,7 +86,7 @@ func _checkIfDir(event fsnotify.Event) bool {
 	log.Printf("f: %v, e: %v", f, e)
 	if f.IsDir() && filepath.Dir(f.Name()) != GetEnv("dlna") {
 		err := watch.Add(e.Name)
-		log.Printf("add watcher %s\n", e.Name)
+		log.Printf("Ajout d'un watcher sur %s\n", e.Name)
 		if err != nil {
 			log.Println(err)
 		}
@@ -91,6 +94,8 @@ func _checkIfDir(event fsnotify.Event) bool {
 	}
 	return false
 }
+
+var wg sync.Mutex
 
 func _fsNotifyCreateFile(event fsnotify.Event, re *regexp.Regexp) {
 	_, e := _stat(event)
@@ -101,26 +106,10 @@ func _fsNotifyCreateFile(event fsnotify.Event, re *regexp.Regexp) {
 
 	if re.MatchString(filepath.Ext(e.Name)) {
 		log.Println("Détection de :", filepath.Base(e.Name))
-		//folder := filepath.Dir(e.Name)
 		var m myFile
 		m.file = event.Name
+		wg.Lock()
 		m.Process()
-		//if folder != GetEnv("dlna") {
-		//	files, _ := ioutil.ReadDir(folder)
-		//	var countFile = 0
-		//	for _, file := range files {
-		//		if file.Name()[0] != '.'{
-		//			countFile++
-		//		}
-		//	}
-		//	fmt.Println(countFile)
-		//	if countFile == 0 {
-		//		log.Printf("remove watcher %s\n", e.Name)
-		//		err := watch.Remove(folder)
-		//		if err != nil {
-		//			log.Println(err)
-		//		}
-		//	}
-		//}
+		wg.Unlock()
 	}
 }

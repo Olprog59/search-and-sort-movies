@@ -196,24 +196,32 @@ func createFolder(folder string) {
 	}
 }
 
+var mu sync.Mutex
+
 func moveOrRenameFile(filePathOld, filePathNew string) bool {
+	mu.Lock()
 	err := os.Rename(filePathOld, filePathNew)
 	if err != nil {
 		log.Printf("Move Or Rename File : %s", err)
+		mu.Unlock()
 		return false
 	}
 	folder := filepath.Dir(filePathOld)
 	if folder != GetEnv("dlna") {
 		file, _ := ioutil.ReadDir(folder)
 		if len(file) == 0 {
-			_ = watch.Remove(folder)
-			log.Println("remove 1 : ", folder)
+			err = watch.Remove(folder)
+			if err != nil {
+				log.Println("Erreur sur la suppression du watcher sur le dossier : ", folder)
+			}
+			log.Println("Suppression du watcher sur le dossier : ", folder)
 			err := os.Remove(folder)
 			if err != nil {
-				log.Println("error de suppression de dossier")
+				log.Println("Erreur de suppression de dossier : ", folder)
 			}
 		}
 	}
+	mu.Unlock()
 	return true
 }
 
@@ -292,7 +300,7 @@ func checkIfSizeIsSame(oldFile, newFile string) error {
 func removeAfterCopy(oldFile string) {
 	go func() {
 		time.Sleep(time.Second * 10)
-		log.Println("remove 2 : ", oldFile)
+		log.Println("Sous windows, suppression du fichier / folder : ", oldFile)
 		err := os.Remove(oldFile)
 		if err != nil {
 			log.Println(err)

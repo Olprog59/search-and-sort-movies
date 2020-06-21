@@ -156,8 +156,7 @@ func (a *Application) checkIfNewVersion() bool {
 
 func strToInt64(version string) (vv int64) {
 	tab := strings.Split(version, ".")
-	// TODO : Correction Temporaire pour la mise à jour de 0.9.1.35 à 0.9.1.36
-	if version != "0.9.1.36" {
+	if len(tab) == 4 {
 		if len(tab[1]) == 1 {
 			tab[1] = "0" + tab[1]
 		}

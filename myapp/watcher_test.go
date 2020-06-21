@@ -1,5 +1,14 @@
 package myapp
 
+//
+//import (
+//	"fmt"
+//	"io/ioutil"
+//	"log"
+//	"testing"
+//	"time"
+//)
+//
 //func TestMyWatcher(t *testing.T) {
 //
 //	log.SetFlags(log.LstdFlags | log.Lshortfile)
@@ -20,7 +29,7 @@ package myapp
 //	}()
 //	MyWatcher(GetEnv("dlna"))
 //}
-
+//
 //var listFiles = []string{
 //	"36 quai des orfèvres 1987.mkv",
 //	"l ve es bel.mkv",
