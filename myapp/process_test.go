@@ -145,72 +145,72 @@ import "testing"
 //	}
 //}
 
-func Test_myFile_checkFolderSerie(t *testing.T) {
-	type fields struct {
-		file           string
-		fileWithoutDir string
-		complete       string
-		name           string
-		bingName       string
-		transName      string
-		serieName      string
-		serieNumber    string
-		season         string
-		year           int
-		episode        string
-		count          int
-	}
-	tests := []struct {
-		name   string
-		fields fields
-		want   string
-		want1  string
-	}{
-		{
-			"checkFolderSerie", fields{
-				"/home/sam/go/src/searchAndSort/dlna/star-trek-discovery-s01e25.mkv",
-				"star-trek-discovery-s01e25.mkv",
-				"star-trek-discovery-s01e25",
-				"star-trek-discovery",
-				"",
-				"",
-				"star-trek-discovery",
-				"s01e25",
-				"s01",
-				0,
-				"e25",
-				0,
-			},
-			"star-trek-discovery-s01e25",
-			"/star-trek-discovery/season-01/star-trek-discovery-s01e25",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			m := &myFile{
-				file:           tt.fields.file,
-				fileWithoutDir: tt.fields.fileWithoutDir,
-				complete:       tt.fields.complete,
-				name:           tt.fields.name,
-				bingName:       tt.fields.bingName,
-				transName:      tt.fields.transName,
-				serieName:      tt.fields.serieName,
-				serieNumber:    tt.fields.serieNumber,
-				season:         tt.fields.season,
-				year:           tt.fields.year,
-				episode:        tt.fields.episode,
-				count:          tt.fields.count,
-			}
-			got, got1 := m.checkFolderSerie()
-			if got != tt.want {
-				t.Errorf("checkFolderSerie() got = %v, want %v", got, tt.want)
-			}
-			if got1 != tt.want1 {
-				t.Errorf("checkFolderSerie() got1 = %v, want %v", got1, tt.want1)
-			}
-		})
-	}
-}
+//func Test_myFile_checkFolderSerie(t *testing.T) {
+//	type fields struct {
+//		file           string
+//		fileWithoutDir string
+//		complete       string
+//		name           string
+//		bingName       string
+//		transName      string
+//		serieName      string
+//		serieNumber    string
+//		season         string
+//		year           int
+//		episode        string
+//		count          int
+//	}
+//	tests := []struct {
+//		name   string
+//		fields fields
+//		want   string
+//		want1  string
+//	}{
+//		{
+//			"checkFolderSerie", fields{
+//				"/home/sam/go/src/searchAndSort/dlna/star-trek-discovery-s01e25.mkv",
+//				"star-trek-discovery-s01e25.mkv",
+//				"star-trek-discovery-s01e25",
+//				"star-trek-discovery",
+//				"",
+//				"",
+//				"star-trek-discovery",
+//				"s01e25",
+//				"s01",
+//				0,
+//				"e25",
+//				0,
+//			},
+//			"star-trek-discovery-s01e25",
+//			"/star-trek-discovery/season-01/star-trek-discovery-s01e25",
+//		},
+//	}
+//	for _, tt := range tests {
+//		t.Run(tt.name, func(t *testing.T) {
+//			m := &myFile{
+//				file:           tt.fields.file,
+//				fileWithoutDir: tt.fields.fileWithoutDir,
+//				complete:       tt.fields.complete,
+//				name:           tt.fields.name,
+//				bingName:       tt.fields.bingName,
+//				transName:      tt.fields.transName,
+//				serieName:      tt.fields.serieName,
+//				serieNumber:    tt.fields.serieNumber,
+//				season:         tt.fields.season,
+//				year:           tt.fields.year,
+//				episode:        tt.fields.episode,
+//				count:          tt.fields.count,
+//			}
+//			got, got1 := m.checkFolderSerie()
+//			if got != tt.want {
+//				t.Errorf("checkFolderSerie() got = %v, want %v", got, tt.want)
+//			}
+//			if got1 != tt.want1 {
+//				t.Errorf("checkFolderSerie() got1 = %v, want %v", got1, tt.want1)
+//			}
+//		})
+//	}
+//}
 
 func Test_myFile_translateName(t *testing.T) {
 	type fields struct {
