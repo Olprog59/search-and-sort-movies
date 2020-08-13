@@ -40,7 +40,7 @@ func ServerHttp() {
 	http.HandleFunc("/port", portHandler)
 	http.HandleFunc("/", errorHandler)
 
-	log.Printf("Serveur http démarré sur le port %s\n", port)
+	fmt.Printf("Serveur http démarré sur le port %s\n", port)
 	log.Println(http.ListenAndServe(":"+port, nil))
 }
 
