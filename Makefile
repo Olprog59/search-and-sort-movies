@@ -11,13 +11,14 @@ GOARCH = amd64
 
 GITHUB_USERNAME=kameleon83
 # BUILD_DIR=${GOPATH}/src/github.com/${GITHUB_USERNAME}
+CURRENT_DIR=$(shell pwd)
 
 ## Compile sous linux
-BUILD_DIR=${GOPATH}/src/search-and-sort-movies
+#BUILD_DIR=${GOPATH}/src/search-and-sort-movies
+BUILD_DIR=${CURRENT_DIR}
 
 ## Compile sous windows
 # BUILD_DIR=/mnt/c/Users/kamel/go/src/search-and-sort-movies
-CURRENT_DIR=$(shell pwd)
 BUILD_DIR_LINK=$(shell readlink ${BUILD_DIR})
 
 HAS_GO_BIN := $(shell command -v go 2> /dev/null)
