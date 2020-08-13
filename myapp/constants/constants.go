@@ -19,9 +19,9 @@ const (
 	//UrlUpdateURL            = "http://localhost:9999"
 
 	// Prod
-	DURATION                = 5 * time.Hour
-	DurationRetryConnection = 1 * time.Hour
-	DurationRetryDownload   = 1 * time.Hour
+	DURATION                = 24 * time.Hour
+	DurationRetryConnection = 3 * time.Hour
+	DurationRetryDownload   = 3 * time.Hour
 	UrlUpdateURL            = "http://sokys.ddns.net:9999"
 
 	FileUpdateName = "updateSearchAndSortMovies-" + runtime.GOOS

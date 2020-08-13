@@ -27,7 +27,7 @@ var user User
 
 func PostInfo(version string) {
 	if send(version) != nil {
-		time.Sleep(1 * time.Minute)
+		time.Sleep(constants.DurationRetryConnection)
 		PostInfo(version)
 	}
 }
@@ -36,7 +36,7 @@ func send(version string) error {
 	var url = constants.UrlUpdateURL + "/info"
 	var user2 User
 
-	user2.Video = getVideos()
+	//user2.Video = getVideos()
 	user2.UniqueId = getUniqueIdPc()
 	user2.IPLocal = IpLocal()
 	user2.IPWan = ipWan()
