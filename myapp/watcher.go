@@ -28,7 +28,8 @@ func MyWatcher(location string) {
 			case event := <-watch.Events:
 				if event.Op&fsnotify.Create == fsnotify.Create {
 					re := regexp.MustCompile(constants.RegexFile)
-					if !_checkIfDir(event) {
+					//Ajout d'une sécurité si le fichier a déjà été déplacé
+					if isDir, isNil := _checkIfDir(event); !isDir && !isNil {
 						if re.MatchString(filepath.Ext(event.Name)) {
 							go _fsNotifyCreateFile(event, re)
 						}
@@ -80,18 +81,23 @@ func _stat(event fsnotify.Event) (os.FileInfo, fsnotify.Event) {
 	return f, event
 }
 
-func _checkIfDir(event fsnotify.Event) bool {
+func _checkIfDir(event fsnotify.Event) (isDir bool, isNil bool) {
 	f, e := _stat(event)
 	log.Printf("f: %v, e: %v", f, e)
+	//Ajout d'une sécurité si le fichier a déjà été déplacé
+	if f == nil {
+		return false, true
+	}
 	if f.IsDir() && filepath.Dir(f.Name()) != GetEnv("dlna") {
 		err := watch.Add(e.Name)
 		log.Printf("Ajout d'un watcher sur %s\n", e.Name)
 		if err != nil {
 			log.Println(err)
+		} else {
+			return true, false
 		}
-		return true
 	}
-	return false
+	return false, false
 }
 
 //var wg sync.Mutex
