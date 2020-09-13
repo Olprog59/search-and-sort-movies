@@ -45,7 +45,7 @@ func main() {
 
 	// TODO ne pas oublier d'activer pour l'auto update
 	var applicationUpdate update.Application
-	applicationUpdate.LaunchAppCheckUpdate(BuildVersion, BuildName)
+	go applicationUpdate.LaunchAppCheckUpdate(BuildVersion, BuildName)
 
 	// End test update application auto
 
