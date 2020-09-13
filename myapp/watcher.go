@@ -7,7 +7,6 @@ import (
 	"path/filepath"
 	"regexp"
 	"search-and-sort-movies/myapp/constants"
-	"sync"
 	"time"
 )
 
@@ -19,7 +18,7 @@ func MyWatcher(location string) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	defer watch.Close()
+	//defer watch.Close()
 
 	done := make(chan bool)
 
@@ -95,7 +94,7 @@ func _checkIfDir(event fsnotify.Event) bool {
 	return false
 }
 
-var wg sync.Mutex
+//var wg sync.Mutex
 
 func _fsNotifyCreateFile(event fsnotify.Event, re *regexp.Regexp) {
 	_, e := _stat(event)
@@ -108,8 +107,8 @@ func _fsNotifyCreateFile(event fsnotify.Event, re *regexp.Regexp) {
 		log.Println("Détection de :", filepath.Base(e.Name))
 		var m myFile
 		m.file = event.Name
-		wg.Lock()
+		//wg.Lock()
 		m.Process()
-		wg.Unlock()
+		//wg.Unlock()
 	}
 }
