@@ -1,5 +1,10 @@
 package myapp
 
+import (
+	"net"
+	"regexp"
+)
+
 //type User struct {
 //	Video    model.Video `json:"video"`
 //	UniqueId string      `json:"unique_id"`
@@ -73,31 +78,32 @@ package myapp
 //	}
 //	return id
 //}
-//func IpLocal() net.IP {
-//	ifaces, _ := net.Interfaces()
-//	// handle err
-//	//var re = regexp.MustCompile(`(?m)192.168.\d+.\d+`)
-//	var re = regexp.MustCompile(`(?m)(?:127|0).0.\d+.\d+`)
-//	for _, i := range ifaces {
-//		addrs, _ := i.Addrs()
-//		// handle err
-//		for _, addr := range addrs {
-//			var ip net.IP
-//			switch v := addr.(type) {
-//			case *net.IPNet:
-//				ip = v.IP
-//			case *net.IPAddr:
-//				ip = v.IP
-//			}
-//			if ip != nil {
-//				if !re.MatchString(ip.To4().String()) && ip.To4() != nil {
-//					return ip
-//				}
-//			}
-//		}
-//	}
-//	return nil
-//}
+func IpLocal() net.IP {
+	ifaces, _ := net.Interfaces()
+	// handle err
+	//var re = regexp.MustCompile(`(?m)192.168.\d+.\d+`)
+	var re = regexp.MustCompile(`(?m)(?:127|0).0.\d+.\d+`)
+	for _, i := range ifaces {
+		addrs, _ := i.Addrs()
+		// handle err
+		for _, addr := range addrs {
+			var ip net.IP
+			switch v := addr.(type) {
+			case *net.IPNet:
+				ip = v.IP
+			case *net.IPAddr:
+				ip = v.IP
+			}
+			if ip != nil {
+				if !re.MatchString(ip.To4().String()) && ip.To4() != nil {
+					return ip
+				}
+			}
+		}
+	}
+	return nil
+}
+
 //
 //// Ok Test
 //func ipWan() string {
