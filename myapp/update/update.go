@@ -6,7 +6,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"search-and-sort-movies/myapp"
 	"search-and-sort-movies/myapp/constants"
 	"search-and-sort-movies/myapp/model"
 	"strconv"
@@ -57,9 +56,10 @@ func (a *Application) operationAll() {
 			executeUpdate()
 			os.Exit(0)
 		}
-	} else {
-		go myapp.PostInfo(a.OldVersion)
 	}
+	//else {
+	//	go myapp.PostInfo(a.OldVersion)
+	//}
 }
 
 var buildInfo model.BuildInfo
