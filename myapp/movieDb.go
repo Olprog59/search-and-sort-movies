@@ -87,12 +87,12 @@ func (m *myFile) checkMovieDB(tv, lang bool, name string) string {
 	var url string
 
 	name = slug.Slugify(name)
-	if newName := loopGetBingName(name); newName != "" {
+	if newName := loopGetSearchEngine(name); newName != "" {
 		name = slug.Slugify(newName)
 	}
 	url = "https://api.themoviedb.org/3/search/multi?api_key=" + constants.ApiV3 + language + "&query=" + name
 	//}
-	m.bingName = name
+	m.SearchEngine = name
 	log.Println(url)
 	return url
 }

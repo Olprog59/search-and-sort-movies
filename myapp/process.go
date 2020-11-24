@@ -31,7 +31,7 @@ type myFile struct {
 	fileWithoutDir string
 	complete       string
 	name           string
-	bingName       string
+	SearchEngine   string
 	transName      string
 	serieName      string
 	serieNumber    string
@@ -68,8 +68,8 @@ func (m *myFile) isMovie() {
 		movie, _ = m.dbMovies(false, m.name)
 	}
 	if len(movie.Results) > 0 {
-		if m.bingName != "" {
-			m.name = slugify.Slugify(m.bingName)
+		if m.SearchEngine != "" {
+			m.name = slugify.Slugify(m.SearchEngine)
 		}
 		var path1 string
 		m.complete = m.name + extension
@@ -96,8 +96,8 @@ func (m *myFile) isMovie() {
 func (m *myFile) isSerie() {
 	serie, _ := m.dbSeries(false, m.serieName)
 	if len(serie.Results) > 0 {
-		if m.bingName != "" {
-			m.serieName = slugify.Slugify(m.bingName)
+		if m.SearchEngine != "" {
+			m.serieName = slugify.Slugify(m.SearchEngine)
 		}
 		m.checkFolderSerie()
 	} else {

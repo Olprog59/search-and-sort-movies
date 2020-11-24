@@ -2,7 +2,7 @@ package myapp
 
 import "testing"
 
-func Test_loopGetBingName(t *testing.T) {
+func Test_loopGetSearchEngine(t *testing.T) {
 	type args struct {
 		name string
 	}
@@ -12,7 +12,7 @@ func Test_loopGetBingName(t *testing.T) {
 		want string
 	}{
 		{
-			"loopGetBingName", args{
+			"loopGetSearchEngine", args{
 				"Boruto 81 Vostfr",
 			},
 			"boruto+81+vostfr",
@@ -20,14 +20,14 @@ func Test_loopGetBingName(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := loopGetBingName(tt.args.name); got != tt.want {
-				t.Errorf("loopGetBingName() = %v, want %v", got, tt.want)
+			if got := loopGetSearchEngine(tt.args.name); got != tt.want {
+				t.Errorf("loopGetSearchEngine() = %v, want %v", got, tt.want)
 			}
 		})
 	}
 }
 
-func Test_getBingName(t *testing.T) {
+func Test_getSearchEngine(t *testing.T) {
 	type args struct {
 		name string
 	}
@@ -37,7 +37,7 @@ func Test_getBingName(t *testing.T) {
 		want string
 	}{
 		{
-			"getBingName", args{
+			"getSearchEngine", args{
 				"narutto",
 			},
 			"naruto",
@@ -45,8 +45,8 @@ func Test_getBingName(t *testing.T) {
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := getBingName(tt.args.name); got != tt.want {
-				t.Errorf("getBingName() = %v, want %v", got, tt.want)
+			if got := getSearchEngine(tt.args.name); got != tt.want {
+				t.Errorf("getSearchEngine() = %v, want %v", got, tt.want)
 			}
 		})
 	}

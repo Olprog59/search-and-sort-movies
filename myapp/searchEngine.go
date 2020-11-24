@@ -12,29 +12,39 @@ import (
 	"time"
 )
 
-func loopGetBingName(name string) string {
+func loopGetSearchEngine(name string) string {
 	slug := slugify.New(slugify.Configuration{
 		ReplaceCharacter: '+',
 	})
 	name = slug.Slugify(name)
-	var proposition = getBingName(name)
+	var proposition = getSearchEngine(name)
 
 	for proposition != "" {
 		name = slug.Slugify(proposition)
-		proposition = getBingName(name)
+		proposition = getSearchEngine(name)
 	}
 	return name
 }
 
 // Ok Test
-func getBingName(name string) string {
+func getSearchEngine(name string) string {
 	var proposition string
 
-	resp, err := http.Get("https://www.bing.com/search?q=" + name)
-	log.Println("https://www.bing.com/search?q=" + name)
+	req, err := http.NewRequest("GET", "https://www.ecosia.org/search", nil)
+
+	if req != nil {
+		param := req.URL.Query()
+		param.Add("q", name)
+		req.URL.RawQuery = param.Encode()
+	}
+
+	client := new(http.Client)
+
+	resp, err := client.Do(req)
+
 	if resp == nil || err != nil {
 		time.Sleep(1 * time.Minute)
-		return getBingName(name)
+		return getSearchEngine(name)
 	}
 
 	if resp.StatusCode != http.StatusOK {
@@ -51,6 +61,9 @@ func getBingName(name string) string {
 
 	defer resp.Body.Close()
 	doc := html.NewTokenizer(resp.Body)
+	//out, _ := os.Create("./bing.txt")
+	//defer out.Close()
+	//_, _ = io.Copy(out, resp.Body)
 
 	for {
 		tokenType := doc.Next()
@@ -69,39 +82,18 @@ func getBingName(name string) string {
 			//get the token
 			token := doc.Token()
 			//if the name of the element is "div"
-			if atom.Div == token.DataAtom {
+			if atom.A == token.DataAtom {
 				for _, v := range token.Attr {
-					if v.Key == "id" && v.Val == "sp_requery" {
+					if v.Key == "class" && v.Val == "result-title" {
 						tokenType = doc.Next()
 						if tokenType == html.TextToken {
-							tokenType = doc.Next()
-						}
-						token = doc.Token()
-						if atom.A == token.DataAtom {
-							tokenType = doc.Next()
+							//tokenType = doc.Next()
 							token = doc.Token()
-							//log.Println(html.TextToken == tokenType, atom.Strong == token.DataAtom)
 							if html.TextToken == tokenType {
 								proposition = fmt.Sprintf("%v", token)
 							}
-
-							if atom.Strong == token.DataAtom {
-								tokenType = doc.Next()
-								token = doc.Token()
-								proposition = fmt.Sprintf("%v", token)
-							}
-
-							tokenType = doc.Next()
-							token = doc.Token()
-							if atom.Strong == token.DataAtom {
-								tokenType = doc.Next()
-								token = doc.Token()
-								if tokenType == html.TextToken {
-									proposition += fmt.Sprintf("%v", token)
-								}
-							}
-							break
 						}
+						token = doc.Token()
 						break
 					}
 				}
