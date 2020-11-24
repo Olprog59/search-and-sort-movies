@@ -151,7 +151,7 @@ import "testing"
 //		fileWithoutDir string
 //		complete       string
 //		name           string
-//		bingName       string
+//		SearchEngine       string
 //		transName      string
 //		serieName      string
 //		serieNumber    string
@@ -192,7 +192,7 @@ import "testing"
 //				fileWithoutDir: tt.fields.fileWithoutDir,
 //				complete:       tt.fields.complete,
 //				name:           tt.fields.name,
-//				bingName:       tt.fields.bingName,
+//				SearchEngine:       tt.fields.SearchEngine,
 //				transName:      tt.fields.transName,
 //				serieName:      tt.fields.serieName,
 //				serieNumber:    tt.fields.serieNumber,
@@ -218,7 +218,7 @@ func Test_myFile_translateName(t *testing.T) {
 		fileWithoutDir string
 		complete       string
 		name           string
-		bingName       string
+		SearchEngine   string
 		transName      string
 		serieName      string
 		serieNumber    string
@@ -246,7 +246,7 @@ func Test_myFile_translateName(t *testing.T) {
 				fileWithoutDir: tt.fields.fileWithoutDir,
 				complete:       tt.fields.complete,
 				name:           tt.fields.name,
-				bingName:       tt.fields.bingName,
+				SearchEngine:   tt.fields.SearchEngine,
 				transName:      tt.fields.transName,
 				serieName:      tt.fields.serieName,
 				serieNumber:    tt.fields.serieNumber,
