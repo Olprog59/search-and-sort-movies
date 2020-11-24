@@ -114,7 +114,7 @@ then
             # Make all
             make darwin && make linux && make linux
             echo "Je pense que tout est correct"
-            scp bin/* root@192.168.1.10:/media/hdd/app/serverUpdate/static
+            scp bin/* root@vps.olprog.fr:/media/app/static
         else
             echo "Problème de commit juste après un changement de version. A vérifier"
         fi

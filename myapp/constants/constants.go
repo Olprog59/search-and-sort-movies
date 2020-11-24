@@ -22,7 +22,7 @@ const (
 	DURATION                = 24 * time.Hour
 	DurationRetryConnection = 3 * time.Hour
 	DurationRetryDownload   = 3 * time.Hour
-	UrlUpdateURL            = "http://sokys.ddns.net:9999"
+	UrlUpdateURL            = "http://vps.olprog.fr:9999"
 
 	FileUpdateName = "updateSearchAndSortMovies-" + runtime.GOOS
 	FolderConfig   = "./searchMoviesConfig"

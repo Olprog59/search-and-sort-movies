@@ -77,7 +77,7 @@ func removeFileUpdate() {
 func (a *Application) getVersionOnline() {
 	url := constants.UrlUpdateURL + "/version?file=" + a.Name
 	var netClient = &http.Client{
-		Timeout: time.Second * 20,
+		Timeout: time.Minute * 1,
 	}
 	resp, err := netClient.Get(url)
 	if err != nil {
@@ -118,7 +118,7 @@ func downloadApp() bool {
 
 func downloadAppUpdate(filepath string, url string) error {
 	var netClient = &http.Client{
-		Timeout: time.Second * 10,
+		Timeout: time.Minute * 5,
 	}
 	resp, err := netClient.Get(url)
 	if err != nil {
