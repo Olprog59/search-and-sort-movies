@@ -15,13 +15,17 @@ func (m *myFile) slugFile() {
 	ext := filepath.Ext(m.complete)
 	m.name = strings.ToLower(m.complete[:len(m.complete)-len(ext)])
 	m.name = slugify.Slugify(m.name)
-	print(m.name)
 	var err error
 
 	video := regexp.MustCompile(`(?mi)-(french|dvdrip|multi|vostfr|dvd-r|bluray|bdrip|brrip|cam|ts|tc|vcd|md|ld|r[0-9]|xvid|divx|scr|dvdscr|repack|hdlight|720p|480p|1080p|2160p|uhd)`)
 	yearReg := regexp.MustCompile(`(?mi)-[0-9]{4}`)
 
-	serie := regexp.MustCompile(`(?mi)((s\d{1,2})(?:\W+)?(e?\d{1,2}))|(?:e\d{1,2})|(episode-(\d{2,3})-)|((\d{1,2})-(\d{1,2})\D)|((saison|season)-(\d{1,2})-episode-(\d{1,2}))`)
+	cleanName := video.FindStringIndex(m.name)
+	if len(cleanName) > 0 {
+		m.name = m.name[:cleanName[0]]
+	}
+
+	serie := regexp.MustCompile(`(?mi)((s\d{1,2})(?:\W+)?(e?\d{1,2}))|(?:e\d{1,2})|(episode-(\d{2,3})-)|((\d{1,2})-(\d{1,2})$)|((saison|season)-(\d{1,2})-episode-(\d{1,2}))`)
 	match := serie.FindAllStringSubmatch(m.name, -1)
 
 	if len(match) > 0 {
@@ -41,7 +45,6 @@ func (m *myFile) slugFile() {
 			} else if v[2] != "" && v[3] != "" {
 				m.season = formatSaisonNumberOuEpisode(v[2], 's')
 				m.episode = formatSaisonNumberOuEpisode(v[3], 'e')
-
 			} else {
 				m.episode = formatSaisonNumberOuEpisode(v[0], 'e')
 				m.season = "s00"
