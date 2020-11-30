@@ -48,6 +48,7 @@ func errorHandler(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusNotFound)
 	_, _ = fmt.Fprint(w, errorHtml)
 }
+
 func configHandler(w http.ResponseWriter, r *http.Request) {
 	pwd, _ := os.Getwd()
 	if r.Method == http.MethodGet {

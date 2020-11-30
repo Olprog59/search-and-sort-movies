@@ -56,6 +56,8 @@ func (a *Application) operationAll() {
 			executeUpdate()
 			os.Exit(0)
 		}
+	} else {
+		log.Println("Pas de mise à jour. Version actuelle : " + a.OldVersion)
 	}
 	//else {
 	//	go myapp.PostInfo(a.OldVersion)
