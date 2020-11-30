@@ -292,7 +292,7 @@ func checkIfSizeIsSame(oldFile, newFile string) error {
 	}
 
 	if newFileSize != oldFileSize {
-		return errors.New("The files are not the same size. The operation will start again")
+		return errors.New("the files are not the same size. The operation will start again")
 	}
 	return nil
 }
