@@ -108,7 +108,7 @@ func (m *myFile) isNotFindInMovieDb(name, serieOrMovie string) {
 	} else if m.count < 2 {
 		m.count++
 		time.Sleep(2000 * time.Millisecond)
-		m.translateName()
+		//m.translateName()
 		m.start(serieOrMovie)
 	} else {
 		fmt.Println(logger.Warn(name + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + name + ".\n Test manuellement si tu le trouves ;-)"))
