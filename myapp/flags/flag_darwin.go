@@ -7,6 +7,7 @@ import (
 	"os"
 	"runtime"
 	"search-and-sort-movies/myapp"
+	"search-and-sort-movies/myapp/logger"
 	"search-and-sort-movies/myapp/model"
 )
 
@@ -30,7 +31,7 @@ func Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean string) {
 		if *jsonFormat {
 			prettyJson, err := json.MarshalIndent(&buildInfo, "", " ")
 			if err != nil {
-				fmt.Println(err)
+				fmt.Println(logger.Warn(err))
 			}
 			fmt.Printf("%s\n", string(prettyJson))
 			os.Exit(1)

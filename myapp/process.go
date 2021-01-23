@@ -7,7 +7,6 @@ import (
 	"github.com/Machiel/slugify"
 	"io"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -15,6 +14,7 @@ import (
 	"path/filepath"
 	"runtime"
 	"search-and-sort-movies/myapp/constants"
+	"search-and-sort-movies/myapp/logger"
 	"strconv"
 	"strings"
 	"sync"
@@ -22,8 +22,8 @@ import (
 )
 
 var (
-	movies = GetEnv("movies")
-	series = GetEnv("series")
+	movies = constants.MOVIES
+	series = constants.SERIES
 )
 
 type myFile struct {
@@ -45,7 +45,7 @@ func (m *myFile) Process() {
 	m.count = 0
 	_, m.complete = filepath.Split(m.file)
 	m.fileWithoutDir = m.complete
-	log.Println("complete: ", m.complete)
+	fmt.Println("complete: ", m.complete)
 	m.start("")
 }
 
@@ -60,7 +60,7 @@ func (m *myFile) start(serieOrMovieOrBoth string) {
 
 func (m *myFile) isMovie() {
 	extension := filepath.Ext(m.file)
-	log.Println("name: ", m.name)
+	fmt.Println("name: ", m.name)
 	var movie MoviesDb
 	if m.transName != "" {
 		movie, _ = m.dbMovies(false, m.transName)
@@ -83,12 +83,12 @@ func (m *myFile) isMovie() {
 			m.createFileForLearning(true)
 		} else {
 			if moveOrRenameFile(m.file, path1) {
-				log.Printf("%s a bien été déplacé dans %s", m.fileWithoutDir, path1)
+				fmt.Printf("%s a bien été déplacé dans %s", m.fileWithoutDir, path1)
 				m.createFileForLearning(true)
 			}
 		}
 	} else {
-		log.Printf("isMovie : %s", m.name)
+		fmt.Printf("isMovie : %s", m.name)
 		m.isNotFindInMovieDb(m.name, "movie")
 	}
 }
@@ -116,7 +116,7 @@ func (m *myFile) isNotFindInMovieDb(name, serieOrMovie string) {
 		m.translateName()
 		m.start(serieOrMovie)
 	} else {
-		log.Println(name + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + name + ".\n Test manuellement si tu le trouves ;-)")
+		fmt.Println(name + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + name + ".\n Test manuellement si tu le trouves ;-)")
 		m.createFileForLearning(false)
 		m.count = 0
 	}
@@ -127,11 +127,11 @@ func (m *myFile) checkFolderSerie() (string, string) {
 	newFolder := string(os.PathSeparator) + m.serieName + string(os.PathSeparator) + "season-" + m.season[1:]
 	folderOk := series + string(os.PathSeparator) + m.serieName
 	if _, err := os.Stat(folderOk); os.IsNotExist(err) {
-		log.Printf("Création du dossier : %s\n", m.serieName)
+		fmt.Printf("Création du dossier : %s\n", m.serieName)
 		createFolder(folderOk)
 	}
 	if _, err := os.Stat(series + newFolder); os.IsNotExist(err) {
-		log.Printf("Création du dossier : %s\n", newFolder)
+		fmt.Printf("Création du dossier : %s\n", newFolder)
 		createFolder(series + newFolder)
 	}
 
@@ -142,7 +142,7 @@ func (m *myFile) checkFolderSerie() (string, string) {
 		m.createFileForLearning(true)
 	} else {
 		if moveOrRenameFile(m.file, finalFilePath) {
-			log.Printf("%s a bien été déplacé dans %s", m.fileWithoutDir, finalFilePath)
+			fmt.Printf("%s a bien été déplacé dans %s", m.fileWithoutDir, finalFilePath)
 			m.createFileForLearning(true)
 		}
 	}
@@ -164,26 +164,26 @@ func (m *myFile) translateName() {
 	}
 	defer resp.Body.Close()
 
-	log.Println(resp.Request)
+	fmt.Println(resp.Request)
 
 	if resp.StatusCode != http.StatusOK {
-		log.Printf("response status code was %d\n", resp.StatusCode)
+		fmt.Printf("response status code was %d\n", resp.StatusCode)
 	}
 
 	ctype := resp.Header.Get("Content-Type")
 	if !strings.HasPrefix(ctype, "application/json") {
-		log.Printf("response content type was %s not text/html\n", ctype)
+		fmt.Printf("response content type was %s not text/html\n", ctype)
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Println(err)
+		fmt.Println(logger.Warn(err))
 	}
 
 	var arr [][][]string
 	_ = json.Unmarshal(body, &arr)
 	if err != nil {
-		log.Println(err)
+		fmt.Println(logger.Warn(err))
 	}
 
 	m.transName = arr[0][0][0]
@@ -192,7 +192,7 @@ func (m *myFile) translateName() {
 func createFolder(folder string) {
 	err := os.MkdirAll(folder, os.ModePerm)
 	if err != nil {
-		log.Println(err)
+		fmt.Println(logger.Warn(err))
 	}
 }
 
@@ -202,22 +202,22 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 	mu.Lock()
 	err := os.Rename(filePathOld, filePathNew)
 	if err != nil {
-		log.Printf("Move Or Rename File : %s", err)
+		fmt.Printf("Move Or Rename File : %s", err)
 		mu.Unlock()
 		return false
 	}
 	folder := filepath.Dir(filePathOld)
-	if folder != GetEnv("dlna") {
+	if folder != constants.A_TRIER {
 		file, _ := ioutil.ReadDir(folder)
 		if len(file) == 0 {
 			err = watch.Remove(folder)
 			if err != nil {
-				log.Println("Erreur sur la suppression du watcher sur le dossier : ", folder)
+				fmt.Println("Erreur sur la suppression du watcher sur le dossier : ", folder)
 			}
-			log.Println("Suppression du watcher sur le dossier : ", folder)
+			fmt.Println("Suppression du watcher sur le dossier : ", folder)
 			err := os.Remove(folder)
 			if err != nil {
-				log.Println("Erreur de suppression de dossier : ", folder)
+				fmt.Println("Erreur de suppression de dossier : ", folder)
 			}
 		}
 	}
@@ -232,7 +232,7 @@ func copyFile(oldFile, newFile string) {
 	go func() {
 		r, err := os.Open(oldFile)
 		if err != nil {
-			log.Println(err)
+			fmt.Println(logger.Warn(err))
 		}
 		defer r.Close()
 
@@ -240,20 +240,20 @@ func copyFile(oldFile, newFile string) {
 
 		w, err := os.Create(newFile)
 		if err != nil {
-			log.Println(err)
+			fmt.Println(logger.Warn(err))
 		}
 		defer w.Close()
 
 		// do the actual work
 		n, err := io.Copy(w, r)
 		if err != nil {
-			log.Println(err)
+			fmt.Println(logger.Warn(err))
 		}
 		err = os.Chown(newFile, 0, 0)
 		if err != nil {
-			log.Println(err)
+			fmt.Println(logger.Warn(err))
 		}
-		log.Printf("Copied file : %s to %s - %v bytes\n", oldFile, newFile, n)
+		fmt.Printf("Copied file : %s to %s - %v bytes\n", oldFile, newFile, n)
 		return
 	}()
 
@@ -261,10 +261,10 @@ func copyFile(oldFile, newFile string) {
 	go func() {
 		err := checkIfSizeIsSame(oldFile, newFile)
 		if err != nil {
-			log.Println(err)
+			fmt.Println(logger.Warn(err))
 			copyFile(oldFile, newFile)
 		} else {
-			log.Println("Le fichier est correctement copié. La source va être supprimé !")
+			fmt.Println("Le fichier est correctement copié. La source va être supprimé !")
 			removeAfterCopy(oldFile)
 		}
 	}()
@@ -273,7 +273,7 @@ func copyFile(oldFile, newFile string) {
 func checkSizeFile(file string) (int64, error) {
 	f, err := os.Stat(file)
 	if err != nil {
-		log.Println(err)
+		fmt.Println(logger.Warn(err))
 		return f.Size(), err
 	}
 
@@ -300,10 +300,10 @@ func checkIfSizeIsSame(oldFile, newFile string) error {
 func removeAfterCopy(oldFile string) {
 	go func() {
 		time.Sleep(time.Second * 10)
-		log.Println("Sous windows, suppression du fichier / folder : ", oldFile)
+		fmt.Println("Sous windows, suppression du fichier / folder : ", oldFile)
 		err := os.Remove(oldFile)
 		if err != nil {
-			log.Println(err)
+			fmt.Println(logger.Warn(err))
 		}
 	}()
 }
@@ -312,10 +312,10 @@ func removeAfterCopy(oldFile string) {
 func (m *myFile) createFileForLearning(videosTry bool) {
 	f, err := os.OpenFile(path.Clean(constants.LearningFile), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
-		log.Println(err)
+		fmt.Println(logger.Warn(err))
 	}
 	_, err = f.Write([]byte(fmt.Sprintf("%s;%s;%t\n", m.fileWithoutDir, m.complete, videosTry)))
 	if err != nil {
-		log.Println(err)
+		fmt.Println(logger.Warn(err))
 	}
 }
