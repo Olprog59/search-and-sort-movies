@@ -200,7 +200,8 @@ var mu sync.Mutex
 
 func moveOrRenameFile(filePathOld, filePathNew string) bool {
 	mu.Lock()
-	err := os.Rename(filePathOld, filePathNew)
+	//err := os.Rename(filePathOld, filePathNew)
+	err := MoveFile(filePathOld, filePathNew)
 	if err != nil {
 		fmt.Printf("Move Or Rename File : %s", err)
 		mu.Unlock()
@@ -223,6 +224,33 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 	}
 	mu.Unlock()
 	return true
+}
+func MoveFile(sourcePath, destPath string) error {
+	inputFile, err := os.Open(sourcePath)
+	if err != nil {
+		fmt.Println(logger.Fata("Couldn't open source file: ", err))
+		return err
+	}
+	outputFile, err := os.Create(destPath)
+	if err != nil {
+		inputFile.Close()
+		fmt.Println(logger.Fata("Couldn't open dest file: ", err))
+		return err
+	}
+	defer outputFile.Close()
+	_, err = io.Copy(outputFile, inputFile)
+	inputFile.Close()
+	if err != nil {
+		fmt.Println(logger.Fata("Writing to output file failed: ", err))
+		return err
+	}
+	// The copy was successful, so now delete the original file
+	err = os.Remove(sourcePath)
+	if err != nil {
+		fmt.Println(logger.Fata("Failed removing original file: ", err))
+		return err
+	}
+	return nil
 }
 
 // si l'OS est windows alors je fais une copie et pas un déplacement
