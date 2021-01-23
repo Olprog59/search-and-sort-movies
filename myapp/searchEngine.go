@@ -6,8 +6,8 @@ import (
 	"golang.org/x/net/html"
 	"golang.org/x/net/html/atom"
 	"io"
-	"log"
 	"net/http"
+	"search-and-sort-movies/myapp/logger"
 	"strings"
 	"time"
 )
@@ -48,14 +48,14 @@ func getSearchEngine(name string) string {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		log.Printf("response status code was %d\n", resp.StatusCode)
+		fmt.Printf("response status code was %d\n", resp.StatusCode)
 		return name
 	}
 
 	//check response content type
 	ctype := resp.Header.Get("Content-Type")
 	if !strings.HasPrefix(ctype, "text/html") {
-		log.Printf("response content type was %s not text/html\n", ctype)
+		fmt.Printf("response content type was %s not text/html\n", ctype)
 		return name
 	}
 
@@ -76,7 +76,7 @@ func getSearchEngine(name string) string {
 				//end of the file, break out of the loop
 				break
 			}
-			log.Fatalf("error tokenizing HTML: %v", doc.Err())
+			fmt.Println(logger.Fata("error tokenizing HTML: %v", doc.Err()))
 		}
 		if tokenType == html.StartTagToken {
 			//get the token
