@@ -112,9 +112,9 @@ then
         if [ $BUILD_CLEAN = yes ]
         then
             # Make all
-            make darwin && make linux && make linux
+            make linux
             echo "Je pense que tout est correct"
-            scp bin/* root@vps.olprog.fr:/media/app/static
+#            scp bin/* root@vps.olprog.fr:/media/app/static
         else
             echo "Problème de commit juste après un changement de version. A vérifier"
         fi
