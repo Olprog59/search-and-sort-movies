@@ -1,7 +1,7 @@
 package myapp
 
 import (
-	"log"
+	"fmt"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -19,7 +19,7 @@ func StartScan() {
 func fileInFolder() (int, []string) {
 	var files []string
 	var count int
-	err := filepath.Walk(GetEnv("dlna"), func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(constants.A_TRIER, func(path string, info os.FileInfo, err error) error {
 		if info.IsDir() {
 			return nil
 		}
@@ -31,18 +31,18 @@ func fileInFolder() (int, []string) {
 		return nil
 	})
 	if err != nil {
-		log.Printf("walk error [%v]\n", err)
+		fmt.Printf("walk error [%v]\n", err)
 	}
 	return count, files
 }
 
 func boucleFiles(files []string) {
-	log.Println("Démarrage du tri !")
+	fmt.Println("Démarrage du tri !")
 	for _, f := range files {
-		log.Println("File : " + f)
+		fmt.Println("File : " + f)
 		var m myFile
 		m.file = f
 		m.Process()
 	}
-	log.Println("Tri terminé !")
+	fmt.Println("Tri terminé !")
 }

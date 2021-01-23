@@ -11,7 +11,7 @@ package myapp
 //
 //func TestMyWatcher(t *testing.T) {
 //
-//	log.SetFlags(log.LstdFlags | log.Lshortfile)
+//	fmt.SetFlags(fmt.LstdFlags | fmt.Lshortfile)
 //	var err error
 //	go func() {
 //		time.Sleep(2 * time.Second)

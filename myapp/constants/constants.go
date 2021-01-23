@@ -1,33 +1,20 @@
 package constants
 
-import (
-	"os"
-	"runtime"
-	"time"
-)
-
 const (
 	//apiV4 = "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJhdWQiOiJlYTg3Nzk2MzhmMDc4ZjI1ZGFhMzkxM2U4MGZlNDZlYiIsInN1YiI6IjU5Y2Y3NjdiYzNhMzY4MWViMTAxOThjNyIsInNjb3BlcyI6WyJhcGlfcmVhZCJdLCJ2ZXJzaW9uIjoxfQ.mAxfQbzn4WIft74XAooGGiw7PhHxMNTu8TtTvPwhh1c"
 	ApiV3 = "ea8779638f078f25daa3913e80fe46eb"
 
 	RegexFile = `(.mkv|.mp4|.avi|.flv|.mov)`
 
-	// Dev
-	//DURATION                = 1 * time.Minute
-	//DurationRetryConnection = 1 * time.Minute
-	//DurationRetryDownload   = 1 * time.Minute
-	//UrlUpdateURL            = "http://localhost:9999"
+	LearningFile = ".learning.csv"
 
 	// Prod
-	DURATION                = 24 * time.Hour
-	DurationRetryConnection = 3 * time.Hour
-	DurationRetryDownload   = 3 * time.Hour
-	UrlUpdateURL            = "http://vps.olprog.fr:9999"
+	A_TRIER = "/be_sorted"
+	MOVIES  = "/movies"
+	SERIES  = "/series"
 
-	FileUpdateName = "updateSearchAndSortMovies-" + runtime.GOOS
-	FolderConfig   = "./searchMoviesConfig"
-
-	LOGFILE      = FolderConfig + string(os.PathSeparator) + "log_SearchAndSort"
-	ConfigFile   = FolderConfig + string(os.PathSeparator) + ".config.json"
-	LearningFile = FolderConfig + string(os.PathSeparator) + ".learning.csv"
+	// Dev
+	//A_TRIER = "./dlna/be_sorted"
+	//MOVIES = "./dlna/movies"
+	//SERIES = "./dlna/series"
 )
