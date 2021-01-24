@@ -8,7 +8,6 @@ import (
 	"net/http"
 	"net/url"
 	"os"
-	"os/exec"
 	"path"
 	"path/filepath"
 	"search-and-sort-movies/myapp/constants"
@@ -16,6 +15,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"syscall"
 	"time"
 )
 
@@ -190,11 +190,11 @@ var mu sync.Mutex
 
 func moveOrRenameFile(filePathOld, filePathNew string) bool {
 	mu.Lock()
-	//err := os.Rename(filePathOld, filePathNew)
+	err := syscall.Rename(filePathOld, filePathNew)
 	//err := MoveFile(filePathOld, filePathNew)
-	cmd := exec.Command("/bin/sh", "-c", "mv "+filePathOld+" "+filePathNew)
-	fmt.Println(logger.Info("Test du mv avec exec.Command"))
-	err := cmd.Run()
+	//cmd := exec.Command("/bin/sh", "-c", "mv "+filePathOld+" "+filePathNew)
+	//fmt.Println(logger.Info("Test du mv avec exec.Command"))
+	//err := cmd.Run()
 	if err != nil {
 		fmt.Println(logger.Warn("Move Or Rename File : %s", err))
 		mu.Unlock()
