@@ -17,6 +17,12 @@ func Test_loopGetSearchEngine(t *testing.T) {
 			},
 			"boruto+81+vostfr",
 		},
+		{
+			"loopGetSearchEngine", args{
+				"narutto",
+			},
+			"naruto",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -41,6 +47,18 @@ func Test_getSearchEngine(t *testing.T) {
 				"narutto",
 			},
 			"naruto",
+		},
+		{
+			"getSearchEngine", args{
+				"the hundred",
+			},
+			"the 100",
+		},
+		{
+			"getSearchEngine", args{
+				"Motherland.Fort.Salem",
+			},
+			"motherland: fort salem",
 		},
 	}
 	for _, tt := range tests {
