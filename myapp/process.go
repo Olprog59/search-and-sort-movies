@@ -10,7 +10,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"runtime"
 	"search-and-sort-movies/myapp/constants"
 	"search-and-sort-movies/myapp/logger"
 	"strconv"
@@ -44,7 +43,7 @@ func (m *myFile) Process() {
 	m.count = 0
 	_, m.complete = filepath.Split(m.file)
 	m.fileWithoutDir = m.complete
-	logger.L(logger.Yellow, "complete: ", m.complete)
+	logger.L(logger.Yellow, "complete: %s", m.complete)
 	m.start("")
 }
 
@@ -59,7 +58,7 @@ func (m *myFile) start(serieOrMovieOrBoth string) {
 
 func (m *myFile) isMovie() {
 	extension := filepath.Ext(m.file)
-	logger.L(logger.Yellow, "name: ", m.name)
+	logger.L(logger.Yellow, "name: %s", m.name)
 	var movie MoviesDb
 	if m.transName != "" {
 		movie, _ = m.dbMovies(false, m.transName)
@@ -168,13 +167,13 @@ func (m *myFile) translateName() {
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		logger.L(logger.Red, "", err)
+		logger.L(logger.Red, "%s", err)
 	}
 
 	var arr [][][]string
 	_ = json.Unmarshal(body, &arr)
 	if err != nil {
-		logger.L(logger.Red, "", err)
+		logger.L(logger.Red, "%s", err)
 	}
 
 	m.transName = arr[0][0][0]
@@ -183,7 +182,7 @@ func (m *myFile) translateName() {
 func createFolder(folder string) {
 	err := os.MkdirAll(folder, os.ModePerm)
 	if err != nil {
-		logger.L(logger.Red, "", err)
+		logger.L(logger.Red, "%s", err)
 	}
 }
 
@@ -192,13 +191,13 @@ var mu sync.Mutex
 func moveOrRenameFile(filePathOld, filePathNew string) bool {
 	mu.Lock()
 	err := syscall.Rename(filePathOld, filePathNew)
-	logger.L(logger.Yellow, "", runtime.GOOS, runtime.GOARCH)
+	//logger.L(logger.Yellow, "Goos: %s - GoArch: %s", runtime.GOOS, runtime.GOARCH)
 	//err := MoveFile(filePathOld, filePathNew)
 	//cmd := exec.Command("/bin/sh", "-c", "mv "+filePathOld+" "+filePathNew)
 	//log.Println(logger.Yellow("Test du mv avec exec.Command"))
 	//err := cmd.Run()
 	if err != nil {
-		logger.L(logger.Red, "Move Or Rename File : ", err)
+		logger.L(logger.Red, "Move Or Rename File : %s", err)
 		mu.Unlock()
 		return false
 	}
@@ -208,12 +207,12 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 		if len(file) == 0 {
 			err = watch.Remove(folder)
 			if err != nil {
-				logger.L(logger.Red, "Erreur sur la suppression du watcher sur le dossier : ", folder)
+				logger.L(logger.Red, "Erreur sur la suppression du watcher sur le dossier : %s", folder)
 			}
-			logger.L(logger.Yellow, "Suppression du watcher sur le dossier : ", folder)
+			logger.L(logger.Yellow, "Suppression du watcher sur le dossier : %s", folder)
 			err := os.Remove(folder)
 			if err != nil {
-				logger.L(logger.Red, "Erreur de suppression de dossier : ", folder)
+				logger.L(logger.Red, "Erreur de suppression de dossier : %s", folder)
 			}
 		}
 	}
@@ -225,10 +224,10 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 func (m *myFile) createFileForLearning(videosTry bool) {
 	f, err := os.OpenFile(path.Clean(constants.LearningFile), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
-		logger.L(logger.Red, "", err)
+		logger.L(logger.Red, "%s", err)
 	}
 	_, err = f.Write([]byte(fmt.Sprintf("%s;%s;%t\n", m.fileWithoutDir, m.complete, videosTry)))
 	if err != nil {
-		logger.L(logger.Red, "", err)
+		logger.L(logger.Red, "%s", err)
 	}
 }

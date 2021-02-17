@@ -100,7 +100,7 @@ func GetTrailer(id int64, serie bool) (string, string) {
 	var trailer Trailer
 	trailer, err = UnmarshalTrailer(bodyBytes)
 	if err != nil {
-		logger.L(logger.Red, "", err)
+		logger.L(logger.Red, "%s", err)
 	}
 	if len(trailer.Results) > 0 {
 		return trailer.Results[0].Key, trailer.Results[0].Site
@@ -139,7 +139,7 @@ func GetImage(movie string, serie bool) (string, int64) {
 	var moviedb MovieDBModel
 	moviedb, err = UnmarshalMovieDBModel(bodyBytes)
 	if err != nil {
-		logger.L(logger.Red, "", err)
+		logger.L(logger.Red, "%s", err)
 	}
 	if len(moviedb.Results) > 0 {
 		if moviedb.Results[0].PosterPath != "" {
