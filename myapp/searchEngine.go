@@ -15,16 +15,16 @@ func loopGetSearchEngine(name string) string {
 		ReplaceCharacter: '+',
 	})
 	name = slug.Slugify(name)
-	var proposition = getSearchEngine(name)
+	proposition, distance := getSearchEngine(name)
 
-	if proposition != "" {
+	if proposition != "" && distance < 10 {
 		name = proposition
 	}
 	return name
 }
 
 // Ok Test
-func getSearchEngine(name string) string {
+func getSearchEngine(name string) (string, int) {
 	var proposition string
 
 	req, err := http.NewRequest("GET", "https://www.google.com/search", nil)
@@ -47,14 +47,14 @@ func getSearchEngine(name string) string {
 
 	if resp.StatusCode != http.StatusOK {
 		logger.L(logger.Red, "response status code was %d", resp.StatusCode)
-		return ""
+		return "", 0
 	}
 
 	//check response content type
 	ctype := resp.Header.Get("Content-Type")
 	if !strings.HasPrefix(ctype, "text/html") {
 		logger.L(logger.Red, "response content type was %s not text/html", ctype)
-		return ""
+		return "", 0
 	}
 	var re = regexp.MustCompile(`function\(\){var q='(?P<newName>[\w\s\d]+)';\(`)
 
@@ -75,18 +75,15 @@ func getSearchEngine(name string) string {
 	lastIndex = re.SubexpIndex("newName")
 	defer resp.Body.Close()
 
+	var distance int
+
 	if len(matches) >= lastIndex {
 		prop := strings.ToLower(matches[lastIndex])
+		distance = ComputeDistance(proposition, prop)
+		proposition = strings.ToLower(prop)
 
-		if len(proposition) > 0 {
-			distance := ComputeDistance(proposition, prop)
-			logger.L(logger.Green, "Distance Levenshtein : %d", distance)
-			if distance < 10 {
-				proposition = strings.ToLower(prop)
-			}
-		} else {
-			proposition = strings.ToLower(prop)
-		}
+		logger.L(logger.Green, "Distance Levenshtein : %d", distance)
+
 	}
 
 	tab := strings.Split(proposition, " (")
@@ -139,5 +136,5 @@ func getSearchEngine(name string) string {
 	//		}
 	//	}
 	//}
-	return proposition
+	return proposition, distance
 }
