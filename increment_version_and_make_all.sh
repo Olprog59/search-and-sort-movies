@@ -10,18 +10,20 @@ then
     printf "\t-m (minor) : 0.6.3.2 -> 0.7.0.0\n"
     printf "\t-p (patch) : 0.6.3.2 -> 0.6.4.0\n"
     printf "\t-s (special when beta) : 0.6.3.2 -> 0.6.3.3\n"
+    printf "\t-n (debug rapid) pas de changement de version\n"
     exit;
 fi
 
 function increment() {
 
-  while getopts ":Mmps" Option
+  while getopts ":Mmpsn" Option
   do
     case $Option in
       M ) major=true;;
       m ) minor=true;;
       p ) patch=true;;
       s ) special=true;;
+      n ) none=true;;
     esac
   done
 
@@ -35,9 +37,9 @@ function increment() {
 
   # If version string is missing or has the wrong number of members, show usage message.
 
-  if [ ${#a[@]} -ne 4 ]
+  if [ ${#a[@]} -ne 5 ]
   then
-    echo "usage: $(basename $0) [-Mmps] Major.minor.patch.special"
+    echo "usage: $(basename $0) [-Mmpsn] Major.minor.patch.special.none"
     exit 1
   fi
 
@@ -68,6 +70,12 @@ function increment() {
   then
     ((a[3]++))
   fi
+  if [ ! -z $none ]
+  then
+    make linux
+    echo "Je pense que tout est correct"
+    exit
+  fi
 
   NEW_VERSION="${a[0]}.${a[1]}.${a[2]}.${a[3]}"
 }
@@ -84,7 +92,7 @@ then
 
     if [ $BUILD_CLEAN = yes ]
     then
-        echo "commit ok"
+        echo "Aucun commit à faire. Tu es à jour!"
         # Increment version
         VERSION=$(cat 'VERSION')
 
