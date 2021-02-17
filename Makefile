@@ -40,7 +40,7 @@ else
   BUILD_CLEAN=no
 endif
 
-LDFLAGS= -ldflags "-X 'main.BuildVersion=${VERSION}' -X 'main.BuildHash=${BUILD_VERSION}' -X 'main.BuildDate=${BUILD_DATE}' -X 'main.BuildClean=${BUILD_CLEAN}'"
+LDFLAGS= -ldflags "-X 'main.BuildVersion=${VERSION}' -X 'main.BuildHash=${BUILD_VERSION}' -X 'main.BuildDate=${BUILD_DATE}' -X 'main.BuildClean=${BUILD_CLEAN}' -s -w"
 
 # Build the project
 all: link clean test vet linux darwin windows

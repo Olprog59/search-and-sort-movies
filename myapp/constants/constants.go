@@ -7,6 +7,7 @@ const (
 	RegexFile = `(.mkv|.mp4|.avi|.flv|.mov)`
 
 	LearningFile = ".learning.csv"
+	LOGFILE      = "log_SearchAndSort"
 
 	// Prod
 	A_TRIER = "/be_sorted"
