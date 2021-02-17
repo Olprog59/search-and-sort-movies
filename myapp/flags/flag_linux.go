@@ -31,7 +31,7 @@ func Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean string) {
 		if *jsonFormat {
 			prettyJson, err := json.MarshalIndent(&buildInfo, "", " ")
 			if err != nil {
-				fmt.Println(logger.Warn(err))
+				fmt.Println(logger.Red(err))
 			}
 			fmt.Printf("%s\n", string(prettyJson))
 			os.Exit(1)
