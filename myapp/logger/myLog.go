@@ -36,5 +36,5 @@ func Color(colorString string) func(...interface{}) string {
 }
 
 func L(color func(...interface{}) string, message string, param ...interface{}) {
-	log.Println(color(fmt.Sprintf(message+"\n", param...)))
+	log.Println(color(fmt.Sprintf(message, param...)))
 }
