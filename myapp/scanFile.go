@@ -9,7 +9,8 @@ import (
 )
 
 func StartScan() {
-	if count, file := fileInFolder(); count > 0 {
+	count, file := fileInFolder()
+	if count > 0 {
 		//boucleFiles(file)
 		// remove goroutine car je dois tester voir si cela cause le tri non complet des fichiers
 		go boucleFiles(file)
@@ -19,7 +20,7 @@ func StartScan() {
 func fileInFolder() (int, []string) {
 	var files []string
 	var count int
-	err := filepath.Walk(constants.A_TRIER, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(constants.A_TRIER+"/", func(path string, info os.FileInfo, err error) error {
 		if info.IsDir() {
 			return nil
 		}
@@ -32,7 +33,6 @@ func fileInFolder() (int, []string) {
 	})
 	if err != nil {
 		logger.L(logger.Red, "walk error %s", err)
-
 	}
 	return count, files
 }

@@ -14,7 +14,7 @@ import (
 func Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean string) {
 	vers := flag.Bool("v", false, "Indique la version de l'application")
 	scan := flag.Bool("scan", false, "Lancer le scan au démarrage de l'application")
-	jsonFormat := flag.Bool("j", false, "Retour json")
+	jsonFormat := flag.Bool("j", false, "Retour json de la version de l'application")
 	flag.Parse()
 
 	buildInfo := model.BuildInfo{
@@ -27,15 +27,16 @@ func Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean string) {
 		Architecture: runtime.GOARCH,
 	}
 
-	if *vers {
-		if *jsonFormat {
-			prettyJson, err := json.MarshalIndent(&buildInfo, "", " ")
-			if err != nil {
-				logger.L(logger.Red, "%s", err)
-			}
-			fmt.Printf("%s\n", string(prettyJson))
-			os.Exit(1)
+	if *jsonFormat {
+		prettyJson, err := json.MarshalIndent(&buildInfo, "", " ")
+		if err != nil {
+			logger.L(logger.Red, "%s", err)
 		}
+		fmt.Printf("%s\n", string(prettyJson))
+		os.Exit(1)
+	}
+
+	if *vers {
 		fmt.Printf("Name: %s\n", BuildName)
 		fmt.Printf("Version: %s\n", BuildVersion)
 		fmt.Printf("Git Commit Hash: %s\n", BuildHash)

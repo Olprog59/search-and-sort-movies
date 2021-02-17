@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"log"
 	"os"
 	"runtime"
@@ -22,6 +21,10 @@ var (
 func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	log.SetFlags(0)
+
+	checkIfFolderExistAndCreate(constants.A_TRIER)
+	checkIfFolderExistAndCreate(constants.MOVIES)
+	checkIfFolderExistAndCreate(constants.SERIES)
 }
 
 func main() {
@@ -37,13 +40,9 @@ func main() {
 
 	logger.L(logger.Teal, "\n\nBuild Version: %s\nBuild Date: %s\n", BuildVersion, BuildDate)
 
-	checkIfFolderExistAndCreate(constants.A_TRIER)
-	checkIfFolderExistAndCreate(constants.MOVIES)
-	checkIfFolderExistAndCreate(constants.SERIES)
-
 	logger.L(logger.Magenta, "Start :-D")
-	fmt.Print(logger.Magenta("Start :-D"))
-	fmt.Print(logger.Magenta("Ecoute sur le dossier : " + constants.A_TRIER))
+	//fmt.Println(logger.Magenta("Start :-D"))
+	//fmt.Println(logger.Magenta("Ecoute sur le dossier : " + constants.A_TRIER))
 
 	myapp.MyWatcher(constants.A_TRIER)
 
