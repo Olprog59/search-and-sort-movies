@@ -84,14 +84,14 @@ func _stat(event fsnotify.Event) (os.FileInfo, fsnotify.Event) {
 
 func _checkIfDir(event fsnotify.Event) (isDir bool, isNil bool) {
 	f, e := _stat(event)
-	log.Printf("f: %v, e: %v", f, e)
+	//log.Printf("f: %v, e: %v", f, e)
 	//Ajout d'une sécurité si le fichier a déjà été déplacé
 	if f == nil {
 		return false, true
 	}
 	if f.IsDir() && filepath.Dir(f.Name()) != constants.A_TRIER {
 		err := watch.Add(e.Name)
-		log.Printf("Ajout d'un watcher sur %s\n", e.Name)
+		log.Printf(logger.Info("Ajout d'un watcher sur " + e.Name))
 		if err != nil {
 			log.Println(logger.Warn(err))
 		} else {
@@ -111,7 +111,7 @@ func _fsNotifyCreateFile(event fsnotify.Event, re *regexp.Regexp) {
 	<-finish
 
 	if re.MatchString(filepath.Ext(e.Name)) {
-		log.Println("Détection de :", filepath.Base(e.Name))
+		log.Println(logger.Purple("Détection de :", filepath.Base(e.Name)))
 		var m myFile
 		m.file = event.Name
 		//wg.Lock()
