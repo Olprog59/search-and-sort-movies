@@ -190,7 +190,7 @@ var mu sync.Mutex
 
 func moveOrRenameFile(filePathOld, filePathNew string) bool {
 	mu.Lock()
-	err := syscall.Rename(filePathOld, filePathNew)
+	err := syscall.Rename(filePathOld, strings.ToLower(filePathNew))
 	//logger.L(logger.Yellow, "Goos: %s - GoArch: %s", runtime.GOOS, runtime.GOARCH)
 	//err := MoveFile(filePathOld, filePathNew)
 	//cmd := exec.Command("/bin/sh", "-c", "mv "+filePathOld+" "+filePathNew)
@@ -202,7 +202,11 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 		return false
 	}
 	folder := filepath.Dir(filePathOld)
-	if folder != constants.A_TRIER {
+
+	folder = getAbsolutePathWithRelative(folder)
+	absoluteATrier := getAbsolutePathWithRelative(constants.A_TRIER)
+
+	if folder != absoluteATrier {
 		file, _ := ioutil.ReadDir(folder)
 		if len(file) == 0 {
 			err = watch.Remove(folder)
@@ -218,6 +222,14 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 	}
 	mu.Unlock()
 	return true
+}
+
+func getAbsolutePathWithRelative(folder string) string {
+	abs, err := filepath.Abs(folder)
+	if err == nil {
+		return abs
+	}
+	return ""
 }
 
 // création d'un fichier pour le learning

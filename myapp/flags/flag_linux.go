@@ -27,15 +27,15 @@ func Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean string) {
 		Architecture: runtime.GOARCH,
 	}
 
-	if *vers {
-		if *jsonFormat {
-			prettyJson, err := json.MarshalIndent(&buildInfo, "", " ")
-			if err != nil {
-				fmt.Println(logger.Red(err))
-			}
-			fmt.Printf("%s\n", string(prettyJson))
-			os.Exit(1)
+	if *jsonFormat {
+		prettyJson, err := json.MarshalIndent(&buildInfo, "", " ")
+		if err != nil {
+			fmt.Println(logger.Red(err))
 		}
+		fmt.Printf("%s\n", string(prettyJson))
+		os.Exit(1)
+	}
+	if *vers {
 		fmt.Printf("Name: %s\n", BuildName)
 		fmt.Printf("Version: %s\n", BuildVersion)
 		fmt.Printf("Git Commit Hash: %s\n", BuildHash)
