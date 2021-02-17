@@ -2,7 +2,6 @@ package myapp
 
 import (
 	"github.com/fsnotify/fsnotify"
-	"log"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -17,7 +16,7 @@ var err error
 func MyWatcher(location string) {
 	watch, err = fsnotify.NewWatcher()
 	if err != nil {
-		log.Println(logger.Fata(err))
+		logger.L(logger.Red, "", err)
 	}
 	//defer watch.Close()
 
@@ -37,16 +36,16 @@ func MyWatcher(location string) {
 					}
 				}
 			case err := <-watch.Errors:
-				log.Println("error:", err)
+				logger.L(logger.Red, "", err)
 				//close(done)
 			}
 		}
 	}()
 
-	log.Printf("Ajout d'un watcher sur le dossier : %s\n", location)
+	logger.L(logger.Purple, "Ajout d'un watcher sur le dossier : %s", location)
 	if len(location) > 0 {
 		if err := watch.Add(location); err != nil {
-			log.Println(logger.Warn(err))
+			logger.L(logger.Red, "", err)
 		}
 	}
 
@@ -61,7 +60,7 @@ func _ticker(event fsnotify.Event, c *chan bool) {
 		for range ticker.C {
 			f, err := os.Stat(event.Name)
 			if err != nil {
-				log.Println(logger.Warn(err))
+				logger.L(logger.Red, "", err)
 			}
 			//log.Printf("Name: %s\n\tInfo size: %d - Size: %d\n\n", event.Name, f.Size(), size)
 			if f.Size() != size {
@@ -77,7 +76,7 @@ func _ticker(event fsnotify.Event, c *chan bool) {
 func _stat(event fsnotify.Event) (os.FileInfo, fsnotify.Event) {
 	f, err := os.Stat(event.Name)
 	if err != nil {
-		log.Println(logger.Warn(err))
+		logger.L(logger.Red, "", err)
 	}
 	return f, event
 }
@@ -91,9 +90,9 @@ func _checkIfDir(event fsnotify.Event) (isDir bool, isNil bool) {
 	}
 	if f.IsDir() && filepath.Dir(f.Name()) != constants.A_TRIER {
 		err := watch.Add(e.Name)
-		log.Printf(logger.Info("Ajout d'un watcher sur " + e.Name))
+		logger.L(logger.Purple, "Ajout d'un watcher sur "+e.Name)
 		if err != nil {
-			log.Println(logger.Warn(err))
+			logger.L(logger.Red, "", err)
 		} else {
 			return true, false
 		}
@@ -111,7 +110,7 @@ func _fsNotifyCreateFile(event fsnotify.Event, re *regexp.Regexp) {
 	<-finish
 
 	if re.MatchString(filepath.Ext(e.Name)) {
-		log.Println(logger.Purple("Détection de :", filepath.Base(e.Name)))
+		logger.L(logger.Purple, "Détection de :", filepath.Base(e.Name))
 		var m myFile
 		m.file = event.Name
 		//wg.Lock()

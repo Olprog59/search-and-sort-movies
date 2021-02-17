@@ -1,11 +1,11 @@
 package myapp
 
 import (
-	"log"
 	"os"
 	"path/filepath"
 	"regexp"
 	"search-and-sort-movies/myapp/constants"
+	"search-and-sort-movies/myapp/logger"
 )
 
 func StartScan() {
@@ -31,18 +31,19 @@ func fileInFolder() (int, []string) {
 		return nil
 	})
 	if err != nil {
-		log.Printf("walk error [%v]\n", err)
+		logger.L(logger.Red, "walk error [%v]", err)
+
 	}
 	return count, files
 }
 
 func boucleFiles(files []string) {
-	log.Println("Démarrage du tri !")
+	logger.L(logger.Purple, "Démarrage du tri !")
 	for _, f := range files {
-		log.Println("File : " + f)
+		logger.L(logger.Yellow, "File : "+f)
 		var m myFile
 		m.file = f
 		m.Process()
 	}
-	log.Println("Tri terminé !")
+	logger.L(logger.Purple, "Tri terminé !")
 }

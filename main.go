@@ -21,7 +21,7 @@ var (
 
 func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	//log.SetFlags(log.LstdFlags | log.Lshortfile)
+	log.SetFlags(0)
 }
 
 func main() {
@@ -30,17 +30,18 @@ func main() {
 	// Write log to file : log_SearchAndSort
 	f, err := os.OpenFile(constants.LOGFILE, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
-		log.Fatalf("error opening file: %v", err)
+		logger.L(logger.Red, "error opening file: %v", err)
 	}
 	defer f.Close()
 	log.SetOutput(f)
 
-	log.Printf("\n\nBuild Version: %s\nBuild Date: %s\n\n", BuildVersion, BuildDate)
+	logger.L(logger.Teal, "\n\nBuild Version: %s\nBuild Date: %s\n", BuildVersion, BuildDate)
 
 	checkIfFolderExistAndCreate(constants.A_TRIER)
 	checkIfFolderExistAndCreate(constants.MOVIES)
 	checkIfFolderExistAndCreate(constants.SERIES)
 
+	logger.L(logger.Magenta, "Start :-D")
 	fmt.Print(logger.Magenta("Start :-D"))
 	fmt.Print(logger.Magenta("Ecoute sur le dossier : " + constants.A_TRIER))
 
