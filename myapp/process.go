@@ -10,7 +10,6 @@ import (
 	"os"
 	"path"
 	"path/filepath"
-	"runtime"
 	"search-and-sort-movies/myapp/constants"
 	"search-and-sort-movies/myapp/logger"
 	"strconv"
@@ -192,7 +191,7 @@ var mu sync.Mutex
 func moveOrRenameFile(filePathOld, filePathNew string) bool {
 	mu.Lock()
 	err := syscall.Rename(filePathOld, filePathNew)
-	logger.L(logger.Yellow, "", runtime.GOOS, runtime.GOARCH)
+	//logger.L(logger.Yellow, "Goos: %s - GoArch: %s", runtime.GOOS, runtime.GOARCH)
 	//err := MoveFile(filePathOld, filePathNew)
 	//cmd := exec.Command("/bin/sh", "-c", "mv "+filePathOld+" "+filePathNew)
 	//log.Println(logger.Yellow("Test du mv avec exec.Command"))
