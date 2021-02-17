@@ -80,12 +80,12 @@ func (m *myFile) isMovie() {
 		}
 
 		if moveOrRenameFile(m.file, path1) {
-			log.Println(logger.Info("%s a bien été déplacé dans %s", m.fileWithoutDir, path1))
+			log.Println(logger.Info(m.fileWithoutDir + ", a bien été déplacé dans : " + path1))
 			m.createFileForLearning(true)
 		}
 
 	} else {
-		log.Println(logger.Warn("isMovie : %s", m.name))
+		log.Println(logger.Warn("isMovie : " + m.name))
 		m.isNotFindInMovieDb(m.name, "movie")
 	}
 }
@@ -124,18 +124,18 @@ func (m *myFile) checkFolderSerie() (string, string) {
 	newFolder := string(os.PathSeparator) + m.serieName + string(os.PathSeparator) + "season-" + m.season[1:]
 	folderOk := series + string(os.PathSeparator) + m.serieName
 	if _, err := os.Stat(folderOk); os.IsNotExist(err) {
-		log.Printf(logger.Info("Création du dossier : %s", m.serieName))
+		log.Printf(logger.Info("Création du dossier : " + m.serieName))
 		createFolder(folderOk)
 	}
 	if _, err := os.Stat(series + newFolder); os.IsNotExist(err) {
-		log.Println(logger.Info("Création du dossier : %s", newFolder))
+		log.Println(logger.Info("Création du dossier : " + newFolder))
 		createFolder(series + newFolder)
 	}
 
 	finalFilePath := series + newFolder + string(os.PathSeparator) + m.complete
 
 	if moveOrRenameFile(m.file, finalFilePath) {
-		log.Println(logger.Info("%s a bien été déplacé dans %s", m.fileWithoutDir, finalFilePath))
+		log.Println(logger.Info(m.fileWithoutDir + ", a bien été déplacé dans : " + finalFilePath))
 		m.createFileForLearning(true)
 	}
 	return m.complete, finalFilePath
@@ -164,7 +164,7 @@ func (m *myFile) translateName() {
 
 	ctype := resp.Header.Get("Content-Type")
 	if !strings.HasPrefix(ctype, "application/json") {
-		log.Println(logger.Warn("response content type was %s not text/html\n", ctype))
+		log.Println(logger.Warn("response content type was " + ctype + " not text/html"))
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
@@ -199,7 +199,7 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 	//log.Println(logger.Info("Test du mv avec exec.Command"))
 	//err := cmd.Run()
 	if err != nil {
-		log.Println(logger.Warn("Move Or Rename File : %s", err))
+		log.Println(logger.Warn("Move Or Rename File : ", err))
 		mu.Unlock()
 		return false
 	}

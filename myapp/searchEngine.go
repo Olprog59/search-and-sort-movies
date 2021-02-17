@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"regexp"
+	"search-and-sort-movies/myapp/logger"
 	"strings"
 	"time"
 )
@@ -38,7 +39,6 @@ func getSearchEngine(name string) string {
 	}
 
 	client := new(http.Client)
-	log.Println(req)
 	resp, err := client.Do(req)
 
 	if resp == nil || err != nil {
@@ -47,7 +47,6 @@ func getSearchEngine(name string) string {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		log.Println(resp.StatusCode)
 		log.Printf("response status code was %d\n", resp.StatusCode)
 		return ""
 	}
@@ -95,7 +94,7 @@ func getSearchEngine(name string) string {
 	if len(tab) > 1 {
 		proposition = tab[0]
 	}
-	log.Println(proposition)
+	log.Println(logger.Green("Proposition par l'algo de recherche google : " + proposition))
 
 	//doc := html.NewTokenizer(resp.Body)
 	//out, _ := os.Create("./bing.txt")

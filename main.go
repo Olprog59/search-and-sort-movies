@@ -21,7 +21,7 @@ var (
 
 func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	log.SetFlags(log.LstdFlags | log.Lshortfile)
+	//log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
 
 func main() {
@@ -41,8 +41,8 @@ func main() {
 	checkIfFolderExistAndCreate(constants.MOVIES)
 	checkIfFolderExistAndCreate(constants.SERIES)
 
-	fmt.Println(logger.Info("Start :-D"))
-	fmt.Println(logger.Info("Ecoute sur le dossier : " + constants.A_TRIER))
+	fmt.Print(logger.Magenta("Start :-D"))
+	fmt.Print(logger.Magenta("Ecoute sur le dossier : " + constants.A_TRIER))
 
 	myapp.MyWatcher(constants.A_TRIER)
 

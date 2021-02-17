@@ -33,7 +33,7 @@ func getFileAndLine() string {
 
 func Color(colorString string) func(...interface{}) string {
 	sprint := func(args ...interface{}) string {
-		return fmt.Sprintf(colorString, fmt.Sprintln(time.Now().Format("02-01-2006 15:04:05")+": "+getFileAndLine()+": "+fmt.Sprint(args...))+"\n")
+		return fmt.Sprintf(colorString, fmt.Sprintln(time.Now().Format("02-01-2006 15:04:05")+": "+getFileAndLine()+": "+fmt.Sprint(args...)))
 	}
 	return sprint
 }
