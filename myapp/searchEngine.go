@@ -3,7 +3,6 @@ package myapp
 import (
 	"github.com/Machiel/slugify"
 	"io/ioutil"
-	"log"
 	"net/http"
 	"regexp"
 	"search-and-sort-movies/myapp/logger"
@@ -47,21 +46,21 @@ func getSearchEngine(name string) string {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		log.Printf("response status code was %d\n", resp.StatusCode)
+		logger.L(logger.Red, "response status code was %d", resp.StatusCode)
 		return ""
 	}
 
 	//check response content type
 	ctype := resp.Header.Get("Content-Type")
 	if !strings.HasPrefix(ctype, "text/html") {
-		log.Printf("response content type was %s not text/html\n", ctype)
+		logger.L(logger.Red, "response content type was %s not text/html", ctype)
 		return ""
 	}
 	var re = regexp.MustCompile(`function\(\){var q='(?P<newName>[\w\s\d]+)';\(`)
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Println(err)
+		logger.L(logger.Red, "", err)
 	}
 	matches := re.FindStringSubmatch(string(body))
 	lastIndex := re.SubexpIndex("newName")
@@ -81,7 +80,7 @@ func getSearchEngine(name string) string {
 
 		if len(proposition) > 0 {
 			distance := ComputeDistance(proposition, prop)
-			log.Printf("Distance Levenshtein : %d", distance)
+			logger.L(logger.Green, "Distance Levenshtein : %d", distance)
 			if distance < 10 {
 				proposition = strings.ToLower(prop)
 			}
@@ -90,11 +89,11 @@ func getSearchEngine(name string) string {
 		}
 	}
 
-	tab := strings.Split(proposition, " (tv series)")
+	tab := strings.Split(proposition, " (")
 	if len(tab) > 1 {
 		proposition = tab[0]
 	}
-	log.Println(logger.Green("Proposition par l'algo de recherche google : " + proposition))
+	logger.L(logger.Green, "Proposition par l'algo de recherche google : "+proposition)
 
 	//doc := html.NewTokenizer(resp.Body)
 	//out, _ := os.Create("./bing.txt")

@@ -2,6 +2,7 @@ package logger
 
 import (
 	"fmt"
+	"log"
 	"runtime"
 	"strconv"
 	"strings"
@@ -9,10 +10,6 @@ import (
 )
 
 var (
-	Info = Teal
-	Warn = Yellow
-	Fata = Red
-
 	Black   = Color("\033[1;30m%s\033[0m")
 	Red     = Color("\033[1;31m%s\033[0m")
 	Green   = Color("\033[1;32m%s\033[0m")
@@ -24,7 +21,7 @@ var (
 )
 
 func getFileAndLine() string {
-	_, file, line, ok := runtime.Caller(2)
+	_, file, line, ok := runtime.Caller(3)
 	if !ok {
 		panic("Could not get context info for logger!")
 	}
@@ -36,4 +33,8 @@ func Color(colorString string) func(...interface{}) string {
 		return fmt.Sprintf(colorString, fmt.Sprintln(time.Now().Format("02-01-2006 15:04:05")+": "+getFileAndLine()+": "+fmt.Sprint(args...)))
 	}
 	return sprint
+}
+
+func L(color func(...interface{}) string, message string, param ...interface{}) {
+	log.Println(color(fmt.Sprintf(message+"\n", param...)))
 }
