@@ -16,14 +16,13 @@ fi
 
 function increment() {
 
-  while getopts ":Mmpsn" Option
+  while getopts ":Mmps" Option
   do
     case $Option in
       M ) major=true;;
       m ) minor=true;;
       p ) patch=true;;
       s ) special=true;;
-      n ) none=true;;
     esac
   done
 
@@ -37,9 +36,9 @@ function increment() {
 
   # If version string is missing or has the wrong number of members, show usage message.
 
-  if [ ${#a[@]} -ne 5 ]
+  if [ ${#a[@]} -ne 4 ]
   then
-    echo "usage: $(basename $0) [-Mmpsn] Major.minor.patch.special.none"
+    echo "usage: $(basename $0) [-Mmps] Major.minor.patch.special"
     exit 1
   fi
 
@@ -69,12 +68,6 @@ function increment() {
   if [ ! -z $special ]
   then
     ((a[3]++))
-  fi
-  if [ ! -z $none ]
-  then
-    make linux
-    echo "Je pense que tout est correct"
-    exit
   fi
 
   NEW_VERSION="${a[0]}.${a[1]}.${a[2]}.${a[3]}"
