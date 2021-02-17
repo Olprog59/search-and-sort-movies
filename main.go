@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"os"
 	"runtime"
 	"search-and-sort-movies/myapp"
@@ -20,12 +21,21 @@ var (
 
 func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
+	log.SetFlags(log.LstdFlags | log.Lshortfile)
 }
 
 func main() {
 	flags.Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean)
 
-	fmt.Printf("\n\nBuild Version: %s\nBuild Date: %s\n\n", BuildVersion, BuildDate)
+	// Write log to file : log_SearchAndSort
+	f, err := os.OpenFile(constants.LOGFILE, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		log.Fatalf("error opening file: %v", err)
+	}
+	defer f.Close()
+	log.SetOutput(f)
+
+	log.Printf("\n\nBuild Version: %s\nBuild Date: %s\n\n", BuildVersion, BuildDate)
 
 	checkIfFolderExistAndCreate(constants.A_TRIER)
 	checkIfFolderExistAndCreate(constants.MOVIES)

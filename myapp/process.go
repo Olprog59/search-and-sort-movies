@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/Machiel/slugify"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"os"
@@ -44,7 +45,7 @@ func (m *myFile) Process() {
 	m.count = 0
 	_, m.complete = filepath.Split(m.file)
 	m.fileWithoutDir = m.complete
-	fmt.Println(logger.Info("complete: ", m.complete))
+	log.Println(logger.Info("complete: ", m.complete))
 	m.start("")
 }
 
@@ -59,7 +60,7 @@ func (m *myFile) start(serieOrMovieOrBoth string) {
 
 func (m *myFile) isMovie() {
 	extension := filepath.Ext(m.file)
-	fmt.Println(logger.Info("name: ", m.name))
+	log.Println(logger.Info("name: ", m.name))
 	var movie MoviesDb
 	if m.transName != "" {
 		movie, _ = m.dbMovies(false, m.transName)
@@ -79,12 +80,12 @@ func (m *myFile) isMovie() {
 		}
 
 		if moveOrRenameFile(m.file, path1) {
-			fmt.Println(logger.Info("%s a bien été déplacé dans %s", m.fileWithoutDir, path1))
+			log.Println(logger.Info("%s a bien été déplacé dans %s", m.fileWithoutDir, path1))
 			m.createFileForLearning(true)
 		}
 
 	} else {
-		fmt.Println(logger.Warn("isMovie : %s", m.name))
+		log.Println(logger.Warn("isMovie : %s", m.name))
 		m.isNotFindInMovieDb(m.name, "movie")
 	}
 }
@@ -112,7 +113,7 @@ func (m *myFile) isNotFindInMovieDb(name, serieOrMovie string) {
 		//m.translateName()
 		m.start(serieOrMovie)
 	} else {
-		fmt.Println(logger.Warn(name + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + name + ".\n Test manuellement si tu le trouves ;-)"))
+		log.Println(logger.Warn(name + ", n'a pas été trouvé sur https://www.themoviedb.org/search?query=" + name + ".\n Test manuellement si tu le trouves ;-)"))
 		m.createFileForLearning(false)
 		m.count = 0
 	}
@@ -123,18 +124,18 @@ func (m *myFile) checkFolderSerie() (string, string) {
 	newFolder := string(os.PathSeparator) + m.serieName + string(os.PathSeparator) + "season-" + m.season[1:]
 	folderOk := series + string(os.PathSeparator) + m.serieName
 	if _, err := os.Stat(folderOk); os.IsNotExist(err) {
-		fmt.Printf(logger.Info("Création du dossier : %s", m.serieName))
+		log.Printf(logger.Info("Création du dossier : %s", m.serieName))
 		createFolder(folderOk)
 	}
 	if _, err := os.Stat(series + newFolder); os.IsNotExist(err) {
-		fmt.Println(logger.Info("Création du dossier : %s", newFolder))
+		log.Println(logger.Info("Création du dossier : %s", newFolder))
 		createFolder(series + newFolder)
 	}
 
 	finalFilePath := series + newFolder + string(os.PathSeparator) + m.complete
 
 	if moveOrRenameFile(m.file, finalFilePath) {
-		fmt.Println(logger.Info("%s a bien été déplacé dans %s", m.fileWithoutDir, finalFilePath))
+		log.Println(logger.Info("%s a bien été déplacé dans %s", m.fileWithoutDir, finalFilePath))
 		m.createFileForLearning(true)
 	}
 	return m.complete, finalFilePath
@@ -158,23 +159,23 @@ func (m *myFile) translateName() {
 	fmt.Println(resp.Request)
 
 	if resp.StatusCode != http.StatusOK {
-		fmt.Println(logger.Warn("response status code was %d\n", resp.StatusCode))
+		log.Println(logger.Warn("response status code was %d\n", resp.StatusCode))
 	}
 
 	ctype := resp.Header.Get("Content-Type")
 	if !strings.HasPrefix(ctype, "application/json") {
-		fmt.Println(logger.Warn("response content type was %s not text/html\n", ctype))
+		log.Println(logger.Warn("response content type was %s not text/html\n", ctype))
 	}
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println(logger.Warn(err))
+		log.Println(logger.Warn(err))
 	}
 
 	var arr [][][]string
 	_ = json.Unmarshal(body, &arr)
 	if err != nil {
-		fmt.Println(logger.Warn(err))
+		log.Println(logger.Warn(err))
 	}
 
 	m.transName = arr[0][0][0]
@@ -183,7 +184,7 @@ func (m *myFile) translateName() {
 func createFolder(folder string) {
 	err := os.MkdirAll(folder, os.ModePerm)
 	if err != nil {
-		fmt.Println(logger.Warn(err))
+		log.Println(logger.Warn(err))
 	}
 }
 
@@ -192,13 +193,13 @@ var mu sync.Mutex
 func moveOrRenameFile(filePathOld, filePathNew string) bool {
 	mu.Lock()
 	err := syscall.Rename(filePathOld, filePathNew)
-	fmt.Println(logger.Warn(runtime.GOOS, runtime.GOARCH))
+	log.Println(logger.Warn(runtime.GOOS, runtime.GOARCH))
 	//err := MoveFile(filePathOld, filePathNew)
 	//cmd := exec.Command("/bin/sh", "-c", "mv "+filePathOld+" "+filePathNew)
-	//fmt.Println(logger.Info("Test du mv avec exec.Command"))
+	//log.Println(logger.Info("Test du mv avec exec.Command"))
 	//err := cmd.Run()
 	if err != nil {
-		fmt.Println(logger.Warn("Move Or Rename File : %s", err))
+		log.Println(logger.Warn("Move Or Rename File : %s", err))
 		mu.Unlock()
 		return false
 	}
@@ -208,12 +209,12 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 		if len(file) == 0 {
 			err = watch.Remove(folder)
 			if err != nil {
-				fmt.Println(logger.Warn("Erreur sur la suppression du watcher sur le dossier : ", folder))
+				log.Println(logger.Warn("Erreur sur la suppression du watcher sur le dossier : ", folder))
 			}
-			fmt.Println(logger.Info("Suppression du watcher sur le dossier : ", folder))
+			log.Println(logger.Info("Suppression du watcher sur le dossier : ", folder))
 			err := os.Remove(folder)
 			if err != nil {
-				fmt.Println(logger.Warn("Erreur de suppression de dossier : ", folder))
+				log.Println(logger.Warn("Erreur de suppression de dossier : ", folder))
 			}
 		}
 	}
@@ -225,10 +226,10 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 func (m *myFile) createFileForLearning(videosTry bool) {
 	f, err := os.OpenFile(path.Clean(constants.LearningFile), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
-		fmt.Println(logger.Warn(err))
+		log.Println(logger.Warn(err))
 	}
 	_, err = f.Write([]byte(fmt.Sprintf("%s;%s;%t\n", m.fileWithoutDir, m.complete, videosTry)))
 	if err != nil {
-		fmt.Println(logger.Warn(err))
+		log.Println(logger.Warn(err))
 	}
 }

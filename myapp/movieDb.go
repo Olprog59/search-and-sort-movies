@@ -2,7 +2,7 @@ package myapp
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
 	"net/http"
 	"regexp"
 	"search-and-sort-movies/myapp/constants"
@@ -93,7 +93,7 @@ func (m *myFile) checkMovieDB(tv, lang bool, name string) string {
 	url = "https://api.themoviedb.org/3/search/multi?api_key=" + constants.ApiV3 + language + "&query=" + name
 	//}
 	m.SearchEngine = name
-	fmt.Println(url)
+	log.Println(url)
 	return url
 }
 

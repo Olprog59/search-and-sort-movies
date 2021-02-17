@@ -1,8 +1,8 @@
 package myapp
 
 import (
-	"fmt"
 	"github.com/fsnotify/fsnotify"
+	"log"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -17,7 +17,7 @@ var err error
 func MyWatcher(location string) {
 	watch, err = fsnotify.NewWatcher()
 	if err != nil {
-		fmt.Println(logger.Fata(err))
+		log.Println(logger.Fata(err))
 	}
 	//defer watch.Close()
 
@@ -37,16 +37,16 @@ func MyWatcher(location string) {
 					}
 				}
 			case err := <-watch.Errors:
-				fmt.Println("error:", err)
+				log.Println("error:", err)
 				//close(done)
 			}
 		}
 	}()
 
-	fmt.Printf("Ajout d'un watcher sur le dossier : %s\n", location)
+	log.Printf("Ajout d'un watcher sur le dossier : %s\n", location)
 	if len(location) > 0 {
 		if err := watch.Add(location); err != nil {
-			fmt.Println(logger.Warn(err))
+			log.Println(logger.Warn(err))
 		}
 	}
 
@@ -61,9 +61,9 @@ func _ticker(event fsnotify.Event, c *chan bool) {
 		for range ticker.C {
 			f, err := os.Stat(event.Name)
 			if err != nil {
-				fmt.Println(logger.Warn(err))
+				log.Println(logger.Warn(err))
 			}
-			//fmt.Printf("Name: %s\n\tInfo size: %d - Size: %d\n\n", event.Name, f.Size(), size)
+			//log.Printf("Name: %s\n\tInfo size: %d - Size: %d\n\n", event.Name, f.Size(), size)
 			if f.Size() != size {
 				size = f.Size()
 				continue
@@ -77,23 +77,23 @@ func _ticker(event fsnotify.Event, c *chan bool) {
 func _stat(event fsnotify.Event) (os.FileInfo, fsnotify.Event) {
 	f, err := os.Stat(event.Name)
 	if err != nil {
-		fmt.Println(logger.Warn(err))
+		log.Println(logger.Warn(err))
 	}
 	return f, event
 }
 
 func _checkIfDir(event fsnotify.Event) (isDir bool, isNil bool) {
 	f, e := _stat(event)
-	fmt.Printf("f: %v, e: %v", f, e)
+	log.Printf("f: %v, e: %v", f, e)
 	//Ajout d'une sécurité si le fichier a déjà été déplacé
 	if f == nil {
 		return false, true
 	}
 	if f.IsDir() && filepath.Dir(f.Name()) != constants.A_TRIER {
 		err := watch.Add(e.Name)
-		fmt.Printf("Ajout d'un watcher sur %s\n", e.Name)
+		log.Printf("Ajout d'un watcher sur %s\n", e.Name)
 		if err != nil {
-			fmt.Println(logger.Warn(err))
+			log.Println(logger.Warn(err))
 		} else {
 			return true, false
 		}
@@ -111,7 +111,7 @@ func _fsNotifyCreateFile(event fsnotify.Event, re *regexp.Regexp) {
 	<-finish
 
 	if re.MatchString(filepath.Ext(e.Name)) {
-		fmt.Println("Détection de :", filepath.Base(e.Name))
+		log.Println("Détection de :", filepath.Base(e.Name))
 		var m myFile
 		m.file = event.Name
 		//wg.Lock()

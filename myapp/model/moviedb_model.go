@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"github.com/Machiel/slugify"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"path/filepath"
 	"regexp"
@@ -89,7 +90,7 @@ func GetTrailer(id int64, serie bool) (string, string) {
 	resp, err := http.Get(url)
 	var bodyBytes []byte
 	if err != nil || resp == nil {
-		fmt.Println("Pas possible d'accéder à https://api.themoviedb.org/")
+		log.Println("Pas possible d'accéder à https://api.themoviedb.org/")
 		time.Sleep(1 * time.Minute)
 		return GetTrailer(id, serie)
 	} else {
@@ -100,7 +101,7 @@ func GetTrailer(id int64, serie bool) (string, string) {
 	var trailer Trailer
 	trailer, err = UnmarshalTrailer(bodyBytes)
 	if err != nil {
-		fmt.Println(logger.Warn(err))
+		log.Println(logger.Warn(err))
 	}
 	if len(trailer.Results) > 0 {
 		return trailer.Results[0].Key, trailer.Results[0].Site
@@ -128,7 +129,7 @@ func GetImage(movie string, serie bool) (string, int64) {
 	resp, err := http.Get(url)
 	var bodyBytes []byte
 	if err != nil || resp == nil {
-		fmt.Println("Pas possible d'accéder à https://api.themoviedb.org/")
+		log.Println("Pas possible d'accéder à https://api.themoviedb.org/")
 		time.Sleep(1 * time.Minute)
 		return GetImage(movie, serie)
 	} else {
@@ -139,7 +140,7 @@ func GetImage(movie string, serie bool) (string, int64) {
 	var moviedb MovieDBModel
 	moviedb, err = UnmarshalMovieDBModel(bodyBytes)
 	if err != nil {
-		fmt.Println(logger.Warn(err))
+		log.Println(logger.Warn(err))
 	}
 	if len(moviedb.Results) > 0 {
 		if moviedb.Results[0].PosterPath != "" {

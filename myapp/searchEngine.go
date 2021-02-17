@@ -1,7 +1,6 @@
 package myapp
 
 import (
-	"fmt"
 	"github.com/Machiel/slugify"
 	"io/ioutil"
 	"log"
@@ -39,7 +38,7 @@ func getSearchEngine(name string) string {
 	}
 
 	client := new(http.Client)
-	fmt.Println(req)
+	log.Println(req)
 	resp, err := client.Do(req)
 
 	if resp == nil || err != nil {
@@ -48,28 +47,26 @@ func getSearchEngine(name string) string {
 	}
 
 	if resp.StatusCode != http.StatusOK {
-		fmt.Println(resp.StatusCode)
-		fmt.Printf("response status code was %d\n", resp.StatusCode)
+		log.Println(resp.StatusCode)
+		log.Printf("response status code was %d\n", resp.StatusCode)
 		return ""
 	}
 
 	//check response content type
 	ctype := resp.Header.Get("Content-Type")
 	if !strings.HasPrefix(ctype, "text/html") {
-		fmt.Printf("response content type was %s not text/html\n", ctype)
+		log.Printf("response content type was %s not text/html\n", ctype)
 		return ""
 	}
 	var re = regexp.MustCompile(`function\(\){var q='(?P<newName>[\w\s\d]+)';\(`)
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		fmt.Println(err)
+		log.Println(err)
 	}
 	matches := re.FindStringSubmatch(string(body))
 	lastIndex := re.SubexpIndex("newName")
 	defer resp.Body.Close()
-
-	fmt.Println(matches)
 
 	if len(matches) >= lastIndex {
 		proposition = strings.ToLower(matches[lastIndex])
@@ -80,14 +77,12 @@ func getSearchEngine(name string) string {
 	lastIndex = re.SubexpIndex("newName")
 	defer resp.Body.Close()
 
-	fmt.Println(matches)
-
 	if len(matches) >= lastIndex {
 		prop := strings.ToLower(matches[lastIndex])
 
 		if len(proposition) > 0 {
 			distance := ComputeDistance(proposition, prop)
-			fmt.Println(distance)
+			log.Printf("Distance Levenshtein : %d", distance)
 			if distance < 10 {
 				proposition = strings.ToLower(prop)
 			}
@@ -118,7 +113,7 @@ func getSearchEngine(name string) string {
 	//			//end of the file, break out of the loop
 	//			break
 	//		}
-	//		fmt.Println(logger.Fata("error tokenizing HTML: %v", doc.Err()))
+	//		log.Println(logger.Fata("error tokenizing HTML: %v", doc.Err()))
 	//	}
 	//	if tokenType == html.StartTagToken {
 	//		//get the token

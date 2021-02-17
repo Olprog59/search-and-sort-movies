@@ -1,7 +1,7 @@
 package myapp
 
 import (
-	"fmt"
+	"log"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -31,18 +31,18 @@ func fileInFolder() (int, []string) {
 		return nil
 	})
 	if err != nil {
-		fmt.Printf("walk error [%v]\n", err)
+		log.Printf("walk error [%v]\n", err)
 	}
 	return count, files
 }
 
 func boucleFiles(files []string) {
-	fmt.Println("Démarrage du tri !")
+	log.Println("Démarrage du tri !")
 	for _, f := range files {
-		fmt.Println("File : " + f)
+		log.Println("File : " + f)
 		var m myFile
 		m.file = f
 		m.Process()
 	}
-	fmt.Println("Tri terminé !")
+	log.Println("Tri terminé !")
 }
