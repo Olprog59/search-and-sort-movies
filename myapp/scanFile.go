@@ -31,7 +31,7 @@ func fileInFolder() (int, []string) {
 		return nil
 	})
 	if err != nil {
-		logger.L(logger.Red, "walk error [%v]", err)
+		logger.L(logger.Red, "walk error %s", err)
 
 	}
 	return count, files

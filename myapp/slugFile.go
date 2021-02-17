@@ -59,7 +59,7 @@ func (m *myFile) slugFile() {
 			if len(yearReg.FindStringIndex(m.serieName)) > 0 {
 				m.year, err = strconv.Atoi(yearReg.FindString(m.serieName)[1:])
 				if err != nil {
-					logger.L(logger.Red, "", err)
+					logger.L(logger.Red, "%s", err)
 				}
 				m.name = m.serieName[:yearReg.FindStringIndex(m.serieName)[0]]
 				m.name = m.name + "-" + m.serieNumber
@@ -73,7 +73,7 @@ func (m *myFile) slugFile() {
 			if len(yearReg.FindStringIndex(m.name)) > 0 {
 				m.year, err = strconv.Atoi(yearReg.FindString(m.name)[1:])
 				if err != nil {
-					logger.L(logger.Red, "", err)
+					logger.L(logger.Red, "%s", err)
 				}
 				if len(yearReg.FindStringIndex(m.name)) > 0 {
 					m.name = m.name[:yearReg.FindStringIndex(m.name)[0]]
@@ -83,7 +83,7 @@ func (m *myFile) slugFile() {
 			if len(yearReg.FindStringIndex(m.name)) > 0 {
 				m.year, err = strconv.Atoi(yearReg.FindString(m.name)[1:])
 				if err != nil {
-					logger.L(logger.Red, "", err)
+					logger.L(logger.Red, "%s", err)
 				}
 				m.name = m.name[:yearReg.FindStringIndex(m.name)[0]]
 			}

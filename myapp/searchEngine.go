@@ -60,7 +60,7 @@ func getSearchEngine(name string) string {
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		logger.L(logger.Red, "", err)
+		logger.L(logger.Red, "%s", err)
 	}
 	matches := re.FindStringSubmatch(string(body))
 	lastIndex := re.SubexpIndex("newName")

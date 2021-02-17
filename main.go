@@ -30,7 +30,7 @@ func main() {
 	// Write log to file : log_SearchAndSort
 	f, err := os.OpenFile(constants.LOGFILE, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
 	if err != nil {
-		logger.L(logger.Red, "error opening file: %v", err)
+		logger.L(logger.Red, "error opening file: %s", err)
 	}
 	defer f.Close()
 	log.SetOutput(f)
