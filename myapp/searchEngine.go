@@ -17,7 +17,7 @@ func loopGetSearchEngine(name string) string {
 	name = slug.Slugify(name)
 	proposition, distance := getSearchEngine(name)
 
-	if proposition != "" && distance < 10 {
+	if proposition != "" && distance < 7 {
 		name = proposition
 	}
 	return name

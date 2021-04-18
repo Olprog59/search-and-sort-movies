@@ -2,7 +2,6 @@ package logger
 
 import (
 	"fmt"
-	"log"
 	"runtime"
 	"strconv"
 	"strings"
@@ -36,5 +35,5 @@ func Color(colorString string) func(...interface{}) string {
 }
 
 func L(color func(...interface{}) string, message string, param ...interface{}) {
-	log.Println(color(fmt.Sprintf(message, param...)))
+	fmt.Println(color(fmt.Sprintf(message, param...)))
 }
