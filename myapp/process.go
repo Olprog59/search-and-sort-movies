@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"net/url"
 	"os"
+	"os/exec"
 	"path"
 	"path/filepath"
 	"search-and-sort-movies/myapp/constants"
@@ -15,13 +16,20 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"syscall"
 	"time"
 )
 
 var (
 	movies = constants.MOVIES
 	series = constants.SERIES
+)
+
+type typeSerieOrMovie uint
+
+const (
+	SERIE typeSerieOrMovie = iota
+	MOVIE
+	NOTHING
 )
 
 type myFile struct {
@@ -44,12 +52,12 @@ func (m *myFile) Process() {
 	_, m.complete = filepath.Split(m.file)
 	m.fileWithoutDir = m.complete
 	logger.L(logger.Yellow, "complete: %s", m.complete)
-	m.start("")
+	m.start(NOTHING)
 }
 
-func (m *myFile) start(serieOrMovieOrBoth string) {
+func (m *myFile) start(serieOrMovieOrBoth typeSerieOrMovie) {
 	m.slugFile()
-	if m.serieName == "" || serieOrMovieOrBoth == "serie" {
+	if m.serieName == "" || serieOrMovieOrBoth == MOVIE {
 		m.isMovie()
 	} else {
 		m.isSerie()
@@ -84,7 +92,7 @@ func (m *myFile) isMovie() {
 
 	} else {
 		logger.L(logger.Yellow, "isMovie : "+m.name)
-		m.isNotFindInMovieDb(m.name, "movie")
+		m.isNotFindInMovieDb(m.name, MOVIE)
 	}
 }
 
@@ -96,11 +104,11 @@ func (m *myFile) isSerie() {
 		}
 		m.checkFolderSerie()
 	} else {
-		m.isNotFindInMovieDb(m.serieName, "serie")
+		m.isNotFindInMovieDb(m.serieName, SERIE)
 	}
 }
 
-func (m *myFile) isNotFindInMovieDb(name, serieOrMovie string) {
+func (m *myFile) isNotFindInMovieDb(name string, serieOrMovie typeSerieOrMovie) {
 	if m.count < 1 {
 		m.count++
 		time.Sleep(2000 * time.Millisecond)
@@ -190,12 +198,12 @@ var mu sync.Mutex
 
 func moveOrRenameFile(filePathOld, filePathNew string) bool {
 	mu.Lock()
-	err := syscall.Rename(filePathOld, strings.ToLower(filePathNew))
+	//err := syscall.Rename(filePathOld, strings.ToLower(filePathNew))
 	//logger.L(logger.Yellow, "Goos: %s - GoArch: %s", runtime.GOOS, runtime.GOARCH)
 	//err := MoveFile(filePathOld, filePathNew)
-	//cmd := exec.Command("/bin/sh", "-c", "mv "+filePathOld+" "+filePathNew)
-	//log.Println(logger.Yellow("Test du mv avec exec.Command"))
-	//err := cmd.Run()
+	cmd := exec.Command("/bin/sh", "-c", "mv "+filePathOld+" "+filePathNew)
+	logger.L(logger.Yellow, "mv "+filePathOld+" "+filePathNew)
+	err := cmd.Run()
 	if err != nil {
 		logger.L(logger.Red, "Move Or Rename File : %s", err)
 		mu.Unlock()
