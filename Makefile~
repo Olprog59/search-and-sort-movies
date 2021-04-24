@@ -57,7 +57,7 @@ link:
 
 linux:
 	cd ${BUILD_DIR}; \
-	CGO_ENABLED=0 GOOS=linux GOARCH=${GOARCH} go build ${LDFLAGS} -o ${BIN_DIR}/${BINARY}-linux-${GOARCH} . ; \
+	GOOS=linux GOARCH=${GOARCH} go build ${LDFLAGS} -o ${BIN_DIR}/${BINARY}-linux-${GOARCH} . ; \
 	cd - >/dev/null
 
 darwin:
