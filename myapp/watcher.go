@@ -24,20 +24,22 @@ func MyWatcher(location string) {
 
 	go func() {
 		for {
+			timer := time.NewTimer(2 * time.Second)
+			var ev fsnotify.Event
+
 			select {
 			case event := <-watch.Events:
-				if event.Op&fsnotify.Create == fsnotify.Create {
-					re := regexp.MustCompile(constants.RegexFile)
-					//Ajout d'une sécurité si le fichier a déjà été déplacé
-					if isDir, isNil := _checkIfDir(event); !isDir && !isNil {
-						if re.MatchString(filepath.Ext(event.Name)) {
-							go _fsNotifyCreateFile(event, re)
-						}
-					}
-				}
+				ev = event
 			case err := <-watch.Errors:
 				logger.L(logger.Red, "%s", err)
-				//close(done)
+			case <-timer.C:
+				re := regexp.MustCompile(constants.RegexFile)
+				//Ajout d'une sécurité si le fichier a déjà été déplacé
+				if isDir, isNil := _checkIfDir(ev); !isDir && !isNil {
+					if re.MatchString(filepath.Ext(ev.Name)) {
+						go _fsNotifyCreateFile(ev, re)
+					}
+				}
 			}
 		}
 	}()
@@ -53,7 +55,6 @@ func MyWatcher(location string) {
 }
 
 func _ticker(event fsnotify.Event, c *chan bool) {
-	//ticker := time.NewTicker(1 * time.Second)
 	ticker := time.NewTicker(5 * time.Second)
 	var size int64 = -1
 	go func() {
