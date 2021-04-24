@@ -1,14 +1,6 @@
 github.com/Machiel/slugify v1.0.1 h1:EfWSlRWstMadsgzmiV7d0yVd2IFlagWH68Q+DcYCm4E=
 github.com/Machiel/slugify v1.0.1/go.mod h1:fTFGn5uWEynW4CUMG7sWkYXOf1UgDxyTM3DbR6Qfg3k=
-github.com/fsnotify/fsnotify v1.4.9 h1:hsms1Qyu0jgnwNXIxa+/V/PDsU6CfLf6CNO8H7IWoS4=
-github.com/fsnotify/fsnotify v1.4.9/go.mod h1:znqG4EE+3YCdAaPaxE2ZRY/06pZUdp0tY4IgpuI1SZQ=
-github.com/gonutz/w32 v1.0.0 h1:3t1z6ZfkFvirjFYBx9pHeHBuKoN/VBVk9yHb/m2Ll/k=
-github.com/gonutz/w32 v1.0.0/go.mod h1:Rc/YP5K9gv0FW4p6X9qL3E7Y56lfMflEol1fLElfMW4=
-golang.org/x/net v0.0.0-20210119194325-5f4716e94777 h1:003p0dJM77cxMSyCPFphvZf/Y5/NXf5fzg6ufd1/Oew=
-golang.org/x/net v0.0.0-20210119194325-5f4716e94777/go.mod h1:m0MpNAwzfU5UDzcl9v0D8zg8gWTRqZa9RBIspLL5mdg=
+github.com/Olprog59/fsnotify v0.0.1 h1:cd5Tnjjkm7kQ3PPwN6y5uaUadPt9k9TgQvRj8g5k8gM=
+github.com/Olprog59/fsnotify v0.0.1/go.mod h1:zPXyKevaUzX6ZsIxndgz7OqI/jcU7Wh9VHDJmQefRHQ=
+golang.org/x/sys v0.0.0-20191005200804-aed5e4c7ecf9 h1:L2auWcuQIvxz9xSEqzESnV/QN/gNRXNApHi3fYwl2w0=
 golang.org/x/sys v0.0.0-20191005200804-aed5e4c7ecf9/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
-golang.org/x/sys v0.0.0-20201119102817-f84b799fce68 h1:nxC68pudNYkKU6jWhgrqdreuFiOQWj1Fs7T3VrH4Pjw=
-golang.org/x/sys v0.0.0-20201119102817-f84b799fce68/go.mod h1:h1NjWce9XRLGQEsW7wpKNCjG9DtNlClVuFLEZdDNbEs=
-golang.org/x/term v0.0.0-20201126162022-7de9c90e9dd1/go.mod h1:bj7SfCRtBDWHUb9snDiAeCFNEtKQo2Wmx5Cou7ajbmo=
-golang.org/x/text v0.3.3/go.mod h1:5Zoc/QRtKVWzQhOtBMvqHzDpF6irO9z98xDceosuGiQ=
-golang.org/x/tools v0.0.0-20180917221912-90fa682c2a6e/go.mod h1:n7NCudcB/nEzxVGmLbDWY5pfWTLqBcC2KZ6jyYvM4mQ=
