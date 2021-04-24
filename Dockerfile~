@@ -25,7 +25,13 @@ VOLUME /be_sorted
 VOLUME /movies
 VOLUME /series
 
+WORKDIR /
 
 COPY --from=build /app/bin/search-and-sort-movies-linux-amd64 .
+
+CMD ["pwd"]
+CMD ["ls"]
+
+RUN chmod +x search-and-sort-movies-linux-amd64
 
 CMD ["./search-and-sort-movies-linux-amd64", "-scan"]
