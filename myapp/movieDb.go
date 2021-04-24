@@ -5,7 +5,6 @@ import (
 	"net/http"
 	"regexp"
 	"search-and-sort-movies/myapp/constants"
-	"search-and-sort-movies/myapp/logger"
 	"strings"
 	"time"
 
@@ -93,7 +92,7 @@ func (m *myFile) checkMovieDB(tv, lang bool, name string) string {
 	url = "https://api.themoviedb.org/3/search/multi?api_key=" + constants.ApiV3 + language + "&query=" + name
 	//}
 	m.SearchEngine = name
-	logger.L(logger.Teal, url)
+	//logger.L(logger.Teal, url)
 	return url
 }
 
