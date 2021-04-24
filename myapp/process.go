@@ -162,7 +162,7 @@ func (m *myFile) translateName() {
 	}
 	defer resp.Body.Close()
 
-	fmt.Println(resp.Request)
+	logger.L(logger.Yellow, "%s", resp.Request)
 
 	if resp.StatusCode != http.StatusOK {
 		logger.L(logger.Yellow, "response status code was %d", resp.StatusCode)

@@ -29,7 +29,6 @@ func MyWatcher(location string) {
 				if !ok {
 					return
 				}
-				logger.L(logger.Red, "%s", event.Op)
 				if event.Op&fsnotify.CloseWrite == fsnotify.CloseWrite {
 					re := regexp.MustCompile(constants.RegexFile)
 					//Ajout d'une sécurité si le fichier a déjà été déplacé
