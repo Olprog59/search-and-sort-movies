@@ -10,9 +10,9 @@ const (
 	LOGFILE      = "log_SearchAndSort"
 
 	//Dev
-	//path  = "/Users/olprog"
+	path = "/Users/olprog/development/dlna"
 	// Prod
-	path = ""
+	//path = ""
 
 	A_TRIER = path + "/be_sorted"
 	MOVIES  = path + "/movies"

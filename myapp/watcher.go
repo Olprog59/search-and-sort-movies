@@ -1,7 +1,7 @@
 package myapp
 
 import (
-	"github.com/fsnotify/fsnotify"
+	"github.com/Olprog59/fsnotify"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -24,22 +24,24 @@ func MyWatcher(location string) {
 
 	go func() {
 		for {
-			timer := time.NewTimer(2 * time.Second)
-			var ev fsnotify.Event
-
 			select {
-			case event := <-watch.Events:
-				ev = event
-			case err := <-watch.Errors:
-				logger.L(logger.Red, "%s", err)
-			case <-timer.C:
-				re := regexp.MustCompile(constants.RegexFile)
-				//Ajout d'une sécurité si le fichier a déjà été déplacé
-				if isDir, isNil := _checkIfDir(ev); !isDir && !isNil {
-					if re.MatchString(filepath.Ext(ev.Name)) {
-						go _fsNotifyCreateFile(ev, re)
+			case event, ok := <-watch.Events:
+				if !ok {
+					return
+				}
+				logger.L(logger.Red, "%s", event.Op)
+				if event.Op&fsnotify.CloseWrite == fsnotify.CloseWrite {
+					re := regexp.MustCompile(constants.RegexFile)
+					//Ajout d'une sécurité si le fichier a déjà été déplacé
+					if isDir, isNil := _checkIfDir(event); !isDir && !isNil {
+						if re.MatchString(filepath.Ext(event.Name)) {
+							go _fsNotifyCreateFile(event, re)
+						}
 					}
 				}
+
+			case err := <-watch.Errors:
+				logger.L(logger.Red, "%s", err)
 			}
 		}
 	}()
@@ -47,7 +49,7 @@ func MyWatcher(location string) {
 	logger.L(logger.Purple, "Ajout d'un watcher sur le dossier : %s", location)
 	if len(location) > 0 {
 		if err := watch.Add(location); err != nil {
-			logger.L(logger.Red, "%s", err)
+			logger.L(logger.Red, "location: %s %s", location, err)
 		}
 	}
 
