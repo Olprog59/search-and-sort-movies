@@ -57,12 +57,12 @@ link:
 
 linux:
 	cd ${BUILD_DIR}; \
-	GOOS=linux GOARCH=${GOARCH} go build ${LDFLAGS} -o ${BIN_DIR}/${BINARY}-linux-${GOARCH} . ; \
+	GOOS=linux GOARCH=${GOARCH} go build -tags prod ${LDFLAGS} -o ${BIN_DIR}/${BINARY}-linux-${GOARCH} . ; \
 	cd - >/dev/null
 
 darwin:
 	cd ${BUILD_DIR}; \
-	GOOS=darwin GOARCH=${GOARCH} go build ${LDFLAGS} -o ${BIN_DIR}/${BINARY}-darwin-${GOARCH} . ; \
+	GOOS=darwin GOARCH=${GOARCH} go build -tags prod ${LDFLAGS} -o ${BIN_DIR}/${BINARY}-darwin-${GOARCH} . ; \
 	cd - >/dev/null
 
 windows:

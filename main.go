@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"os"
 	"runtime"
@@ -21,6 +22,8 @@ var (
 func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	log.SetFlags(0)
+
+	fmt.Println("path: " + constants.A_TRIER)
 
 	checkIfFolderExistAndCreate(constants.A_TRIER)
 	checkIfFolderExistAndCreate(constants.MOVIES)

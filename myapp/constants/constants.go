@@ -9,11 +9,6 @@ const (
 	LearningFile = ".learning.csv"
 	LOGFILE      = "log_SearchAndSort"
 
-	//Dev
-	//path = "/Users/olprog/development/dlna"
-	// Prod
-	path = ""
-
 	A_TRIER = path + "/be_sorted"
 	MOVIES  = path + "/movies"
 	SERIES  = path + "/series"
