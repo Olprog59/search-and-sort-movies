@@ -1,28 +1,22 @@
 # Search And Sort Movies or Series
 
-## Service example
-```
-[Unit]
-Description = Search and Sort Movies Service
-After = network.target
+This application will allow you to sort films and series.
+It will clean up the names and move them to the folder you want.
 
-[Service]
-WorkingDirectory=/media/hdd/app
-ExecStart =/bin/bash -c "/media/hdd/app/search-and-sort-movies-linux-amd64 -scan"
-User=root
-Group=root
-Restart=always
-RestartSec=5
+Ex: 
+- /be_sorted/movie_sam_2020_to$http://sAm.EN-01.mkv => /movies/movie-sam-2020.mkv
+- /be_sorted/serie_S1_e12_qWerTy_aZerty.mKv => /series/fringe/season-1/fringe-S01-E12.mkv
 
-[Install]
-WantedBy=multi-user.target
-```
+### Choose your Volumes :
+- /be_sorted
+- /movies
+- /series
 
-Docker : 
-```
-// Build docker for linux
-docker buildx build --platform linux/amd64 -t olprog/search_and_sort_movies:0.1 .
-
-// build for arm my mac mini
-docker build -t olprog/search_and_sort_movies:0.1  . 
+Ex.:
+```bash
+docker container run \
+-v /mnt/user/dlna/be_sorted:/be_sorted \
+-v /mnt/user/dlna/movies:/movies \
+-v /mnt/user/dlna/series:/series \
+--name movies search-and-sort-movies
 ```
