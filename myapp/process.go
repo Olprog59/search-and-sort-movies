@@ -57,12 +57,9 @@ func (m *myFile) Process() {
 
 func (m *myFile) start(serieOrMovieOrBoth typeSerieOrMovie) {
 	m.slugFile()
-	logger.L(logger.Yellow, "%v => %s", serieOrMovieOrBoth, m)
 	if m.serieName == "" || serieOrMovieOrBoth == MOVIE {
-		logger.L(logger.Red, "start is movie")
 		m.isMovie()
 	} else {
-		logger.L(logger.Red, "start is serie")
 		m.isSerie()
 	}
 }
@@ -77,7 +74,6 @@ func (m *myFile) isMovie() {
 		movie, _ = m.dbMovies(false, m.name)
 	}
 
-	logger.L(logger.Red, "movie.Result", movie.Results)
 	if len(movie.Results) > 0 {
 		if m.SearchEngine != "" {
 			m.name = slugify.Slugify(m.SearchEngine)
@@ -89,21 +85,17 @@ func (m *myFile) isMovie() {
 		} else {
 			path1 = movies + string(os.PathSeparator) + m.complete
 		}
-		logger.L(logger.Purple, "dans isMovie")
 		if moveOrRenameFile(m.file, path1) {
 			logger.L(logger.Yellow, m.fileWithoutDir+", a bien été déplacé dans : "+path1)
 			m.createFileForLearning(true)
 		}
-
 	} else {
-		logger.L(logger.Yellow, "isMovie : "+m.name)
 		m.isNotFindInMovieDb(m.name, MOVIE)
 	}
 }
 
 func (m *myFile) isSerie() {
 	serie, _ := m.dbSeries(false, m.serieName)
-	logger.L(logger.Purple, "serie.Result", serie.Results)
 	if len(serie.Results) > 0 {
 		if m.SearchEngine != "" {
 			m.serieName = slugify.Slugify(m.SearchEngine)
@@ -145,7 +137,6 @@ func (m *myFile) checkFolderSerie() (string, string) {
 	}
 
 	finalFilePath := series + newFolder + string(os.PathSeparator) + m.complete
-	logger.L(logger.Red, "dans checkFolderSerie")
 	if moveOrRenameFile(m.file, finalFilePath) {
 		logger.L(logger.Yellow, m.fileWithoutDir+", a bien été déplacé dans : "+finalFilePath)
 		m.createFileForLearning(true)
