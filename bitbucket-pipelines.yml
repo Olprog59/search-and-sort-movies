@@ -1,0 +1,11 @@
+image: alpine:latest
+pipelines:
+  default:
+    - step:
+        script:
+          - docker login -u olprog -p d4c86d0c-d65f-4b55-81f4-5d4bab758c69
+          - docker build -t olprog/search-and-sort-movies:latest .
+          - docker push olprog/search-and-sort-movies:latest
+
+options:
+  docker: true
