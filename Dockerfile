@@ -1,6 +1,9 @@
 FROM golang:latest as builder
 WORKDIR /app
 ADD . .
+RUN go mod download github.com/Olprog59/fsnotify
+RUN go get github.com/Machiel/slugify
+
 RUN make linux
 
 

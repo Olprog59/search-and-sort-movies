@@ -89,7 +89,7 @@ func (m *myFile) isMovie() {
 		} else {
 			path1 = movies + string(os.PathSeparator) + m.complete
 		}
-		logger.L(logger.Red, "dans isMovie")
+		logger.L(logger.Purple, "dans isMovie")
 		if moveOrRenameFile(m.file, path1) {
 			logger.L(logger.Yellow, m.fileWithoutDir+", a bien été déplacé dans : "+path1)
 			m.createFileForLearning(true)
@@ -103,7 +103,7 @@ func (m *myFile) isMovie() {
 
 func (m *myFile) isSerie() {
 	serie, _ := m.dbSeries(false, m.serieName)
-	logger.L(logger.Red, "serie.Result", serie.Results)
+	logger.L(logger.Purple, "serie.Result", serie.Results)
 	if len(serie.Results) > 0 {
 		if m.SearchEngine != "" {
 			m.serieName = slugify.Slugify(m.SearchEngine)
