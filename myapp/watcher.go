@@ -4,6 +4,7 @@ import (
 	"github.com/Olprog59/fsnotify"
 	"os"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"search-and-sort-movies/myapp/constants"
 	"search-and-sort-movies/myapp/logger"
@@ -23,19 +24,42 @@ func MyWatcher(location string) {
 	done := make(chan bool)
 
 	go func() {
+		var count = 0
+		var events []fsnotify.Op
+		var eventsOk = []fsnotify.Op{
+			fsnotify.Rename,
+			fsnotify.Create,
+			fsnotify.Chmod,
+		}
 		for {
 			select {
 			case event, ok := <-watch.Events:
+				events = append(events, event.Op)
 				if !ok {
 					return
 				}
-				if event.Op&fsnotify.CloseWrite == fsnotify.CloseWrite {
+				logger.L(logger.Red, "%s", event.Op)
+				if reflect.DeepEqual(events, eventsOk) {
 					re := regexp.MustCompile(constants.RegexFile)
 					//Ajout d'une sécurité si le fichier a déjà été déplacé
 					if isDir, isNil := _checkIfDir(event); !isDir && !isNil {
 						if re.MatchString(filepath.Ext(event.Name)) {
 							go _fsNotifyCreateFile(event, re)
 						}
+					}
+				}
+				if event.Op&fsnotify.CloseWrite == fsnotify.CloseWrite {
+					if count > 0 {
+						re := regexp.MustCompile(constants.RegexFile)
+						//Ajout d'une sécurité si le fichier a déjà été déplacé
+						if isDir, isNil := _checkIfDir(event); !isDir && !isNil {
+							if re.MatchString(filepath.Ext(event.Name)) {
+								go _fsNotifyCreateFile(event, re)
+							}
+						}
+						count = 0
+					} else {
+						count = 1
 					}
 				}
 
