@@ -2,14 +2,12 @@ package myapp
 
 import (
 	"encoding/json"
-	"fmt"
 	"github.com/Machiel/slugify"
 	"io/ioutil"
 	"net/http"
 	"net/url"
 	"os"
 	"os/exec"
-	"path"
 	"path/filepath"
 	"search-and-sort-movies/myapp/constants"
 	"search-and-sort-movies/myapp/logger"
@@ -87,7 +85,7 @@ func (m *myFile) isMovie() {
 		}
 		if moveOrRenameFile(m.file, path1) {
 			logger.L(logger.Yellow, m.fileWithoutDir+", a bien été déplacé dans : "+path1)
-			m.createFileForLearning(true)
+			m.learningFirestore(true)
 		}
 	} else {
 		m.isNotFindInMovieDb(m.name, MOVIE)
@@ -118,7 +116,7 @@ func (m *myFile) isNotFindInMovieDb(name string, serieOrMovie typeSerieOrMovie) 
 		m.start(serieOrMovie)
 	} else {
 		logger.L(logger.Yellow, name+", n'a pas été trouvé sur https://www.themoviedb.org/search?query="+name+".\n Test manuellement si tu le trouves ;-)")
-		m.createFileForLearning(false)
+		m.learningFirestore(false)
 		m.count = 0
 	}
 }
@@ -139,7 +137,7 @@ func (m *myFile) checkFolderSerie() (string, string) {
 	finalFilePath := series + newFolder + string(os.PathSeparator) + m.complete
 	if moveOrRenameFile(m.file, finalFilePath) {
 		logger.L(logger.Yellow, m.fileWithoutDir+", a bien été déplacé dans : "+finalFilePath)
-		m.createFileForLearning(true)
+		m.learningFirestore(true)
 	}
 	return m.complete, finalFilePath
 }
@@ -235,16 +233,4 @@ func getAbsolutePathWithRelative(folder string) string {
 		return abs
 	}
 	return ""
-}
-
-// création d'un fichier pour le learning
-func (m *myFile) createFileForLearning(videosTry bool) {
-	f, err := os.OpenFile(path.Clean(constants.LearningFile), os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		logger.L(logger.Red, "%s", err)
-	}
-	_, err = f.Write([]byte(fmt.Sprintf("%s;%s;%t\n", m.fileWithoutDir, m.complete, videosTry)))
-	if err != nil {
-		logger.L(logger.Red, "%s", err)
-	}
 }
