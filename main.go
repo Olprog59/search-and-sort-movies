@@ -34,18 +34,16 @@ func main() {
 	flags.Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean)
 
 	// Write log to file : log_SearchAndSort
-	f, err := os.OpenFile(constants.LOGFILE, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
-	if err != nil {
-		logger.L(logger.Red, "error opening file: %s", err)
-	}
-	defer f.Close()
-	log.SetOutput(f)
+	//f, err := os.OpenFile(constants.LOGFILE, os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	//if err != nil {
+	//	logger.L(logger.Red, "error opening file: %s", err)
+	//}
+	//defer f.Close()
+	//log.SetOutput(f)
 
 	logger.L(logger.Teal, "\n\nBuild Version: %s\nBuild Date: %s\n", BuildVersion, BuildDate)
 
 	logger.L(logger.Magenta, "Start :-D")
-	//fmt.Println(logger.Magenta("Start :-D"))
-	//fmt.Println(logger.Magenta("Ecoute sur le dossier : " + constants.A_TRIER))
 
 	myapp.MyWatcher(constants.A_TRIER)
 
