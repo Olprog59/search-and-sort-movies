@@ -9,4 +9,5 @@ require (
 	github.com/Machiel/slugify v1.0.1
 	github.com/Olprog59/fsnotify v0.0.3
 	golang.org/x/oauth2 v0.0.0-20210427180440-81ed05c6b58c // indirect
+	google.golang.org/api v0.45.0
 )

@@ -54,6 +54,7 @@ func MyWatcher(location string) {
 	}
 
 	<-done
+	logger.L(logger.Purple, "Watcher terminé")
 }
 
 func _ticker(event fsnotify.Event, c *chan bool) {
@@ -65,7 +66,6 @@ func _ticker(event fsnotify.Event, c *chan bool) {
 			if err != nil {
 				logger.L(logger.Red, "%s", err)
 			}
-			//log.Printf("Name: %s\n\tInfo size: %d - Size: %d\n\n", event.Name, f.Size(), size)
 			if f.Size() != size {
 				size = f.Size()
 				continue
