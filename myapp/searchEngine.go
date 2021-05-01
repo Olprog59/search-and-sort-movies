@@ -92,49 +92,5 @@ func getSearchEngine(name string) (string, int) {
 	}
 	logger.L(logger.Green, "Proposition par l'algo de recherche google : "+proposition)
 
-	//doc := html.NewTokenizer(resp.Body)
-	//out, _ := os.Create("./bing.txt")
-	//defer out.Close()
-	//_, _ = io.Copy(out, resp.Body)
-
-	//for {
-	//	tokenType := doc.Next()
-	//
-	//	//if it's an error token, we either reached
-	//	//the end of the file, or the HTML was malformed
-	//	if tokenType == html.ErrorToken {
-	//		err := doc.Err()
-	//		if err == io.EOF {
-	//			//end of the file, break out of the loop
-	//			break
-	//		}
-	//		log.Println(logger.Fata("error tokenizing HTML: %v", doc.Err()))
-	//	}
-	//	if tokenType == html.StartTagToken {
-	//		//get the token
-	//		token := doc.Token()
-	//		//if the name of the element is "div"
-	//		if atom.A == token.DataAtom {
-	//			for _, v := range token.Attr {
-	//				if v.Key == "class" && v.Val == "result-title" {
-	//					tokenType = doc.Next()
-	//					if tokenType == html.TextToken {
-	//						//tokenType = doc.Next()
-	//						token = doc.Token()
-	//						if html.TextToken == tokenType {
-	//							proposition = fmt.Sprintf("%v", token)
-	//						}
-	//					}
-	//					token = doc.Token()
-	//					break
-	//				}
-	//			}
-	//
-	//		}
-	//		if proposition != "" {
-	//			break
-	//		}
-	//	}
-	//}
 	return proposition, distance
 }
