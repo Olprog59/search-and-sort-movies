@@ -17,7 +17,7 @@ func (m *myFile) slugFile() {
 	m.name = slugify.Slugify(m.name)
 	var err error
 
-	video := regexp.MustCompile(`(?mi)-(french|dvdrip|multi|vostfr|dvd-r|bluray|bdrip|brrip|cam|ts|tc|vcd|md|ld|r[0-9]|xvid|divx|scr|dvdscr|repack|hdlight|720p|480p|1080p|2160p|uhd)`)
+	video := regexp.MustCompile(`(?mi)-(french|vf|dvdrip|multi|vostfr|dvd-r|bluray|bdrip|brrip|cam|ts|tc|vcd|md|ld|r[0-9]|xvid|divx|scr|dvdscr|repack|hdlight|720p|480p|1080p|2160p|uhd)`)
 	yearReg := regexp.MustCompile(`(?mi)-[0-9]{4}`)
 
 	cleanName := video.FindStringIndex(m.name)
