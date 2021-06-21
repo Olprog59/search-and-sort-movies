@@ -196,8 +196,8 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 	//err := syscall.Rename(filePathOld, strings.ToLower(filePathNew))
 	//logger.L(logger.Yellow, "Goos: %s - GoArch: %s", runtime.GOOS, runtime.GOARCH)
 	//err := MoveFile(filePathOld, filePathNew)
-	cmd := exec.Command("/bin/sh", "-c", "mv "+filePathOld+" "+filePathNew)
-	logger.L(logger.Yellow, "mv "+filePathOld+" "+filePathNew)
+	cmd := exec.Command("/bin/sh", "-c", "mv \""+filePathOld+"\" "+filePathNew)
+	logger.L(logger.Yellow, "mv \""+filePathOld+"\" "+filePathNew)
 	err := cmd.Run()
 	if err != nil {
 		logger.L(logger.Red, "Move Or Rename File : %s", err)
