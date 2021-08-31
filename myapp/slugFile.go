@@ -25,7 +25,7 @@ func (m *myFile) slugFile() {
 		m.name = m.name[:cleanName[0]]
 	}
 
-	serie := regexp.MustCompile(`(?mi)((s\d{1,2})(?:\W+)?(e?\d{1,2}))|(?:e\d{1,2})|(episode-(\d{2,3})-)|((\d{1,2})-(\d{1,2})$)|((saison|season)-(\d{1,2})-episode-(\d{1,2}))`)
+	serie := regexp.MustCompile(`(?mi)((s\d{1,2})(?:\W+)?(e?\d{1,2}))|(?:e\d{1,2})|(episode-(\d{2,3})-?)|((\d{1,2})-(\d{1,2})$)|((saison|season)-(\d{1,2})-episode-(\d{1,2}))`)
 	match := serie.FindAllStringSubmatch(m.name, -1)
 
 	if len(match) > 0 {
@@ -40,8 +40,8 @@ func (m *myFile) slugFile() {
 				m.season = formatSaisonNumberOuEpisode(v[11], 's')
 				m.episode = formatSaisonNumberOuEpisode(v[12], 'e')
 			} else if v[5] != "" {
-				m.season = "s00"
-				m.episode = "e" + v[5]
+				m.season = ""
+				m.episode = v[5]
 			} else if v[2] != "" && v[3] != "" {
 				m.season = formatSaisonNumberOuEpisode(v[2], 's')
 				m.episode = formatSaisonNumberOuEpisode(v[3], 'e')

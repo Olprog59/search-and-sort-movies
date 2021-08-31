@@ -46,7 +46,7 @@ func MyWatcher(location string) {
 		}
 	}()
 
-	logger.L(logger.Purple, "Ajout d'un watcher sur le dossier : %s", location)
+	logger.L(logger.Purple, "Add watcher to folder: %s", location)
 	if len(location) > 0 {
 		if err := watch.Add(location); err != nil {
 			logger.L(logger.Red, "location: %s %s", location, err)
@@ -54,7 +54,7 @@ func MyWatcher(location string) {
 	}
 
 	<-done
-	logger.L(logger.Purple, "Watcher terminé")
+	logger.L(logger.Purple, "Watcher finished")
 }
 
 func _ticker(event fsnotify.Event, c *chan bool) {
@@ -93,7 +93,7 @@ func _checkIfDir(event fsnotify.Event) (isDir bool, isNil bool) {
 	}
 	if f.IsDir() && filepath.Dir(f.Name()) != constants.A_TRIER {
 		err := watch.Add(e.Name)
-		logger.L(logger.Purple, "Ajout d'un watcher sur "+e.Name)
+		logger.L(logger.Purple, "Add watcher : "+e.Name)
 		if err != nil {
 			logger.L(logger.Red, "%s", err)
 		} else {
@@ -113,7 +113,7 @@ func _fsNotifyCreateFile(event fsnotify.Event, re *regexp.Regexp) {
 	<-finish
 
 	if re.MatchString(filepath.Ext(e.Name)) {
-		logger.L(logger.Purple, "Détection de : %s", filepath.Base(e.Name))
+		logger.L(logger.Purple, "Detect : %s", filepath.Base(e.Name))
 		var m myFile
 		m.file = event.Name
 		//wg.Lock()

@@ -1,20 +1,15 @@
 package myapp
 
 import (
-	"encoding/json"
 	"github.com/Machiel/slugify"
 	"io/ioutil"
-	"net/http"
-	"net/url"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"search-and-sort-movies/myapp/constants"
 	"search-and-sort-movies/myapp/logger"
 	"strconv"
-	"strings"
 	"sync"
-	"time"
 )
 
 var (
@@ -25,8 +20,7 @@ var (
 type typeSerieOrMovie uint
 
 const (
-	SERIE typeSerieOrMovie = iota
-	MOVIE
+	MOVIE typeSerieOrMovie = iota
 	NOTHING
 )
 
@@ -42,6 +36,7 @@ type myFile struct {
 	season         string
 	year           int
 	episode        string
+	episodeRaw     string
 	count          int
 }
 
@@ -65,60 +60,27 @@ func (m *myFile) start(serieOrMovieOrBoth typeSerieOrMovie) {
 func (m *myFile) isMovie() {
 	extension := filepath.Ext(m.file)
 	logger.L(logger.Yellow, "name: %s", m.name)
-	var movie MoviesDb
-	if m.transName != "" {
-		movie, _ = m.dbMovies(false, m.transName)
-	} else {
-		movie, _ = m.dbMovies(false, m.name)
-	}
 
-	if len(movie.Results) > 0 {
-		if m.SearchEngine != "" {
-			m.name = slugify.Slugify(m.SearchEngine)
-		}
-		var path1 string
-		m.complete = m.name + extension
-		if m.year != 0 {
-			path1 = movies + string(os.PathSeparator) + m.name + "-" + strconv.Itoa(m.year) + extension
-		} else {
-			path1 = movies + string(os.PathSeparator) + m.complete
-		}
-		if moveOrRenameFile(m.file, path1) {
-			logger.L(logger.Yellow, m.fileWithoutDir+", a bien été déplacé dans : "+path1)
-			m.learningFirestore(true)
-		}
+	if m.SearchEngine != "" {
+		m.name = slugify.Slugify(m.SearchEngine)
+	}
+	var path1 string
+	m.complete = m.name + extension
+	if m.year != 0 {
+		path1 = movies + string(os.PathSeparator) + m.name + "-" + strconv.Itoa(m.year) + extension
 	} else {
-		m.isNotFindInMovieDb(m.name, MOVIE)
+		path1 = movies + string(os.PathSeparator) + m.complete
+	}
+	if moveOrRenameFile(m.file, path1) {
+		logger.L(logger.Yellow, m.fileWithoutDir+", has been moved to: "+path1)
 	}
 }
 
 func (m *myFile) isSerie() {
-	serie, _ := m.dbSeries(false, m.serieName)
-	if len(serie.Results) > 0 {
-		if m.SearchEngine != "" {
-			m.serieName = slugify.Slugify(m.SearchEngine)
-		}
-		m.checkFolderSerie()
-	} else {
-		m.isNotFindInMovieDb(m.serieName, SERIE)
+	if m.SearchEngine != "" {
+		m.serieName = slugify.Slugify(m.SearchEngine)
 	}
-}
-
-func (m *myFile) isNotFindInMovieDb(name string, serieOrMovie typeSerieOrMovie) {
-	if m.count < 1 {
-		m.count++
-		time.Sleep(2000 * time.Millisecond)
-		m.start(serieOrMovie)
-	} else if m.count < 2 {
-		m.count++
-		time.Sleep(2000 * time.Millisecond)
-		//m.translateName()
-		m.start(serieOrMovie)
-	} else {
-		logger.L(logger.Yellow, name+", n'a pas été trouvé sur https://www.themoviedb.org/search?query="+name+".\n Test manuellement si tu le trouves ;-)")
-		m.learningFirestore(false)
-		m.count = 0
-	}
+	m.checkFolderSerie()
 }
 
 func (m *myFile) checkFolderSerie() (string, string) {
@@ -126,60 +88,19 @@ func (m *myFile) checkFolderSerie() (string, string) {
 	newFolder := string(os.PathSeparator) + m.serieName + string(os.PathSeparator) + "season-" + m.season[1:]
 	folderOk := series + string(os.PathSeparator) + m.serieName
 	if _, err := os.Stat(folderOk); os.IsNotExist(err) {
-		logger.L(logger.Yellow, "Création du dossier : "+m.serieName)
+		logger.L(logger.Yellow, "Create folder: "+m.serieName)
 		createFolder(folderOk)
 	}
 	if _, err := os.Stat(series + newFolder); os.IsNotExist(err) {
-		logger.L(logger.Yellow, "Création du dossier : "+newFolder)
+		logger.L(logger.Yellow, "Create folder : "+newFolder)
 		createFolder(series + newFolder)
 	}
 
 	finalFilePath := series + newFolder + string(os.PathSeparator) + m.complete
 	if moveOrRenameFile(m.file, finalFilePath) {
-		logger.L(logger.Yellow, m.fileWithoutDir+", a bien été déplacé dans : "+finalFilePath)
-		m.learningFirestore(true)
+		logger.L(logger.Yellow, m.fileWithoutDir+", has been moved to: "+finalFilePath)
 	}
 	return m.complete, finalFilePath
-}
-
-// Ok test
-func (m *myFile) translateName() {
-	slug := slugify.New(slugify.Configuration{
-		ReplaceCharacter: ' ',
-	})
-	var n = m.name
-	n = slug.Slugify(n)
-	resp, err := http.Get("https://translate.googleapis.com/translate_a/single?client=gtx&sl=auto&tl=en&dt=t&q=" + url.PathEscape(n))
-	if resp == nil || err != nil {
-		time.Sleep(1 * time.Minute)
-		m.translateName()
-		return
-	}
-	defer resp.Body.Close()
-
-	logger.L(logger.Yellow, "%s", resp.Request)
-
-	if resp.StatusCode != http.StatusOK {
-		logger.L(logger.Yellow, "response status code was %d", resp.StatusCode)
-	}
-
-	ctype := resp.Header.Get("Content-Type")
-	if !strings.HasPrefix(ctype, "application/json") {
-		logger.L(logger.Yellow, "response content type was "+ctype+" not text/html")
-	}
-
-	body, err := ioutil.ReadAll(resp.Body)
-	if err != nil {
-		logger.L(logger.Red, "%s", err)
-	}
-
-	var arr [][][]string
-	_ = json.Unmarshal(body, &arr)
-	if err != nil {
-		logger.L(logger.Red, "%s", err)
-	}
-
-	m.transName = arr[0][0][0]
 }
 
 func createFolder(folder string) {
@@ -214,12 +135,12 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 		if len(file) == 0 {
 			err = watch.Remove(folder)
 			if err != nil {
-				logger.L(logger.Red, "Erreur sur la suppression du watcher sur le dossier : %s", folder)
+				logger.L(logger.Red, "Error. Can't delete watcher to folder: %s", folder)
 			}
-			logger.L(logger.Yellow, "Suppression du watcher sur le dossier : %s", folder)
+			logger.L(logger.Yellow, "Delete watcher to folder: %s", folder)
 			err := os.Remove(folder)
 			if err != nil {
-				logger.L(logger.Red, "Erreur de suppression de dossier : %s", folder)
+				logger.L(logger.Red, "Error to delete folder: %s", folder)
 			}
 		}
 	}
