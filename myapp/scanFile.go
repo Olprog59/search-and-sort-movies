@@ -11,8 +11,6 @@ import (
 func StartScan() {
 	count, file := fileInFolder()
 	if count > 0 {
-		//boucleFiles(file)
-		// remove goroutine car je dois tester voir si cela cause le tri non complet des fichiers
 		go boucleFiles(file)
 	}
 }
@@ -38,12 +36,12 @@ func fileInFolder() (int, []string) {
 }
 
 func boucleFiles(files []string) {
-	logger.L(logger.Purple, "Démarrage du tri !")
+	logger.L(logger.Purple, "Start sorting videos !!")
 	for _, f := range files {
 		logger.L(logger.Yellow, "File : "+f)
 		var m myFile
 		m.file = f
 		m.Process()
 	}
-	logger.L(logger.Purple, "Tri terminé !")
+	logger.L(logger.Purple, "Sorting completed !")
 }

@@ -1,9 +1,5 @@
 package myapp
 
-import (
-	"testing"
-)
-
 //func Test_checkMovieDB(t *testing.T) {
 //	type args struct {
 //		tv       bool
@@ -56,30 +52,30 @@ import (
 //	}
 //}
 
-func Test_slugRemoveYearSerieForSearchMovieDB(t *testing.T) {
-	type args struct {
-		name string
-	}
-	tests := []struct {
-		name    string
-		args    args
-		wantNew string
-	}{
-		{
-			"slugRemoveYearSerieForSearchMovieDB", args{
-				"the-flash-2014",
-			},
-			"the-flash",
-		},
-	}
-	for _, tt := range tests {
-		t.Run(tt.name, func(t *testing.T) {
-			if gotNew := slugRemoveYearSerieForSearchMovieDB(tt.args.name); gotNew != tt.wantNew {
-				t.Errorf("slugRemoveYearSerieForSearchMovieDB() = %v, want %v", gotNew, tt.wantNew)
-			}
-		})
-	}
-}
+//func Test_slugRemoveYearSerieForSearchMovieDB(t *testing.T) {
+//	type args struct {
+//		name string
+//	}
+//	tests := []struct {
+//		name    string
+//		args    args
+//		wantNew string
+//	}{
+//		{
+//			"slugRemoveYearSerieForSearchMovieDB", args{
+//				"the-flash-2014",
+//			},
+//			"the-flash",
+//		},
+//	}
+//	for _, tt := range tests {
+//		t.Run(tt.name, func(t *testing.T) {
+//			if gotNew := slugRemoveYearSerieForSearchMovieDB(tt.args.name); gotNew != tt.wantNew {
+//				t.Errorf("slugRemoveYearSerieForSearchMovieDB() = %v, want %v", gotNew, tt.wantNew)
+//			}
+//		})
+//	}
+//}
 
 /*// Test Ok juste je n'ai pas rempli moviedb
 func Test_readJSONFromUrlTV(t *testing.T) {

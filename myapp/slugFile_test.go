@@ -347,6 +347,23 @@ func Test_myFile_slugFile(t *testing.T) {
 			"",
 			"",
 		},
+		{
+			"slugFile", fields{
+				"",
+				"Fairy Tail episode 001 MULTI ''Fairy Tail'' ... BluRay1080p ! {Chris44} (Saison 01) ''Arc Macao'' 2009.mkv",
+				"",
+				"",
+				"",
+				"",
+				"",
+			},
+			"fairy-tail-001.mkv",
+			"fairy-tail-001",
+			"fairy-tail",
+			"001",
+			"",
+			"001",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
