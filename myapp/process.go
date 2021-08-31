@@ -85,7 +85,14 @@ func (m *myFile) isSerie() {
 
 func (m *myFile) checkFolderSerie() (string, string) {
 	// serieName, exist := folderExist(series, serieName)
-	newFolder := string(os.PathSeparator) + m.serieName + string(os.PathSeparator) + "season-" + m.season[1:]
+	ss := func() string {
+		if len(m.season) == 0 {
+			return "00"
+		}
+		return m.season[1:]
+	}()
+
+	newFolder := string(os.PathSeparator) + m.serieName + string(os.PathSeparator) + "season-" + ss
 	folderOk := series + string(os.PathSeparator) + m.serieName
 	if _, err := os.Stat(folderOk); os.IsNotExist(err) {
 		logger.L(logger.Yellow, "Create folder: "+m.serieName)
