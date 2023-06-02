@@ -76,6 +76,7 @@ func (m *myFile) formatageFinal() {
 	m.complete = ""
 
 	formatFile := strings.Split(constants.FormatFile(), ",")
+	isNameInFormatFile := false
 	for _, v := range formatFile[1:] {
 		v = strings.TrimSpace(v)
 		if m.resolution != "" && v == "resolution" {
@@ -86,10 +87,15 @@ func (m *myFile) formatageFinal() {
 		}
 		if v == "name" {
 			m.complete += slugify.Slugify(m.name)
+			isNameInFormatFile = true
 		}
 		if len(m.complete) > 0 && !strings.HasSuffix(m.complete, "-") {
 			m.complete += "-"
 		}
+	}
+
+	if !isNameInFormatFile {
+		m.complete += slugify.Slugify(m.name)
 	}
 
 	if strings.HasSuffix(m.complete, "-") {
@@ -100,6 +106,9 @@ func (m *myFile) formatageFinal() {
 	if separator != "-" {
 		if separator == "s" {
 			separator = " "
+		}
+		if separator == "" {
+			separator = "-"
 		}
 		m.complete = strings.ReplaceAll(m.complete, "-", separator)
 	}
