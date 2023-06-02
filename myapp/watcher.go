@@ -1,7 +1,7 @@
 package myapp
 
 import (
-	"github.com/Olprog59/fsnotify"
+	"github.com/fsnotify/fsnotify"
 	"os"
 	"path/filepath"
 	"regexp"
@@ -29,13 +29,21 @@ func MyWatcher(location string) {
 				if !ok {
 					return
 				}
-				if event.Op&fsnotify.MovedTo == fsnotify.MovedTo {
+				if event.Has(fsnotify.Create) {
 					//logger.L(logger.Red, "%s", event.Op)
-					re := regexp.MustCompile(constants.RegexFile)
 					//Ajout d'une sécurité si le fichier a déjà été déplacé
-					if isDir, isNil := _checkIfDir(event); !isDir && !isNil {
+					isDir, isNil := _checkIfDir(event)
+					//logger.L(logger.Red, "%#v, %#v", isDir, isNil)
+					if !isDir && !isNil {
+						re := regexp.MustCompile(constants.RegexFile)
 						if re.MatchString(filepath.Ext(event.Name)) {
 							go _fsNotifyCreateFile(event, re)
+						}
+					} else if isDir && !isNil {
+						if len(event.Name) > 0 {
+							if err := watch.Add(event.Name); err != nil {
+								logger.L(logger.Red, "location: %s %s", event.Name, err)
+							}
 						}
 					}
 				}
@@ -97,7 +105,7 @@ func _checkIfDir(event fsnotify.Event) (isDir bool, isNil bool) {
 		if err != nil {
 			logger.L(logger.Red, "%s", err)
 		} else {
-			return true, false
+			return true, true
 		}
 	}
 	return false, false

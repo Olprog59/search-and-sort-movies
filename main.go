@@ -21,7 +21,8 @@ var (
 
 func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
-	log.SetFlags(0)
+	//log.SetFlags(0)
+	log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds | log.Lshortfile)
 
 	fmt.Println("path: " + constants.A_TRIER)
 
