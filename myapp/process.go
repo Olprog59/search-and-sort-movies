@@ -1,8 +1,6 @@
 package myapp
 
 import (
-	"github.com/Machiel/slugify"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -26,11 +24,12 @@ const (
 
 type myFile struct {
 	file           string
+	ext            string
+	resolution     string
 	fileWithoutDir string
 	complete       string
+	completeSlug   string
 	name           string
-	SearchEngine   string
-	transName      string
 	serieName      string
 	serieNumber    string
 	season         string
@@ -61,9 +60,6 @@ func (m *myFile) isMovie() {
 	extension := filepath.Ext(m.file)
 	logger.L(logger.Yellow, "name: %s", m.name)
 
-	if m.SearchEngine != "" {
-		m.name = slugify.Slugify(m.SearchEngine)
-	}
 	var path1 string
 	m.complete = m.name + extension
 	if m.year != 0 {
@@ -77,9 +73,6 @@ func (m *myFile) isMovie() {
 }
 
 func (m *myFile) isSerie() {
-	if m.SearchEngine != "" {
-		m.serieName = slugify.Slugify(m.SearchEngine)
-	}
 	m.checkFolderSerie()
 }
 
@@ -138,7 +131,7 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 	absoluteATrier := getAbsolutePathWithRelative(constants.A_TRIER)
 
 	if folder != absoluteATrier {
-		file, _ := ioutil.ReadDir(folder)
+		file, _ := os.ReadDir(folder)
 		if len(file) == 0 {
 			err = watch.Remove(folder)
 			if err != nil {

@@ -24,4 +24,6 @@ COPY --from=builder /app/bin/search-and-sort-movies-linux-amd64 /app
 
 WORKDIR /app
 
+ENV FORMAT_FILE "-, name, resolution, year"
+
 CMD ["./search-and-sort-movies-linux-amd64", "-scan"]
