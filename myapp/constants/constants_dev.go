@@ -1,7 +1,8 @@
+//go:build !prod
 // +build !prod
 
 package constants
 
 const (
-	path = "/Users/olprog/development/dlna"
+	path = "/Users/olprog/GolandProjects/search-and-sort-movies"
 )
