@@ -14,7 +14,7 @@ const (
 var FormatFile = func() string {
 	env := os.Getenv("FORMAT_FILE")
 	if env == "" {
-		return "  - , name, resolution, year"
+		return "  - , name"
 	}
 	return env
 }
