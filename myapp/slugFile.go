@@ -136,7 +136,8 @@ func (m *myFile) extractYear(str string) {
 	startAndEnd := yearReg.FindStringIndex(str)
 	if startAndEnd != nil && len(startAndEnd) > 0 {
 
-		m.year, err = strconv.Atoi(m.name[startAndEnd[0]:startAndEnd[1]])
+		m.year, err = strconv.Atoi(str[startAndEnd[0]:startAndEnd[1]])
+
 		if err != nil {
 			logger.L(logger.Red, "%s", err)
 		}
@@ -145,7 +146,9 @@ func (m *myFile) extractYear(str string) {
 			m.name = m.serieName
 			log.Println(m.serieName, m.name)
 		} else {
-			m.name = m.name[:yearReg.FindStringIndex(m.name)[0]]
+			if len(yearReg.FindStringIndex(m.name)) > 0 {
+				m.name = m.name[:yearReg.FindStringIndex(m.name)[0]]
+			}
 		}
 		if strings.HasSuffix(m.name, "-") {
 			m.name = m.name[:len(m.name)-1]

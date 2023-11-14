@@ -415,6 +415,23 @@ func Test_myFile_slugFile(t *testing.T) {
 			"s01",
 			"e10",
 		},
+		{
+			"slugFile", fields{
+				"",
+				"One Piece 1000 MULTI ''Puissance hors du commun ! L'équipage au Chapeau de paille au complet'' ... WebDl1080p ! 2021.mkv",
+				"",
+				"",
+				"",
+				"",
+				"",
+			},
+			"one-piece-1000-1080p.mkv",
+			"one-piece-1000",
+			"one-piece",
+			"1000",
+			"",
+			"1000",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
