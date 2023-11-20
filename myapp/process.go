@@ -37,6 +37,7 @@ type myFile struct {
 	episode        string
 	episodeRaw     string
 	count          int
+	language       string
 }
 
 func (m *myFile) Process() {

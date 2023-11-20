@@ -3,7 +3,6 @@ package myapp
 import (
 	"fmt"
 	"github.com/Machiel/slugify"
-	"log"
 	"path/filepath"
 	"regexp"
 	"search-and-sort-movies/myapp/constants"
@@ -22,52 +21,57 @@ func (m *myFile) slugFile() {
 
 	cleanName := video.FindStringIndex(m.name)
 	if len(cleanName) > 0 {
-		m.name = m.name[:cleanName[1]]
+		m.language = m.name[cleanName[0]+1 : cleanName[1]]
+		m.name = strings.Replace(m.name, m.language, "", -1)
 	}
 
-	serie := regexp.MustCompile(`(?mi)((s\d{1,2})(?:\W+)?(e?\d{1,3}))|(?:e\d{1,2})|(episode-(\d{2,3})-?)|((\d{1,2})-(\d{1,2})$)|((saison|season)-(\d{1,2})-episode-(\d{1,2}))`)
-	match := serie.FindAllStringSubmatch(m.name, -1)
-
+	m.extractYear(m.name)
 	m.extractResolution()
+
+	serie := regexp.MustCompile(`(?mi)((s\d{1,2})(?:\W+)?(e?\d{1,4}))|e\d{1,4}|(episode-(\d{2,4})-?)|((\d{1,2})-(\d{2,4}))|((saison|season)-(\d{1,2})-episode-(\d{1,4}))`)
+	match := serie.FindAllStringSubmatch(m.name, -1)
 
 	// len(match) > 0 => serie
 	// len(match) == 0 => film
 	if len(match) > 0 {
-		if len(match) > 1 {
-			match = match[len(match)-1:]
-		}
 		for _, v := range match {
 			if v[7] != "" && v[8] != "" {
 				m.season = formatSaisonNumberOuEpisode(v[7], 's')
 				m.episode = formatSaisonNumberOuEpisode(v[8], 'e')
+				m.name = strings.Replace(m.name, v[0], "", -1)
 			} else if v[11] != "" && v[12] != "" {
 				m.season = formatSaisonNumberOuEpisode(v[11], 's')
 				m.episode = formatSaisonNumberOuEpisode(v[12], 'e')
+				m.name = strings.Replace(m.name, v[0], "", -1)
 			} else if v[5] != "" {
-				m.season = ""
-				m.episode = v[5]
+				m.season = "s00"
+				m.episode = "e" + v[5]
+				m.name = strings.Replace(m.name, "episode-"+v[5], "", -1)
 			} else if v[2] != "" && v[3] != "" {
 				m.season = formatSaisonNumberOuEpisode(v[2], 's')
 				m.episode = formatSaisonNumberOuEpisode(v[3], 'e')
+				m.name = strings.Replace(m.name, v[0], "", -1)
 			} else {
 				m.episode = formatSaisonNumberOuEpisode(v[0], 'e')
 				m.season = "s00"
+				m.name = strings.Replace(m.name, v[0], "-", -1)
 			}
 			break
 		}
 		m.serieNumber = fmt.Sprintf("%s%s", m.season, m.episode)
-		if len(serie.FindStringIndex(m.name)) > 0 {
-			findIndex := serie.FindAllIndex([]byte(m.name), -1)
-			m.serieName = slugify.Slugify(m.complete[:findIndex[len(findIndex)-1][0]-1])
-			m.extractYear(m.serieName)
-			m.name = m.serieName + "-" + m.serieNumber
+		more := regexp.MustCompile(`(?mi)-{2,}`)
+		places := more.FindStringIndex(m.name)
+		if len(places) > 0 {
+			m.serieName = m.name[:places[0]]
 		}
+		m.name = m.serieName + "-" + m.serieNumber
+		//}
 	} else {
-		if len(video.FindStringIndex(m.name)) > 0 {
-			m.name = m.name[:video.FindStringIndex(m.name)[1]]
+		more := regexp.MustCompile(`(?mi)-{2,}`)
+		places := more.FindStringIndex(m.name)
+		if len(places) > 0 {
+			m.name = m.name[:places[0]]
 		}
-		m.extractYear(m.completeSlug)
-
 	}
 	m.formatageFinal()
 }
@@ -128,6 +132,7 @@ func (m *myFile) extractResolution() {
 			return tabResolution[0]
 		}
 		m.resolution = m.completeSlug[isSeparator():tabResolution[1]]
+		m.name = strings.Replace(m.name, m.resolution, "", -1)
 	}
 }
 
@@ -135,26 +140,17 @@ func (m *myFile) extractYear(str string) {
 	yearReg := regexp.MustCompile(`(?mi)(19|20)\d{2}`)
 	startAndEnd := yearReg.FindStringIndex(str)
 	if startAndEnd != nil && len(startAndEnd) > 0 {
-
 		m.year, err = strconv.Atoi(str[startAndEnd[0]:startAndEnd[1]])
 
 		if err != nil {
 			logger.L(logger.Red, "%s", err)
 		}
-		if m.serieName != "" {
-			m.serieName = m.serieName[:yearReg.FindStringIndex(m.name)[0]]
-			m.name = m.serieName
-			log.Println(m.serieName, m.name)
-		} else {
-			if len(yearReg.FindStringIndex(m.name)) > 0 {
-				m.name = m.name[:yearReg.FindStringIndex(m.name)[0]]
-			}
+		if len(yearReg.FindStringIndex(m.name)) > 0 {
+			m.name = strings.Replace(m.name, str[startAndEnd[0]:startAndEnd[1]], "", -1)
+			//m.name = m.name[:yearReg.FindStringIndex(m.name)[0]]
 		}
 		if strings.HasSuffix(m.name, "-") {
 			m.name = m.name[:len(m.name)-1]
-		}
-		if strings.HasSuffix(m.serieName, "-") {
-			m.serieName = m.serieName[:len(m.serieName)-1]
 		}
 	}
 }
