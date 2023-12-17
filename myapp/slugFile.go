@@ -17,7 +17,7 @@ func (m *myFile) slugFile() {
 	m.name = slugify.Slugify(m.name)
 	m.completeSlug = m.name
 
-	video := regexp.MustCompile(`(?mi)-(french|vf|dvdrip|multi|vostfr|dvd-r|bluray|bdrip|brrip|cam|ts|tc|vcd|md|ld|r[0-9]|xvid|divx|scr|dvdscr|repack|hdlight|720p|480p|1080p|2160p|uhd|4k)`)
+	video := regexp.MustCompile(`(?mi)-(french|vf|dvdrip|multi|vostfr|subfrench|dvd-r|bluray|bdrip|brrip|cam|ts|tc|vcd|md|ld|r[0-9]|xvid|divx|scr|dvdscr|repack|hdlight|720p|480p|1080p|2160p|uhd|4k)`)
 
 	cleanName := video.FindStringIndex(m.name)
 	if len(cleanName) > 0 {
@@ -63,6 +63,9 @@ func (m *myFile) slugFile() {
 		places := more.FindStringIndex(m.name)
 		if len(places) > 0 {
 			m.serieName = m.name[:places[0]]
+		}
+		if m.serieName == "" && strings.HasSuffix(m.name, "-") {
+			m.serieName = m.name[:len(m.name)-1]
 		}
 		m.name = m.serieName + "-" + m.serieNumber
 		//}

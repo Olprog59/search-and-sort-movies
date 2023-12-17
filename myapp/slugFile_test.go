@@ -449,6 +449,40 @@ func Test_myFile_slugFile(t *testing.T) {
 			"s01",
 			"e1059",
 		},
+		{
+			"slugFile", fields{
+				"",
+				"Jujutsu Kaisen s02e17.mp4",
+				"",
+				"",
+				"",
+				"",
+				"",
+			},
+			"jujutsu-kaisen-s02e17.mp4",
+			"jujutsu-kaisen-s02e17",
+			"jujutsu-kaisen",
+			"s02e17",
+			"s02",
+			"e17",
+		},
+		{
+			"slugFile", fields{
+				"",
+				"Jujutsu Kaisen s02e18.mp4",
+				"",
+				"",
+				"",
+				"",
+				"",
+			},
+			"jujutsu-kaisen-s02e18.mp4",
+			"jujutsu-kaisen-s02e18",
+			"jujutsu-kaisen",
+			"s02e18",
+			"s02",
+			"e18",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
