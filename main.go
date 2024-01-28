@@ -7,16 +7,7 @@ import (
 	"runtime"
 	"search-and-sort-movies/myapp"
 	"search-and-sort-movies/myapp/constants"
-	"search-and-sort-movies/myapp/flags"
 	"search-and-sort-movies/myapp/logger"
-)
-
-var (
-	BuildVersion string
-	BuildHash    string
-	BuildDate    string
-	BuildClean   string
-	BuildName    = "search-and-sort-movies-" + runtime.GOOS + "-" + runtime.GOARCH
 )
 
 func init() {
@@ -25,21 +16,21 @@ func init() {
 	log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds | log.Lshortfile)
 
 	fmt.Println("path: " + constants.A_TRIER)
-
+	if constants.ALL == "" {
+		checkIfFolderExistAndCreate(constants.ALL)
+		constants.A_TRIER = constants.ALL + "/a_trier"
+		constants.MOVIES = constants.ALL + "/movies"
+		constants.SERIES = constants.ALL + "/series"
+	}
 	checkIfFolderExistAndCreate(constants.A_TRIER)
 	checkIfFolderExistAndCreate(constants.MOVIES)
 	checkIfFolderExistAndCreate(constants.SERIES)
 }
 
 func main() {
-	flags.Flags(BuildName, BuildVersion, BuildHash, BuildDate, BuildClean)
-
-	logger.L(logger.Teal, "\n\nBuild Version: %s\nBuild Date: %s\n", BuildVersion, BuildDate)
-
 	logger.L(logger.Magenta, "Start :-D")
 
 	myapp.MyWatcher(constants.A_TRIER)
-
 }
 
 func checkIfFolderExistAndCreate(path string) {
