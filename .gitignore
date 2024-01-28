@@ -46,3 +46,4 @@ searchMoviesConfig/\.series\.json
 .updateApp
 search-and-sort-movies*
 *.csv
+.env*
