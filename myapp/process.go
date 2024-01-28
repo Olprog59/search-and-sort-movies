@@ -1,13 +1,17 @@
 package myapp
 
 import (
+	"fmt"
 	"os"
 	"os/exec"
 	"path/filepath"
+	"regexp"
 	"search-and-sort-movies/myapp/constants"
 	"search-and-sort-movies/myapp/logger"
 	"strconv"
+	"strings"
 	"sync"
+	"syscall"
 )
 
 var (
@@ -32,9 +36,9 @@ type myFile struct {
 	name           string
 	serieName      string
 	serieNumber    string
-	season         string
+	season         int
 	year           int
-	episode        string
+	episode        int
 	episodeRaw     string
 	count          int
 	language       string
@@ -80,10 +84,10 @@ func (m *myFile) isSerie() {
 func (m *myFile) checkFolderSerie() (string, string) {
 	// serieName, exist := folderExist(series, serieName)
 	ss := func() string {
-		if len(m.season) == 0 {
+		if m.season == 0 {
 			return "00"
 		}
-		return m.season[1:]
+		return strconv.Itoa(m.season)
 	}()
 
 	newFolder := string(os.PathSeparator) + m.serieName + string(os.PathSeparator) + "season-" + ss
@@ -104,6 +108,75 @@ func (m *myFile) checkFolderSerie() (string, string) {
 	return m.complete, finalFilePath
 }
 
+func (m *myFile) formatageSerie() {
+	format := constants.REGEX_SERIE
+	re := regexp.MustCompile(`\{(\w+)}`)
+	result := re.ReplaceAllStringFunc(format, func(serie string) string {
+		switch serie {
+		case "{name}":
+			return m.name
+		case "{season}":
+			return fmt.Sprintf("%s", oneToNine(m.season))
+		case "{episode}":
+			return fmt.Sprintf("%s", oneToNine(m.episode))
+		case "{resolution}":
+			return m.resolution
+		case "{year}":
+			if m.year == 0 {
+				return ""
+			}
+			return fmt.Sprintf("%d", m.year)
+		default:
+			return serie
+		}
+	})
+
+	result = strings.ReplaceAll(result, " - ", " ")
+	result = strings.ReplaceAll(result, "- ", " ")
+	result = strings.ReplaceAll(result, "()", "")
+	result = strings.TrimSpace(result)
+
+	m.complete = result + m.ext
+	m.name = result
+	m.serieNumber = fmt.Sprintf("s%se%s", oneToNine(m.season), oneToNine(m.episode))
+}
+
+func oneToNine(number int) string {
+	if number < 10 {
+		return "0" + strconv.Itoa(number)
+	}
+	return strconv.Itoa(number)
+}
+
+func (m *myFile) formatageMovie() {
+	// constants.REGEX_MOVIE
+	format := constants.REGEX_MOVIE
+	re := regexp.MustCompile(`\{(\w+)}`)
+	result := re.ReplaceAllStringFunc(format, func(movie string) string {
+		switch movie {
+		case "{name}":
+			return m.name
+		case "{resolution}":
+			return m.resolution
+		case "{year}":
+			if m.year == 0 {
+				return ""
+			}
+			return fmt.Sprintf("%d", m.year)
+		default:
+			return movie
+		}
+	})
+
+	result = strings.ReplaceAll(result, " - ", " ")
+	result = strings.ReplaceAll(result, "- ", " ")
+	result = strings.ReplaceAll(result, "()", "")
+	result = strings.TrimSpace(result)
+
+	m.complete = result + m.ext
+	m.name = result
+}
+
 func createFolder(folder string) {
 	err := os.MkdirAll(folder, os.ModePerm)
 	if err != nil {
@@ -115,17 +188,21 @@ var mu sync.Mutex
 
 func moveOrRenameFile(filePathOld, filePathNew string) bool {
 	mu.Lock()
-	//err := syscall.Rename(filePathOld, strings.ToLower(filePathNew))
-	//logger.L(logger.Yellow, "Goos: %s - GoArch: %s", runtime.GOOS, runtime.GOARCH)
-	//err := MoveFile(filePathOld, filePathNew)
-	cmd := exec.Command("/bin/sh", "-c", "mv \""+filePathOld+"\" "+filePathNew)
-	logger.L(logger.Yellow, "mv \""+filePathOld+"\" "+filePathNew)
-	err := cmd.Run()
+	err := syscall.Rename(filePathOld, strings.ToLower(filePathNew))
 	if err != nil {
-		logger.L(logger.Red, "Move Or Rename File : %s", err)
-		mu.Unlock()
-		return false
+		logger.L(logger.Red, "Failed Rename file => %s", filePathOld)
+		cmd := exec.Command("/bin/sh", "-c", "mv \""+filePathOld+"\" "+filePathNew)
+		logger.L(logger.Yellow, "mv \""+filePathOld+"\" "+filePathNew)
+		err = cmd.Run()
+		if err != nil {
+			logger.L(logger.Red, "Move Or Rename File : %s", err)
+			mu.Unlock()
+			return false
+		}
+	} else {
+		logger.L(logger.Yellow, "Rename file => %s", filePathOld)
 	}
+
 	folder := filepath.Dir(filePathOld)
 
 	folder = getAbsolutePathWithRelative(folder)
