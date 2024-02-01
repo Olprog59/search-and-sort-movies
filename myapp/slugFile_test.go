@@ -343,6 +343,30 @@ func Test_myFile_slugFile(t *testing.T) {
 			18,
 			0,
 		},
+		{
+			"slugFile", fields{
+				"World.War.Z.2013.MULTi.1080p.AMZN.WEB.DDP5.1.H265-TFA.mkv",
+			},
+			"world-war-z-1080p (2013).mkv",
+			"world-war-z-1080p (2013)",
+			"",
+			"",
+			0,
+			0,
+			2013,
+		},
+		{
+			"slugFile", fields{
+				"[Kaerizaki-Fansub] One Piece s21e1092 VOSTFR FHD (1920x1080) .mp4",
+			},
+			"one-piece-s21e1092-1080p.mp4",
+			"one-piece-s21e1092-1080p",
+			"one-piece",
+			"s21e1092",
+			21,
+			1092,
+			0,
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -38,7 +38,7 @@ func fileInFolder() (int, []string) {
 func boucleFiles(files []string) {
 	logger.L(logger.Purple, "Start sorting videos !!")
 	for _, f := range files {
-		logger.L(logger.Yellow, "File : "+f)
+		logger.L(logger.Yellow, "file : "+f)
 		var m myFile
 		m.file = f
 		m.Process()

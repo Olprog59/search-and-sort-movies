@@ -115,7 +115,7 @@ then
             # Make all
             make linux
             echo "Je pense que tout est correct"
-#            scp bin/* root@vps.olprog.fr:/media/app/static
+#            scp bin/* root@vps.olprog.fr:/media/app/statics
         else
             echo "Problème de commit juste après un changement de version. A vérifier"
         fi

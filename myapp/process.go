@@ -48,17 +48,28 @@ func (m *myFile) Process() {
 	m.count = 0
 	_, m.complete = filepath.Split(m.file)
 	m.fileWithoutDir = m.complete
+	err := m.start(NOTHING)
+	if err != nil {
+		logger.L(logger.Red, "%s => %s", m.fileWithoutDir, err)
+		return
+	}
 	logger.L(logger.Yellow, "complete: %s", m.complete)
-	m.start(NOTHING)
 }
 
-func (m *myFile) start(serieOrMovieOrBoth typeSerieOrMovie) {
-	m.slugFile()
+func (m *myFile) start(serieOrMovieOrBoth typeSerieOrMovie) error {
+	err := m.slugFile()
+	if err != nil {
+		return err
+	}
+	if err != nil {
+		return err
+	}
 	if m.serieName == "" || serieOrMovieOrBoth == MOVIE {
 		m.isMovie()
 	} else {
 		m.isSerie()
 	}
+	return nil
 }
 
 func (m *myFile) isMovie() {
@@ -67,11 +78,8 @@ func (m *myFile) isMovie() {
 
 	var path1 string
 	m.complete = m.name + extension
-	if m.year != 0 {
-		path1 = movies + string(os.PathSeparator) + m.name + "-" + strconv.Itoa(m.year) + extension
-	} else {
-		path1 = movies + string(os.PathSeparator) + m.complete
-	}
+	path1 = movies + string(os.PathSeparator) + m.complete
+
 	if moveOrRenameFile(m.file, path1) {
 		logger.L(logger.Yellow, m.fileWithoutDir+", has been moved to: "+path1)
 	}
@@ -87,7 +95,7 @@ func (m *myFile) checkFolderSerie() (string, string) {
 		if m.season == 0 {
 			return "00"
 		}
-		return strconv.Itoa(m.season)
+		return oneToNine(m.season)
 	}()
 
 	newFolder := string(os.PathSeparator) + m.serieName + string(os.PathSeparator) + "season-" + ss
@@ -177,6 +185,13 @@ func (m *myFile) formatageMovie() {
 	m.name = result
 }
 
+func (m *myFile) removeFirstBrackets() {
+	// remove first brackets
+	re := regexp.MustCompile(`(?mi)^\[(.*?)\]`)
+	m.name = re.ReplaceAllString(m.name, "")
+	m.name = strings.TrimSpace(m.name)
+}
+
 func createFolder(folder string) {
 	err := os.MkdirAll(folder, os.ModePerm)
 	if err != nil {
@@ -195,7 +210,7 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 		logger.L(logger.Yellow, "mv \""+filePathOld+"\" "+filePathNew)
 		err = cmd.Run()
 		if err != nil {
-			logger.L(logger.Red, "Move Or Rename File : %s", err)
+			logger.L(logger.Red, "Move Or Rename file : %s", err)
 			mu.Unlock()
 			return false
 		}

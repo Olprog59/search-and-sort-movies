@@ -47,3 +47,4 @@ searchMoviesConfig/\.series\.json
 search-and-sort-movies*
 *.csv
 .env*
+tmp

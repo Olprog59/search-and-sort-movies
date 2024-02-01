@@ -2,6 +2,9 @@ package logger
 
 import (
 	"fmt"
+	"runtime"
+	"strconv"
+	"strings"
 	"time"
 )
 
@@ -16,13 +19,13 @@ var (
 	//White   = Color("\033[1;37m%s\033[0m")
 )
 
-//func getFileAndLine() string {
-//	_, file, line, ok := runtime.Caller(3)
-//	if !ok {
-//		panic("Could not get context info for logger!")
-//	}
-//	return file[strings.LastIndex(file, "/")+1:] + ":" + strconv.Itoa(line)
-//}
+func getFileAndLine() string {
+	_, file, line, ok := runtime.Caller(3)
+	if !ok {
+		panic("Could not get context info for logger!")
+	}
+	return file[strings.LastIndex(file, "/")+1:] + ":" + strconv.Itoa(line)
+}
 
 func Color(colorString string) func(...interface{}) string {
 	sprint := func(args ...interface{}) string {
