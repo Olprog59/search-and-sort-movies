@@ -1,21 +1,30 @@
 package myapp
 
 import (
+	"bytes"
+	"context"
+	"errors"
 	"github.com/Machiel/slugify"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"search-and-sort-movies/myapp/logger"
 	"strconv"
 	"strings"
+	"time"
 )
 
-func (m *myFile) slugFile() {
+func (m *myFile) slugFile() error {
 	m.ext = filepath.Ext(m.complete)
 	m.name = strings.ToLower(m.complete[:len(m.complete)-len(m.ext)])
+
+	// remove : [Kaerizaki-Fansub] - from : [Kaerizaki-Fansub] One Piece 1093 VOSTFR FHD (1920x1080) .mp4
+	m.removeFirstBrackets()
+
 	m.name = slugify.Slugify(m.name)
 	m.completeSlug = m.name
 
-	video := regexp.MustCompile(`(?mi)-(french|vf|dvdrip|multi|vostfr|subfrench|dvd-r|bluray|bdrip|brrip|cam|ts|tc|vcd|md|ld|r[0-9]|xvid|divx|scr|dvdscr|repack|hdlight|720p|480p|1080p|2160p|uhd|4k)`)
+	video := regexp.MustCompile(`(?mi)-(french|vf|dvdrip|multi|vostfr|subfrench|dvd-r|bluray|bdrip|brrip|cam|ts|tc|vcd|md|ld|r[0-9]|xvid|divx|scr|dvdscr|repack|hdlight|720p|480p|1080p|2160p|uhd|4k|1920x1080)`)
 
 	cleanName := video.FindStringIndex(m.name)
 	if len(cleanName) > 0 {
@@ -57,8 +66,6 @@ func (m *myFile) slugFile() {
 			break
 		}
 
-		//m.serieName = m.name
-		//m.serieNumber = fmt.Sprintf("%d%d", m.season, m.episode)
 		more := regexp.MustCompile(`(?mi)-{2,}`)
 		places := more.FindStringIndex(m.name)
 		if len(places) > 0 {
@@ -76,61 +83,61 @@ func (m *myFile) slugFile() {
 			m.name = m.name[:places[0]]
 		}
 	}
-	m.formatageFinal()
+	err := m.formatageFinal()
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
-func (m *myFile) formatageFinal() {
+func (m *myFile) formatageFinal() error {
 	m.complete = ""
-
+	if m.file == "" {
+		if m.serieName != "" {
+			m.formatageSerie()
+		} else {
+			m.formatageMovie()
+		}
+		return nil
+	}
+	duration, err := getDurationMovie(m.file)
+	if err != nil {
+		logger.L(logger.Red, "%s", err)
+	}
+	sec := duration / 60
 	if m.episode > 0 {
 		m.formatageSerie()
 	} else {
-		m.formatageMovie()
+		if sec > 60 {
+			m.formatageMovie()
+		} else {
+			// TODO : formatage si il y a une incohérence entre le nom du fichier et la durée
+			return errors.New("inconsistency between file name and duration")
+		}
 	}
+	return nil
+}
 
-	//isNameInFormatFile := false
-	//for _, v := range formatFile[1:] {
-	//	v = strings.TrimSpace(v)
-	//	if m.resolution != "" && v == "resolution" {
-	//		m.complete += m.resolution
-	//	}
-	//	if m.year > 0 && v == "year" {
-	//		m.complete += fmt.Sprintf("%d", m.year)
-	//	}
-	//	if v == "name" {
-	//		m.complete += slugify.Slugify(m.name)
-	//		isNameInFormatFile = true
-	//	}
-	//	if len(m.complete) > 0 && !strings.HasSuffix(m.complete, "-") {
-	//		m.complete += "-"
-	//	}
-	//}
+func getDurationMovie(fileName string) (float64, error) {
+	ctx, cancelFn := context.WithTimeout(context.Background(), 20*time.Second)
+	defer cancelFn()
 
-	//if !isNameInFormatFile {
-	//	m.complete += slugify.Slugify(m.name)
-	//}
-	//
-	//if strings.HasSuffix(m.complete, "-") {
-	//	m.complete = m.complete[:len(m.complete)-1]
-	//}
-	//
-	//separator := strings.TrimSpace(formatFile[0])
-	//if separator != "-" {
-	//	if separator == "s" {
-	//		separator = " "
-	//	}
-	//	if separator == "" {
-	//		separator = "-"
-	//	}
-	//	m.complete = strings.ReplaceAll(m.complete, "-", separator)
-	//}
-	//fmt.Printf("%#v\n", m)
-	//m.complete += m.ext
-	//m.serieName = slugify.Slugify(m.serieName)
+	var outputBuf bytes.Buffer
+	var errorBuf bytes.Buffer
+
+	cmd := exec.CommandContext(ctx, "ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", fileName)
+	cmd.Stdout = &outputBuf
+	cmd.Stderr = &errorBuf
+	logger.L(logger.Yellow, "cmd : %v", cmd.String())
+	err := cmd.Run()
+	if err != nil {
+		return 0, err
+	}
+	return strconv.ParseFloat(strings.TrimSpace(outputBuf.String()), 64)
 }
 
 func (m *myFile) extractResolution() {
-	resolution := regexp.MustCompile(`(?mi)(720p|480p|1080p|2160p|uhd|4k)`)
+	resolution := regexp.MustCompile(`(?mi)(720p|480p|1080p|2160p|uhd|4k|1920x1080)`)
 	tabResolution := resolution.FindStringIndex(m.completeSlug)
 	if len(tabResolution) > 0 {
 		isSeparator := func() int {
@@ -140,21 +147,31 @@ func (m *myFile) extractResolution() {
 			return tabResolution[0]
 		}
 		m.resolution = m.completeSlug[isSeparator():tabResolution[1]]
-		m.name = strings.Replace(m.name, m.resolution, "", -1)
+		switch m.resolution {
+		case "1920x1080":
+			m.name = strings.Replace(m.name, m.resolution, "", -1)
+			m.resolution = "1080p"
+		}
+
 	}
 }
 
 func (m *myFile) extractYear(str string) {
-	yearReg := regexp.MustCompile(`(?mi)(19|20)\d{2}`)
+	yearReg := regexp.MustCompile(`(?mi)(\s|-)(19|20)\d{2}(\s|-|$)`)
 	startAndEnd := yearReg.FindStringIndex(str)
+
 	if startAndEnd != nil && len(startAndEnd) > 0 {
-		m.year, err = strconv.Atoi(str[startAndEnd[0]:startAndEnd[1]])
+		year := str[startAndEnd[0]:startAndEnd[1]]
+		logger.L(logger.Yellow, "year : %s", year)
+		year = strings.Replace(year, " ", "", -1)
+		year = strings.Replace(year, "-", "", -1)
+		m.year, err = strconv.Atoi(year)
 
 		if err != nil {
 			logger.L(logger.Red, "%s", err)
 		}
 		if len(yearReg.FindStringIndex(m.name)) > 0 {
-			m.name = strings.Replace(m.name, str[startAndEnd[0]:startAndEnd[1]], "", -1)
+			m.name = strings.Replace(m.name, year, "", -1)
 			//m.name = m.name[:yearReg.FindStringIndex(m.name)[0]]
 		}
 		if strings.HasSuffix(m.name, "-") {
@@ -163,22 +180,6 @@ func (m *myFile) extractYear(str string) {
 	}
 }
 
-//	func formatSaisonNumberOuEpisode(num string, seasonOrEpisode byte) string {
-//		if len(num) == 2 && (num[0] == 's' || num[0] == 'e') {
-//			num = fmt.Sprintf("%s0%s", string(num[0]), string(num[1]))
-//		} else if len(num) == 4 && (num[0] == 's' || num[0] == 'e') {
-//			if string(num[1]) == "0" {
-//				num = fmt.Sprintf("%s%s", string(num[0]), string(num[2:]))
-//			} else {
-//				num = fmt.Sprintf("%s%s", string(num[0]), string(num[1:]))
-//			}
-//		} else if len(num) == 1 {
-//			num = fmt.Sprintf("%s0%s", string(seasonOrEpisode), string(num[0]))
-//		} else if num[0] != seasonOrEpisode {
-//			num = fmt.Sprintf("%s%s", string(seasonOrEpisode), num)
-//		}
-//		return num
-//	}
 func formatSaisonNumberOuEpisode(num string) int {
 	if num[0] == 's' || num[0] == 'e' {
 		atoi, err := strconv.Atoi(num[1:])

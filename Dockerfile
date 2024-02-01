@@ -24,17 +24,13 @@ COPY --from=builder /app/main .
 # Copie les certificats CA
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-VOLUME /be_sorted
-VOLUME /movies
-VOLUME /series
-VOLUME /all
+VOLUME /medias
 
-ENV A_TRIER=/movies/be_sorted
-ENV MOVIES=/movies/movies
-ENV SERIES=/movies/series
-ENV ALL=/movies
+ENV ALL=/medias
 ENV REGEX_MOVIES='{name}-{resolution} ({year})'
 ENV REGEX_SERIES='{name}-s{season}e{episode}-{resolution} ({year})'
+
+EXPOSE 8080
 
 COPY --from=builder /app/bin/search-and-sort-movies-linux-amd64 /app
 
