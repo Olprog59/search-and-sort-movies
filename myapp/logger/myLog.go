@@ -4,30 +4,28 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"net/http"
-	"runtime"
-	"strconv"
-	"strings"
 	"time"
 )
 
+//Black   = Color("\033[1;30m%s\033[0m")
+//Green   = Color("\033[1;32m%s\033[0m")
+//White   = Color("\033[1;37m%s\033[0m")
+
 var (
-	//Black   = Color("\033[1;30m%s\033[0m")
-	Red = Color("\033[1;31m%s\033[0m")
-	//Green   = Color("\033[1;32m%s\033[0m")
+	Red     = Color("\033[1;31m%s\033[0m")
 	Yellow  = Color("\033[1;33m%s\033[0m")
 	Purple  = Color("\033[1;34m%s\033[0m")
 	Magenta = Color("\033[1;35m%s\033[0m")
 	Teal    = Color("\033[1;36m%s\033[0m")
-	//White   = Color("\033[1;37m%s\033[0m")
 )
 
-func getFileAndLine() string {
-	_, file, line, ok := runtime.Caller(3)
-	if !ok {
-		panic("Could not get context info for logger!")
-	}
-	return file[strings.LastIndex(file, "/")+1:] + ":" + strconv.Itoa(line)
-}
+//func getFileAndLine() string {
+//	_, file, line, ok := runtime.Caller(3)
+//	if !ok {
+//		panic("Could not get context info for logger!")
+//	}
+//	return file[strings.LastIndex(file, "/")+1:] + ":" + strconv.Itoa(line)
+//}
 
 func Color(colorString string) func(...interface{}) string {
 	sprint := func(args ...interface{}) string {
@@ -44,15 +42,13 @@ func L(color func(...interface{}) string, message string, param ...interface{}) 
 	fmt.Println(color(fmt.Sprintf(message, param...)))
 }
 
-var LogMessages = make(chan string, 100) // Buffer pour éviter le blocage
-
 var logBuffer = NewCircularBuffer(1000) // Initialise le buffer avec une taille de 1000
 
 func LogMessage(message string) {
 	logBuffer.Append(message) // Ajoute un nouveau log
 }
 
-func ServeLogs(w http.ResponseWriter, r *http.Request) {
+func ServeLogs(w http.ResponseWriter, _ *http.Request) {
 	// Initialiser le client SSE
 	client := sseClient{
 		id: uuid.NewString(), // Générer un nouvel ID de client, nécessite "github.com/google/uuid"
@@ -69,7 +65,10 @@ func ServeLogs(w http.ResponseWriter, r *http.Request) {
 	// Envoyer l'historique des logs
 	logs := logBuffer.GetAll()
 	for _, log := range logs {
-		fmt.Fprintf(w, "data: %s\n\n", log)
+		_, err := fmt.Fprintf(w, "data: %s\n\n", log)
+		if err != nil {
+			return
+		}
 		if flusher, ok := w.(http.Flusher); ok {
 			flusher.Flush()
 		}
@@ -77,7 +76,10 @@ func ServeLogs(w http.ResponseWriter, r *http.Request) {
 
 	// Boucle pour envoyer les nouveaux logs
 	for log := range client.ch {
-		fmt.Fprintf(w, "data: %s\n\n", log)
+		_, err := fmt.Fprintf(w, "data: %s\n\n", log)
+		if err != nil {
+			return
+		}
 		if flusher, ok := w.(http.Flusher); ok {
 			flusher.Flush()
 		}
