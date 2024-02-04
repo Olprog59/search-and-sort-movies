@@ -12,7 +12,7 @@ RUN go mod download && go mod tidy && go mod verify
 COPY . .
 
 # Compile l'application
-RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main -v .
+RUN GOOS=linux go build -o main .
 
 # Étape de création de l'image finale
 FROM alpine:latest
