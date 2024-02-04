@@ -26,14 +26,14 @@ func init() {
 	//log.SetFlags(0)
 	log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds | log.Lshortfile)
 
-	fmt.Println("path: " + constants.A_TRIER)
+	fmt.Println("path: " + constants.BE_SORTED)
 	if constants.ALL != "" {
 		checkIfFolderExistAndCreate(constants.ALL)
-		constants.A_TRIER = constants.ALL + "/be_sorted"
+		constants.BE_SORTED = constants.ALL + "/be_sorted"
 		constants.MOVIES = constants.ALL + "/movies"
 		constants.SERIES = constants.ALL + "/series"
 	}
-	checkIfFolderExistAndCreate(constants.A_TRIER)
+	checkIfFolderExistAndCreate(constants.BE_SORTED)
 	checkIfFolderExistAndCreate(constants.MOVIES)
 	checkIfFolderExistAndCreate(constants.SERIES)
 }
@@ -45,7 +45,7 @@ func main() {
 	// scan
 	flags.Flags()
 
-	go myapp.MyWatcher(constants.A_TRIER)
+	go myapp.MyWatcher(constants.BE_SORTED)
 
 	mux := http.NewServeMux()
 	mid := logMiddleware(mux)
@@ -63,14 +63,14 @@ func main() {
 	mux.HandleFunc("/logs", logger.ServeLogs)
 
 	logger.L(logger.Magenta, "Start server on localhost:8080")
-	err = http.ListenAndServe("localhost:8080", mid)
+	err = http.ListenAndServe(":8080", mid)
 	if err != nil {
 		return
 	}
 }
 
 func scanHandler(w http.ResponseWriter, _ *http.Request) {
-	listFiles(w, constants.A_TRIER)
+	listFiles(w, constants.BE_SORTED)
 }
 
 func indexHandler(w http.ResponseWriter, r *http.Request) {

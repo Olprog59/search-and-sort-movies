@@ -102,7 +102,7 @@ func _checkIfDir(event fsnotify.Event) (isDir bool, isNil bool) {
 	if f == nil {
 		return false, true
 	}
-	if f.IsDir() && filepath.Dir(f.Name()) != constants.A_TRIER {
+	if f.IsDir() && filepath.Dir(f.Name()) != constants.BE_SORTED {
 		err := watch.Add(e.Name)
 		logger.L(logger.Purple, "Add watcher : "+e.Name)
 		if err != nil {

@@ -1,6 +1,11 @@
 # Étape de build
 FROM golang:1.21.6 AS builder
 
+ARG GOOS=linux
+ARG GOARCH=amd64
+
+RUN echo "I am running on $BUILDPLATFORM, building for $TARGETPLATFORM" > /log
+
 # Définis le répertoire de travail
 WORKDIR /app
 
@@ -12,7 +17,7 @@ RUN go mod download && go mod tidy && go mod verify
 COPY . .
 
 # Compile l'application
-RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o main .
+RUN CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} go build -a -installsuffix cgo -o main .
 
 # Étape de création de l'image finale
 FROM alpine:latest
@@ -28,12 +33,12 @@ COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
 VOLUME ["/be_sorted", "/movies", "/series", "/all"]
 
-ENV A_TRIER=/mnt/medias/be_sorted \
-    MOVIES=/mnt/medias/movies \
-    SERIES=/mnt/medias/series \
+ENV BE_SORTED="/mnt/medias/be_sorted" \
+    MOVIES="/mnt/medias/movies" \
+    SERIES="/mnt/medias/series" \
     ALL="" \
-    REGEX_MOVIES='{name}-{resolution} ({year})' \
-    REGEX_SERIES='{name}-s{season}e{episode}-{resolution} ({year})' \
+    REGEX_MOVIES="{name}-{resolution} ({year})" \
+    REGEX_SERIES="{name}-s{season}e{episode}-{resolution} ({year})" \
     UID=0 \
     GID=0 \
     CHMOD=0755

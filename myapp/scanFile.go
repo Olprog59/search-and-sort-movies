@@ -18,7 +18,7 @@ func StartScan() {
 func fileInFolder() (int, []string) {
 	var files []string
 	var count int
-	err := filepath.Walk(constants.A_TRIER+"/", func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(constants.BE_SORTED+"/", func(path string, info os.FileInfo, err error) error {
 		if info.IsDir() {
 			return nil
 		}

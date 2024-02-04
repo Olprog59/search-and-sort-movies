@@ -187,7 +187,7 @@ func (m *myFile) formatageMovie() {
 
 func (m *myFile) removeFirstBrackets() {
 	// remove first brackets
-	re := regexp.MustCompile(`(?mi)^\[(.*?)\]`)
+	re := regexp.MustCompile(`(?mi)^\[(.*?)]`)
 	m.name = re.ReplaceAllString(m.name, "")
 	m.name = strings.TrimSpace(m.name)
 }
@@ -228,7 +228,7 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 	folder := filepath.Dir(filePathOld)
 
 	folder = getAbsolutePathWithRelative(folder)
-	absoluteATrier := getAbsolutePathWithRelative(constants.A_TRIER)
+	absoluteATrier := getAbsolutePathWithRelative(constants.BE_SORTED)
 
 	if folder != absoluteATrier {
 		file, _ := os.ReadDir(folder)
