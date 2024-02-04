@@ -19,11 +19,33 @@ body
         margin-top: 2rem
         border-top: 1px solid #ddd
 
+      & .files:not(.other):not(:has(> div.file))::before
+        content: 'Aucun fichier à renommer'
+        text-align: center
+        display: block
+        font-size: 1.5rem
+        margin-bottom: 1rem
+
+
       & div.file
         margin: 10px 0
         &.remove
           & > form > input, & > form > button
             color: red
+
+        &:not(.remove):nth-child(1)::before
+          content: 'Renommer les fichiers suivants :'
+          text-align: center
+          display: block
+          font-size: 1.5rem
+          margin-bottom: 1rem
+
+        &.remove:nth-child(1)::before
+          content: 'Supprimer les fichiers suivants :'
+          text-align: center
+          display: block
+          font-size: 1.5rem
+          margin-bottom: 1rem
 
       & form
         display: flex
@@ -48,6 +70,33 @@ body
           font-size: 1.5rem
           width: 20px
 
+        & button:has(+ .htmx-request)
+          display: none
+
+        & span.htmx-indicator
+          width: 32px
+          height: 32px
+          border: 2px solid #000
+          border-radius: 50%
+          display: inline-block
+          position: relative
+          box-sizing: border-box
+          animation: rotation 1s linear infinite
+
+          &::after
+            content: ''
+            box-sizing: border-box
+            position: absolute
+            left: 50%
+            top: 0
+            background: #FF3D00
+            width: 2px
+            height: 12px
+            transform: translateX(-50%)
+
+          & .htmx-request, &.htmx-request
+            opacity: 1
+
       & div[id^=error-message-]
         color: red
         font-style: italic
@@ -55,3 +104,36 @@ body
         &.blue
           color: blue
 
+    div#logs
+      border-top: 1px solid #ddd
+      max-height: 300px
+      overflow-y: auto
+      padding: 10px
+      position: fixed
+      bottom: 0
+      left: 0
+      right: 0
+      background-color: #c3c3c3
+
+      .red
+        color: red
+      .green
+        color: green
+      .yellow
+        color: yellow
+      .purple
+        color: purple
+      .magenta
+        color: magenta
+      .teal
+        color: teal
+      .black
+        color: black
+
+
+@keyframes rotation
+  0%
+    transform: rotate(0deg)
+
+  100%
+    transform: rotate(360deg)

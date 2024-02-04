@@ -2,6 +2,8 @@ package logger
 
 import (
 	"fmt"
+	"github.com/google/uuid"
+	"net/http"
 	"runtime"
 	"strconv"
 	"strings"
@@ -29,12 +31,55 @@ func getFileAndLine() string {
 
 func Color(colorString string) func(...interface{}) string {
 	sprint := func(args ...interface{}) string {
-		//return fmt.Sprintf(colorString, fmt.Sprint(time.Now().Format("02-01-2006 15:04:05")+": "+getFileAndLine()+": "+fmt.Sprint(args...)))
-		return fmt.Sprintf(colorString, fmt.Sprint(time.Now().Format("02-01-2006 15:04:05")+": "+fmt.Sprint(args...)))
+		//msg := fmt.Sprintf(colorString, fmt.Sprint(time.Now().Format("02-01-2006 15:04:05")+": "+getFileAndLine()+": "+fmt.Sprint(args...)))
+		msg := fmt.Sprintf(colorString, fmt.Sprint(time.Now().Format("02-01-2006 15:04:05")+": "+fmt.Sprint(args...)))
+		LogMessage(msg)   // Ajoute à l'historique
+		broadcastLog(msg) // Envoie aux clients SSE
+		return msg
 	}
 	return sprint
 }
 
 func L(color func(...interface{}) string, message string, param ...interface{}) {
 	fmt.Println(color(fmt.Sprintf(message, param...)))
+}
+
+var LogMessages = make(chan string, 100) // Buffer pour éviter le blocage
+
+var logBuffer = NewCircularBuffer(1000) // Initialise le buffer avec une taille de 1000
+
+func LogMessage(message string) {
+	logBuffer.Append(message) // Ajoute un nouveau log
+}
+
+func ServeLogs(w http.ResponseWriter, r *http.Request) {
+	// Initialiser le client SSE
+	client := sseClient{
+		id: uuid.NewString(), // Générer un nouvel ID de client, nécessite "github.com/google/uuid"
+		ch: make(chan string),
+	}
+	register <- client
+	defer func() { unregister <- client }()
+
+	// Configurer les en-têtes SSE
+	w.Header().Set("Content-Type", "text/event-stream")
+	w.Header().Set("Cache-Control", "no-cache")
+	w.Header().Set("Connection", "keep-alive")
+
+	// Envoyer l'historique des logs
+	logs := logBuffer.GetAll()
+	for _, log := range logs {
+		fmt.Fprintf(w, "data: %s\n\n", log)
+		if flusher, ok := w.(http.Flusher); ok {
+			flusher.Flush()
+		}
+	}
+
+	// Boucle pour envoyer les nouveaux logs
+	for log := range client.ch {
+		fmt.Fprintf(w, "data: %s\n\n", log)
+		if flusher, ok := w.(http.Flusher); ok {
+			flusher.Flush()
+		}
+	}
 }

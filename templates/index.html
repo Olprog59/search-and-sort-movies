@@ -8,11 +8,16 @@
 	<script src="https://unpkg.com/htmx.org"></script>
 </head>
 <body>
-<main class="container">
-	<div hx-trigger="showMessage from:body" id="message-container"></div>
+<main class="container" id="content-wrapper">
 	<div id="file-list" hx-get="/scan" hx-trigger="load">
 		Chargement des fichiers...
 	</div>
+
+	<div id="logs"></div>
 </main>
+<script src="/static/js/observer_message_error.js"></script>
+<script src="/static/js/observer_remove_file.js"></script>
+<script src="/static/js/sse_logs.js"></script>
+
 </body>
 </html>

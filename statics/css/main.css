@@ -1,3 +1,4 @@
+@charset "UTF-8";
 * {
   margin: 0;
   padding: 0;
@@ -18,11 +19,32 @@ body main div#file-list .other:has(> div.file) {
   margin-top: 2rem;
   border-top: 1px solid #ddd;
 }
+body main div#file-list .files:not(.other):not(:has(> div.file))::before {
+  content: "Aucun fichier à renommer";
+  text-align: center;
+  display: block;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
 body main div#file-list div.file {
   margin: 10px 0;
 }
 body main div#file-list div.file.remove > form > input, body main div#file-list div.file.remove > form > button {
   color: red;
+}
+body main div#file-list div.file:not(.remove):nth-child(1)::before {
+  content: "Renommer les fichiers suivants :";
+  text-align: center;
+  display: block;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
+}
+body main div#file-list div.file.remove:nth-child(1)::before {
+  content: "Supprimer les fichiers suivants :";
+  text-align: center;
+  display: block;
+  font-size: 1.5rem;
+  margin-bottom: 1rem;
 }
 body main div#file-list form {
   display: flex;
@@ -44,6 +66,33 @@ body main div#file-list form > button {
   font-size: 1.5rem;
   width: 20px;
 }
+body main div#file-list form button:has(+ .htmx-request) {
+  display: none;
+}
+body main div#file-list form span.htmx-indicator {
+  width: 32px;
+  height: 32px;
+  border: 2px solid #000;
+  border-radius: 50%;
+  display: inline-block;
+  position: relative;
+  box-sizing: border-box;
+  animation: rotation 1s linear infinite;
+}
+body main div#file-list form span.htmx-indicator::after {
+  content: "";
+  box-sizing: border-box;
+  position: absolute;
+  left: 50%;
+  top: 0;
+  background: #FF3D00;
+  width: 2px;
+  height: 12px;
+  transform: translateX(-50%);
+}
+body main div#file-list form span.htmx-indicator .htmx-request, body main div#file-list form span.htmx-indicator.htmx-request {
+  opacity: 1;
+}
 body main div#file-list div[id^=error-message-] {
   color: red;
   font-style: italic;
@@ -51,6 +100,47 @@ body main div#file-list div[id^=error-message-] {
 }
 body main div#file-list div[id^=error-message-].blue {
   color: blue;
+}
+body main div#logs {
+  border-top: 1px solid #ddd;
+  max-height: 300px;
+  overflow-y: auto;
+  padding: 10px;
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  background-color: #c3c3c3;
+}
+body main div#logs .red {
+  color: red;
+}
+body main div#logs .green {
+  color: green;
+}
+body main div#logs .yellow {
+  color: yellow;
+}
+body main div#logs .purple {
+  color: purple;
+}
+body main div#logs .magenta {
+  color: magenta;
+}
+body main div#logs .teal {
+  color: teal;
+}
+body main div#logs .black {
+  color: black;
+}
+
+@keyframes rotation {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }
 
 /*# sourceMappingURL=main.css.map */
