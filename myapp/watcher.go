@@ -30,7 +30,7 @@ func MyWatcher(location string) {
 					return
 				}
 				if event.Has(fsnotify.Create) {
-					//logger.L(logger.Red, "%s", event.Op)
+					//logger.L(logger.Red, "%#+v", event)
 					//Ajout d'une sécurité si le fichier a déjà été déplacé
 					isDir, isNil := _checkIfDir(event)
 					//logger.L(logger.Red, "%#v, %#v", isDir, isNil)
@@ -73,6 +73,9 @@ func _ticker(event fsnotify.Event, c *chan bool) {
 			f, err := os.Stat(event.Name)
 			if err != nil {
 				logger.L(logger.Red, "%s", err)
+				ticker.Stop()
+				*c <- false
+				break
 			}
 			if f.Size() != size {
 				size = f.Size()
@@ -124,8 +127,6 @@ func _fsNotifyCreateFile(event fsnotify.Event, re *regexp.Regexp) {
 		logger.L(logger.Purple, "Detect : %s", filepath.Base(e.Name))
 		var m myFile
 		m.file = event.Name
-		//wg.Lock()
 		m.Process()
-		//wg.Unlock()
 	}
 }

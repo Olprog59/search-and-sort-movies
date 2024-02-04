@@ -203,7 +203,15 @@ var mu sync.Mutex
 
 func moveOrRenameFile(filePathOld, filePathNew string) bool {
 	mu.Lock()
-	err := syscall.Rename(filePathOld, strings.ToLower(filePathNew))
+	err := syscall.Chown(filePathOld, constants.UID, constants.GID)
+	if err != nil {
+		logger.L(logger.Red, "Failed Chown file => %s", filePathOld)
+	}
+	err = syscall.Chmod(filePathOld, constants.CHMOD)
+	if err != nil {
+		logger.L(logger.Red, "Failed Chmod file => %s", filePathOld)
+	}
+	err = syscall.Rename(filePathOld, strings.ToLower(filePathNew))
 	if err != nil {
 		logger.L(logger.Red, "Failed Rename file => %s", filePathOld)
 		cmd := exec.Command("/bin/sh", "-c", "mv \""+filePathOld+"\" "+filePathNew)
@@ -214,9 +222,8 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 			mu.Unlock()
 			return false
 		}
-	} else {
-		logger.L(logger.Yellow, "Rename file => %s", filePathOld)
 	}
+	logger.L(logger.Yellow, "Rename file => %s", filePathOld)
 
 	folder := filepath.Dir(filePathOld)
 

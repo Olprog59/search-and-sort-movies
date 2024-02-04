@@ -1,5 +1,5 @@
 # Étape de build
-FROM golang:1.22rc2 AS builder
+FROM golang:1.21 AS builder
 
 # Définis le répertoire de travail
 WORKDIR /app
@@ -14,24 +14,30 @@ COPY . .
 # Compile l'application
 RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 
-
 # Étape de création de l'image finale
-FROM scratch
+FROM alpine:latest
+
+# Installe ffprobe
+RUN apk add --no-cache ffmpeg
 
 # Copie l'exécutable depuis l'étape de build
-COPY --from=builder /app/main .
+COPY --from=builder /app/main /app/main
 
-# Copie les certificats CA
+# Copie les certificats CA (si nécessaire)
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-VOLUME /medias
+VOLUME ["/be_sorted", "/movies", "/series", "/all"]
 
-ENV ALL=/medias
-ENV REGEX_MOVIES='{name}-{resolution} ({year})'
-ENV REGEX_SERIES='{name}-s{season}e{episode}-{resolution} ({year})'
+ENV A_TRIER=/mnt/medias/be_sorted \
+    MOVIES=/mnt/medias/movies \
+    SERIES=/mnt/medias/series \
+    ALL="" \
+    REGEX_MOVIES='{name}-{resolution} ({year})' \
+    REGEX_SERIES='{name}-s{season}e{episode}-{resolution} ({year})' \
+    UID=0 \
+    GID=0 \
+    CHMOD=0755
 
-EXPOSE 8080
+EXPOSE 8080/tcp
 
-COPY --from=builder /app/bin/search-and-sort-movies-linux-amd64 /app
-
-CMD ["./main", "-scan"]
+CMD ["/app/main", "-scan"]
