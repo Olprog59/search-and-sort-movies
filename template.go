@@ -31,15 +31,17 @@ func listFiles(w http.ResponseWriter, dir string) {
 		return
 	}
 	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(fmt.Sprintf(`<div class="files" id="files">%s</div><div class="files other">%s</div>`,
-		m, o)))
+	_, err = w.Write([]byte(fmt.Sprintf(`<div class="files" id="files">%s</div><div class="files other">%s</div>`, m, o)))
+	if err != nil {
+		return
+	}
 }
 
 func classifyFiles(dir string) ([]fileInfo, []fileInfo) {
 	var movieFiles, otherFiles []fileInfo
 	re := regexp.MustCompile(constants.RegexFile)
 
-	filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil || info.IsDir() {
 			return nil
 		}
@@ -52,6 +54,9 @@ func classifyFiles(dir string) ([]fileInfo, []fileInfo) {
 		}
 		return nil
 	})
+	if err != nil {
+		return nil, nil
+	}
 
 	return movieFiles, otherFiles
 }
@@ -142,7 +147,10 @@ func removeHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Envoie une réponse vide si la suppression a réussi
 	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(""))
+	_, err := w.Write([]byte(""))
+	if err != nil {
+		return
+	}
 }
 
 func generateHTML(files []fileInfo, action string, disabled bool) (string, error) {

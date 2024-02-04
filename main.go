@@ -78,7 +78,7 @@ func main() {
 	}
 }
 
-func scanHandler(w http.ResponseWriter, r *http.Request) {
+func scanHandler(w http.ResponseWriter, _ *http.Request) {
 	listFiles(w, constants.A_TRIER)
 }
 

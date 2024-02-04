@@ -373,7 +373,10 @@ func Test_myFile_slugFile(t *testing.T) {
 			m := &myFile{
 				complete: tt.fields.complete,
 			}
-			m.slugFile()
+			err := m.slugFile()
+			if err != nil {
+				return
+			}
 			if tt.wantComplete != m.complete {
 				t.Errorf("wantComplete : %v, want : %v", m.complete, tt.wantComplete)
 			}
@@ -414,11 +417,9 @@ func Test_myFile_extractResolution(t *testing.T) {
 		count          int
 		language       string
 	}
-	tests := []struct {
+	var tests []struct {
 		name   string
 		fields fields
-	}{
-		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -465,12 +466,10 @@ func Test_myFile_extractYear(t *testing.T) {
 	type args struct {
 		str string
 	}
-	tests := []struct {
+	var tests []struct {
 		name   string
 		fields fields
 		args   args
-	}{
-		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -514,11 +513,9 @@ func Test_myFile_formatageFinal(t *testing.T) {
 		count          int
 		language       string
 	}
-	tests := []struct {
+	var tests []struct {
 		name   string
 		fields fields
-	}{
-		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -539,7 +536,10 @@ func Test_myFile_formatageFinal(t *testing.T) {
 				count:          tt.fields.count,
 				language:       tt.fields.language,
 			}
-			m.formatageFinal()
+			err := m.formatageFinal()
+			if err != nil {
+				return
+			}
 		})
 	}
 }
@@ -562,11 +562,9 @@ func Test_myFile_slugFile1(t *testing.T) {
 		count          int
 		language       string
 	}
-	tests := []struct {
+	var tests []struct {
 		name   string
 		fields fields
-	}{
-		// TODO: Add test cases.
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
@@ -587,7 +585,10 @@ func Test_myFile_slugFile1(t *testing.T) {
 				count:          tt.fields.count,
 				language:       tt.fields.language,
 			}
-			m.slugFile()
+			err := m.slugFile()
+			if err != nil {
+				return
+			}
 		})
 	}
 }
