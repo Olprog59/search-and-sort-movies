@@ -1,10 +1,10 @@
 package myapp
 
 import (
+	"media-organizer/myapp/constants"
 	"os"
 	"path/filepath"
 	"regexp"
-	"search-and-sort-movies/myapp/constants"
 	"search-and-sort-movies/myapp/logger"
 )
 

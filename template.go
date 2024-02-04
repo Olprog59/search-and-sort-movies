@@ -5,12 +5,12 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"html/template"
+	"media-organizer/myapp/constants"
+	"media-organizer/myapp/logger"
 	"net/http"
 	"os"
 	"path/filepath"
 	"regexp"
-	"search-and-sort-movies/myapp/constants"
-	"search-and-sort-movies/myapp/logger"
 )
 
 type fileInfo struct {

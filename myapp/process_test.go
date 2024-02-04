@@ -76,14 +76,14 @@ package myapp
 //		{
 //			"checlIfSizeIsSame", args{
 //				"\\\\SOKYS\\sam\\Series\\dragon-ball-super\\season-1\\dragon-ball-super-episode-77.mp4",
-//				"C:\\Users\\kamel\\go\\src\\search-and-sort-movies\\dlna\\dragon-ball-super-episode-77.mp4",
+//				"C:\\Users\\kamel\\go\\src\\media-organizer\\dlna\\dragon-ball-super-episode-77.mp4",
 //			},
 //			false,
 //		},
 //		{
 //			"checlIfSizeIsSame", args{
 //				"\\\\SOKYS\\sam\\Series\\dragon-ball-super\\season-1\\dragon-ball-super-episode-86.mp4",
-//				"C:\\Users\\kamel\\go\\src\\search-and-sort-movies\\dlna\\dragon-ball-super-episode-91.mp4",
+//				"C:\\Users\\kamel\\go\\src\\media-organizer\\dlna\\dragon-ball-super-episode-91.mp4",
 //			},
 //			true,
 //		},
@@ -108,7 +108,7 @@ package myapp
 //	}{
 //		{
 //			"copyFile", args{
-//				"C:\\Users\\kamel\\go\\src\\search-and-sort-movies\\dlna\\dragon-ball-super-episode-91.mp4",
+//				"C:\\Users\\kamel\\go\\src\\media-organizer\\dlna\\dragon-ball-super-episode-91.mp4",
 //				"\\\\SOKYS\\sam\\Series\\dragon-ball-super\\season-1\\dragon-ball-super-episode-86.mp4",
 //			},
 //		},
@@ -131,8 +131,8 @@ package myapp
 //	}{
 //		{
 //			"moveOrRenameFile", args{
-//				"/home/sam/go/src/search-and-sort-movies/dlna/Series STAr trek  Discovery-s01e25.mkv",
-//				"/home/sam/go/src/search-and-sort-movies/dlna/Series/star-trek-discovery/season-1/star-trek-discovery-s01e25.mkv",
+//				"/home/sam/go/src/media-organizer/dlna/Series STAr trek  Discovery-s01e25.mkv",
+//				"/home/sam/go/src/media-organizer/dlna/Series/star-trek-discovery/season-1/star-trek-discovery-s01e25.mkv",
 //			},
 //		},
 //	}

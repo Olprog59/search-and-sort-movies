@@ -2,12 +2,12 @@ package myapp
 
 import (
 	"fmt"
+	"media-organizer/myapp/constants"
+	"media-organizer/myapp/logger"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
-	"search-and-sort-movies/myapp/constants"
-	"search-and-sort-movies/myapp/logger"
 	"strconv"
 	"strings"
 	"sync"
