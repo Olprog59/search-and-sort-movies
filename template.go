@@ -20,12 +20,12 @@ type fileInfo struct {
 
 func listFiles(w http.ResponseWriter, dir string) {
 	movieFiles, otherFiles := classifyFiles(dir)
-	m, err := generateHTML(movieFiles, "/change", false)
+	m, err := generateHTML(movieFiles, "/change", fileTemplate, false)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
-	o, err := generateHTML(otherFiles, "/remove", true)
+	o, err := generateHTML(otherFiles, "/remove", fileTemplate, true)
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
@@ -57,7 +57,6 @@ func classifyFiles(dir string) ([]fileInfo, []fileInfo) {
 	if err != nil {
 		return nil, nil
 	}
-
 	return movieFiles, otherFiles
 }
 
@@ -153,16 +152,16 @@ func removeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func generateHTML(files []fileInfo, action string, disabled bool) (string, error) {
+func generateHTML(files []fileInfo, action, temp string, disable bool) (string, error) {
 	// Prépare les données pour le template
 	for i := range files {
 		files[i].UniqueID = uuid.New().String()
-		files[i].Disabled = disabled
 		files[i].Action = action
+		files[i].Disabled = disable
 	}
 
 	// Parse et exécute le template
-	tmpl, err := template.New("fileTemplate").Parse(fileTemplate)
+	tmpl, err := template.New("fileTemplate").Parse(temp)
 	if err != nil {
 		return "", err
 	}
@@ -180,12 +179,12 @@ func generateHTML(files []fileInfo, action string, disabled bool) (string, error
 
 const fileTemplate = `
 {{range .Files}}
-<div class="file" id="file-{{.UniqueID}}">
+<div class="file {{if .Disabled}}remove{{end}}" id="file-{{.UniqueID}}">
     <form hx-post="{{.Action}}" hx-swap="outerHTML" hx-target="#file-{{.UniqueID}}" hx-indicator="#loading-{{.UniqueID}}">
         <input type="text" name="filename" value="{{.Name}}" {{if .Disabled}}disabled{{end}}/>
         <input type="hidden" name="origin" value="{{.Path}}"/>
         <input type="hidden" name="uuid" value="{{.UniqueID}}"/>
-        <button type="submit">&#x2714;</button>
+        <button type="submit">{{if .Disabled}}&#x2717;{{else}}&#x2714;{{end}}</button>
         <span id="loading-{{.UniqueID}}" class="htmx-indicator"></span>
     </form>
 	<div id='error-message-{{.UniqueID}}'>{{.ErrorMessage}}</div>
@@ -195,8 +194,8 @@ const fileTemplate = `
 
 const changeTemplate = `
 <div class="file" id="file-{{.UniqueID}}">
-    <form hx-post="{{.Action}}" hx-swap="outerHTML" hx-target="#file-{{.UniqueID}}" hx-indicator="#loading-{{.UniqueID}}">
-        <input type="text" name="filename" value="{{.Name}}" {{if .Disabled}}disabled{{end}}/>
+    <form hx-post="/change" hx-swap="outerHTML" hx-target="#file-{{.UniqueID}}" hx-indicator="#loading-{{.UniqueID}}">
+        <input type="text" name="filename" value="{{.Name}}"/>
         <input type="hidden" name="origin" value="{{.Path}}"/>
         <input type="hidden" name="uuid" value="{{.UniqueID}}"/>
         <button type="submit">&#x2714;</button>
@@ -212,7 +211,7 @@ const removeTemplate = `
         <input type="text" name="filename" value="{{.Name}}" disabled/>
         <input type="hidden" name="origin" value="{{.Path}}"/>
         <input type="hidden" name="uuid" value="{{.UniqueID}}"/>
-        <button type="submit">&#x2714;</button>
+        <button type="submit">&#x2717;</button>
         <span id="loading-{{.UniqueID}}" class="htmx-indicator"></span>
     </form>
     <div id='error-message-{{.UniqueID}}'>{{.ErrorMessage}}</div>

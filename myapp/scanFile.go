@@ -2,10 +2,10 @@ package myapp
 
 import (
 	"media-organizer/myapp/constants"
+	"media-organizer/myapp/logger"
 	"os"
 	"path/filepath"
 	"regexp"
-	"search-and-sort-movies/myapp/logger"
 )
 
 func StartScan() {
