@@ -2,7 +2,7 @@ package flags
 
 import (
 	"flag"
-	"search-and-sort-movies/myapp"
+	"media-organizer/myapp"
 )
 
 func Flags() {

@@ -1,4 +1,4 @@
-module search-and-sort-movies
+module media-organizer
 
 go 1.21
 

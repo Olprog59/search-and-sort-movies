@@ -6,13 +6,13 @@ import (
 	"html/template"
 	"io/fs"
 	"log"
+	"media-organizer/myapp"
+	"media-organizer/myapp/constants"
+	"media-organizer/myapp/flags"
+	"media-organizer/myapp/logger"
 	"net/http"
 	"os"
 	"runtime"
-	"search-and-sort-movies/myapp"
-	"search-and-sort-movies/myapp/constants"
-	"search-and-sort-movies/myapp/flags"
-	"search-and-sort-movies/myapp/logger"
 )
 
 //go:embed all:templates
@@ -21,15 +21,6 @@ var content embed.FS
 //go:embed all:statics
 var statics embed.FS
 
-/*
-	 TODO: Mettre des variables d'environnements pour choisir les dossiers à trier, les films et les séries
-	  Par Exemple : be_sorted, movies, series
-					a_trier, films, series
-*/
-/*
-	TODO: faire un websocket pour le renommage et le déplacement des fichiers en temps rééls
-		peut-être surveiller les dossiers avec fsnotify
-*/
 func init() {
 	runtime.GOMAXPROCS(runtime.NumCPU())
 	//log.SetFlags(0)

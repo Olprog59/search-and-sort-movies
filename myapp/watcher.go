@@ -2,11 +2,11 @@ package myapp
 
 import (
 	"github.com/fsnotify/fsnotify"
+	"media-organizer/myapp/constants"
+	"media-organizer/myapp/logger"
 	"os"
 	"path/filepath"
 	"regexp"
-	"search-and-sort-movies/myapp/constants"
-	"search-and-sort-movies/myapp/logger"
 	"time"
 )
 

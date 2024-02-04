@@ -18,5 +18,5 @@ docker container run \
 -v /mnt/user/dlna/be_sorted:/be_sorted \
 -v /mnt/user/dlna/movies:/movies \
 -v /mnt/user/dlna/series:/series \
---name movies search-and-sort-movies
+--name movies media-organizer
 ```
