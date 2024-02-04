@@ -1,5 +1,5 @@
 # Étape de build
-FROM golang:latest AS builder
+FROM golang:1.21.6 AS builder
 
 # Définis le répertoire de travail
 WORKDIR /app
@@ -12,7 +12,7 @@ RUN go mod download && go mod tidy && go mod verify
 COPY . .
 
 # Compile l'application
-RUN GOOS=linux go build -o main .
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -a -installsuffix cgo -o main .
 
 # Étape de création de l'image finale
 FROM alpine:latest
