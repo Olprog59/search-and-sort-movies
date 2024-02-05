@@ -1,9 +1,9 @@
-package myapp
+package lib
 
 import (
 	"github.com/fsnotify/fsnotify"
-	"media-organizer/myapp/constants"
-	"media-organizer/myapp/logger"
+	"media-organizer/constants"
+	"media-organizer/logger"
 	"os"
 	"path/filepath"
 	"regexp"

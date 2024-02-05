@@ -2,7 +2,7 @@ package flags
 
 import (
 	"flag"
-	"media-organizer/myapp"
+	"media-organizer/lib"
 )
 
 func Flags() {
@@ -10,6 +10,6 @@ func Flags() {
 	flag.Parse()
 
 	if *scan {
-		myapp.StartScan()
+		lib.StartScan()
 	}
 }

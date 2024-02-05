@@ -1,8 +1,8 @@
-package myapp
+package lib
 
 import (
-	"media-organizer/myapp/constants"
-	"media-organizer/myapp/logger"
+	"media-organizer/constants"
+	"media-organizer/logger"
 	"os"
 	"path/filepath"
 	"regexp"
