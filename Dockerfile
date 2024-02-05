@@ -6,7 +6,7 @@ LABEL maintainer="Samuel MICHAUX <samuel.michaux@olprog.fr>"
 ARG GOOS=linux
 ARG GOARCH=amd64
 
-ENV CGO_ENABLED 1
+ENV CGO_ENABLED 0
 
 RUN apk update --no-cache && apk add --no-cache git tzdata gcc g++ make
 
@@ -21,6 +21,7 @@ RUN go mod download && go mod tidy && go mod verify
 COPY . .
 
 # Compile l'application
+#RUN GOOS=${GOOS} GOARCH=${GOARCH} go build -a -installsuffix cgo -o main .
 RUN GOOS=${GOOS} GOARCH=${GOARCH} go build -ldflags="-s -w" -o main .
 
 # Étape de création de l'image finale
