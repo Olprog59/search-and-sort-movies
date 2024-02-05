@@ -1,4 +1,4 @@
-package myapp
+package lib
 
 import (
 	"testing"
@@ -18,6 +18,7 @@ func Test_myFile_slugFile(t *testing.T) {
 		wantSeason      int
 		wantEpisode     int
 		wantYear        int
+		wantLanguage    string
 	}{
 		{
 			"slugFile", fields{
@@ -30,6 +31,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			02,
 			11,
 			2018,
+			"french",
 		},
 		{
 			"slugFile", fields{
@@ -42,6 +44,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			1,
 			9,
 			0,
+			"french",
 		},
 		{
 			"slugFile", fields{
@@ -54,6 +57,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			2,
 			4,
 			0,
+			"french",
 		},
 		{
 			"slugFile", fields{
@@ -66,6 +70,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			05,
 			13,
 			0,
+			"vostfr",
 		},
 		{
 			"slugFile", fields{
@@ -78,6 +83,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			2,
 			9,
 			0,
+			"vostfr",
 		},
 		{
 			"slugFile", fields{
@@ -90,6 +96,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			02,
 			12,
 			0,
+			"vostfr",
 		},
 		{
 			"slugFile", fields{
@@ -102,6 +109,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			02,
 			14,
 			0,
+			"vostfr",
 		},
 		{
 			"slugFile", fields{
@@ -114,6 +122,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			2,
 			8,
 			0,
+			"vostfr",
 		},
 		{
 			"slugFile", fields{
@@ -126,6 +135,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			05,
 			13,
 			0,
+			"vostfr",
 		},
 		{
 			"slugFile", fields{
@@ -138,6 +148,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			3,
 			1,
 			0,
+			"french",
 		},
 		{
 			"slugFile", fields{
@@ -150,6 +161,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			3,
 			2,
 			0,
+			"french",
 		},
 		{
 			"slugFile", fields{
@@ -162,6 +174,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			3,
 			3,
 			0,
+			"french",
 		},
 		{
 			"slugFile", fields{
@@ -174,6 +187,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			3,
 			4,
 			0,
+			"french",
 		},
 		{
 			"slugFile", fields{
@@ -186,6 +200,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			3,
 			5,
 			0,
+			"french",
 		},
 		{
 			"slugFile", fields{
@@ -198,6 +213,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			3,
 			7,
 			0,
+			"french",
 		},
 		{
 			"slugFile", fields{
@@ -210,6 +226,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			3,
 			8,
 			0,
+			"french",
 		},
 		{
 			"slugFile", fields{
@@ -222,6 +239,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			0,
 			28,
 			0,
+			"vostfr",
 		},
 		{
 			"slugFile", fields{
@@ -234,6 +252,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			0,
 			81,
 			0,
+			"vostfr",
 		},
 		{
 			"slugFile", fields{
@@ -246,6 +265,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			0,
 			0,
 			2020,
+			"french",
 		},
 		{
 			"slugFile", fields{
@@ -258,6 +278,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			0,
 			0,
 			2022,
+			"multi",
 		},
 		{
 			"slugFile", fields{
@@ -270,6 +291,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			0,
 			0,
 			2022,
+			"",
 		},
 		{
 			"slugFile", fields{
@@ -282,6 +304,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			0,
 			01,
 			2009,
+			"multi",
 		},
 		{
 			"slugFile", fields{
@@ -294,6 +317,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			01,
 			10,
 			0,
+			"multi",
 		},
 		{
 			"slugFile", fields{
@@ -306,6 +330,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			0,
 			0,
 			2021,
+			"multi",
 		},
 		{
 			"slugFile", fields{
@@ -318,6 +343,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			01,
 			1059,
 			0,
+			"subfrench",
 		},
 		{
 			"slugFile", fields{
@@ -330,6 +356,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			02,
 			17,
 			0,
+			"",
 		},
 		{
 			"slugFile", fields{
@@ -342,6 +369,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			02,
 			18,
 			0,
+			"",
 		},
 		{
 			"slugFile", fields{
@@ -354,6 +382,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			0,
 			0,
 			2013,
+			"multi",
 		},
 		{
 			"slugFile", fields{
@@ -366,6 +395,7 @@ func Test_myFile_slugFile(t *testing.T) {
 			21,
 			1092,
 			0,
+			"vostfr",
 		},
 	}
 	for _, tt := range tests {
@@ -394,6 +424,12 @@ func Test_myFile_slugFile(t *testing.T) {
 			}
 			if tt.wantEpisode != m.episode {
 				t.Errorf("wantEpisode : %v, want : %v", m.episode, tt.wantEpisode)
+			}
+			if tt.wantYear != m.year {
+				t.Errorf("wantYear : %v, want : %v", m.year, tt.wantYear)
+			}
+			if tt.wantLanguage != m.language {
+				t.Errorf("wantLanguage : %v, want : %v", m.language, tt.wantLanguage)
 			}
 		})
 	}

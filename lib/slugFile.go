@@ -1,11 +1,11 @@
-package myapp
+package lib
 
 import (
 	"bytes"
 	"context"
 	"errors"
 	"github.com/Machiel/slugify"
-	"media-organizer/myapp/logger"
+	"media-organizer/logger"
 	"os/exec"
 	"path/filepath"
 	"regexp"
@@ -25,10 +25,14 @@ func (m *myFile) slugFile() error {
 	m.completeSlug = m.name
 
 	video := regexp.MustCompile(`(?mi)-(french|vf|dvdrip|multi|vostfr|subfrench|dvd-r|bluray|bdrip|brrip|cam|ts|tc|vcd|md|ld|r[0-9]|xvid|divx|scr|dvdscr|repack|hdlight|720p|480p|1080p|2160p|uhd|4k|1920x1080)`)
+	language := regexp.MustCompile(`(?mi)-(french|multi|vostfr|subfrench|vo)`)
 
 	cleanName := video.FindStringIndex(m.name)
 	if len(cleanName) > 0 {
-		m.language = m.name[cleanName[0]+1 : cleanName[1]]
+		cleanLanguage := language.FindStringIndex(m.name)
+		if len(cleanLanguage) > 0 {
+			m.language = m.name[cleanLanguage[0]+1 : cleanLanguage[1]]
+		}
 		m.name = strings.Replace(m.name, m.language, "", -1)
 	}
 
@@ -106,9 +110,11 @@ func (m *myFile) formatageFinal() error {
 		return err
 	}
 	sec := duration / 60
-	if m.episode > 0 {
+	if m.episode > 0 && sec < 70 {
 		m.formatageSerie()
-	} else {
+	} else if m.episode > 0 && sec >= 70 {
+		return errors.New("inconsistency between file name and duration")
+	} else if m.episode == 0 {
 		if sec > 60 {
 			m.formatageMovie()
 		} else {
@@ -164,7 +170,7 @@ func (m *myFile) extractYear(str string) {
 
 	if startAndEnd != nil && len(startAndEnd) > 0 {
 		year := str[startAndEnd[0]:startAndEnd[1]]
-		logger.L(logger.Yellow, "year : %s", year)
+		// logger.L(logger.Yellow, "year : %s", year)
 		year = strings.Replace(year, " ", "", -1)
 		year = strings.Replace(year, "-", "", -1)
 		m.year, err = strconv.Atoi(year)

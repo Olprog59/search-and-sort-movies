@@ -1,9 +1,9 @@
-package myapp
+package lib
 
 import (
 	"fmt"
-	"media-organizer/myapp/constants"
-	"media-organizer/myapp/logger"
+	"media-organizer/constants"
+	"media-organizer/logger"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -74,7 +74,7 @@ func (m *myFile) start(serieOrMovieOrBoth typeSerieOrMovie) error {
 
 func (m *myFile) isMovie() {
 	extension := filepath.Ext(m.file)
-	logger.L(logger.Yellow, "name: %s", m.name)
+	// logger.L(logger.Yellow, "name: %s", m.name)
 
 	var path1 string
 	m.complete = m.name + extension
@@ -134,6 +134,8 @@ func (m *myFile) formatageSerie() {
 				return ""
 			}
 			return fmt.Sprintf("%d", m.year)
+		case "{language}":
+			return m.language
 		default:
 			return serie
 		}
@@ -171,6 +173,8 @@ func (m *myFile) formatageMovie() {
 				return ""
 			}
 			return fmt.Sprintf("%d", m.year)
+		case "{language}":
+			return m.language
 		default:
 			return movie
 		}

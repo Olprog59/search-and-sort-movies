@@ -6,16 +6,16 @@ import (
 	"html/template"
 	"io/fs"
 	"log"
-	"media-organizer/myapp"
-	"media-organizer/myapp/constants"
-	"media-organizer/myapp/flags"
-	"media-organizer/myapp/logger"
+	"media-organizer/constants"
+	"media-organizer/flags"
+	"media-organizer/lib"
+	"media-organizer/logger"
 	"net/http"
 	"os"
 	"runtime"
 )
 
-//go:embed all:templates
+//go:embed all:html
 var content embed.FS
 
 //go:embed all:statics
@@ -45,7 +45,7 @@ func main() {
 	// scan
 	flags.Flags()
 
-	go myapp.MyWatcher(constants.BE_SORTED)
+	go lib.MyWatcher(constants.BE_SORTED)
 
 	mux := http.NewServeMux()
 	mid := logMiddleware(mux)
@@ -54,7 +54,7 @@ func main() {
 		return
 	}
 
-	mux.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.FS(sub))))
+	mux.Handle("/statics/", http.StripPrefix("/statics/", http.FileServer(http.FS(sub))))
 	mux.HandleFunc("/", indexHandler)
 	mux.HandleFunc("/scan", scanHandler)
 	mux.HandleFunc("/change", changeHandler)
@@ -78,7 +78,7 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 		http.NotFound(w, r)
 		return
 	}
-	tmpl, err := template.ParseFS(content, "templates/index.html")
+	tmpl, err := template.ParseFS(content, "html/index.html")
 	if err != nil {
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
