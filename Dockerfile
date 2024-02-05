@@ -1,10 +1,14 @@
 # Étape de build
-FROM golang:1.21.6 AS builder
+FROM golang:alpine AS builder
+
+LABEL maintainer="Samuel MICHAUX <samuel.michaux@olprog.fr>"
 
 ARG GOOS=linux
 ARG GOARCH=amd64
 
-RUN echo "I am running on $BUILDPLATFORM, building for $TARGETPLATFORM" > /log
+ENV CGO_ENABLED 1
+
+RUN apk update --no-cache && apk add --no-cache git tzdata gcc g++ make
 
 # Définis le répertoire de travail
 WORKDIR /app
@@ -17,7 +21,7 @@ RUN go mod download && go mod tidy && go mod verify
 COPY . .
 
 # Compile l'application
-RUN CGO_ENABLED=0 GOOS=${GOOS} GOARCH=${GOARCH} go build -a -installsuffix cgo -o main .
+RUN GOOS=${GOOS} GOARCH=${GOARCH} go build -ldflags="-s -w" -o main .
 
 # Étape de création de l'image finale
 FROM alpine:latest
