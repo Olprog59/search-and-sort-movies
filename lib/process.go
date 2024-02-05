@@ -2,8 +2,8 @@ package lib
 
 import (
 	"fmt"
-	"media-organizer/constants"
-	"media-organizer/logger"
+	"github.com/sam-docker/media-organizer/constants"
+	"github.com/sam-docker/media-organizer/logger"
 	"os"
 	"os/exec"
 	"path/filepath"

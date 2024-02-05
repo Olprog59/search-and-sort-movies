@@ -1,4 +1,4 @@
-module media-organizer
+module github.com/sam-docker/media-organizer
 
 go 1.21
 

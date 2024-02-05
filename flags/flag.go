@@ -2,7 +2,7 @@ package flags
 
 import (
 	"flag"
-	"media-organizer/lib"
+	"github.com/sam-docker/media-organizer/lib"
 )
 
 func Flags() {

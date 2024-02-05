@@ -5,7 +5,7 @@ import (
 	"context"
 	"errors"
 	"github.com/Machiel/slugify"
-	"media-organizer/logger"
+	"github.com/sam-docker/media-organizer/logger"
 	"os/exec"
 	"path/filepath"
 	"regexp"

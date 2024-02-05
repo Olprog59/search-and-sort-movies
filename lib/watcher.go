@@ -2,8 +2,8 @@ package lib
 
 import (
 	"github.com/fsnotify/fsnotify"
-	"media-organizer/constants"
-	"media-organizer/logger"
+	"github.com/sam-docker/media-organizer/constants"
+	"github.com/sam-docker/media-organizer/logger"
 	"os"
 	"path/filepath"
 	"regexp"
