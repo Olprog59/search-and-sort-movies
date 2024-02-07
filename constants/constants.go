@@ -10,9 +10,9 @@ const (
 )
 
 var (
-	BE_SORTED   = GetEnv("BE_SORTED", "/mnt/medias/a_trier")
-	MOVIES      = GetEnv("MOVIES", "/mnt/medias/movies")
-	SERIES      = GetEnv("SERIES", "/mnt/medias/series")
+	BE_SORTED   = GetEnv("BE_SORTED", "")
+	MOVIES      = GetEnv("MOVIES", "")
+	SERIES      = GetEnv("SERIES", "")
 	ALL         = GetEnv("ALL", "")
 	REGEX_MOVIE = GetEnv("REGEX_MOVIE", "")
 	REGEX_SERIE = GetEnv("REGEX_SERIE", "")

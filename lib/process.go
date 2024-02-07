@@ -207,6 +207,8 @@ var mu sync.Mutex
 
 func moveOrRenameFile(filePathOld, filePathNew string) bool {
 	mu.Lock()
+	filePathOld = filepath.Clean(filePathOld)
+	filePathNew = filepath.Clean(filePathNew)
 	err := syscall.Chown(filePathOld, constants.UID, constants.GID)
 	if err != nil {
 		logger.L(logger.Red, "Failed Chown file => %s", filePathOld)
