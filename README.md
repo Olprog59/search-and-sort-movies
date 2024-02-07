@@ -34,7 +34,7 @@ FROM alpine:latest
 RUN apk add --no-cache ffmpeg
 COPY --from=builder /app/main /app/main
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
-VOLUME ["/be_sorted", "/movies", "/series", "/all"]
+VOLUME ["/be_sorted", "/movies", "/series"]
 EXPOSE 8080/tcp
 CMD ["/app/main", "-scan"]
 ```
@@ -50,9 +50,10 @@ services:
     ports:
       - 1574:8080
     volumes:
-      - /mnt/medias:/mnt/medias
+      - /mnt/medias/be_sorted:/be_sorted
+      - /mnt/medias/movies:/movies
+      - /mnt/medias/series:/series
     environment:
-      ALL: /mnt/medias
       REGEX_MOVIE: "{name}-{resolution} ({year})"
       REGEX_SERIE: "{name}-s{season}e{episode}-{resolution} ({year})"
       UID: "0"
@@ -75,8 +76,9 @@ Pour exécuter directement avec Docker :
 docker run -d \
   --name media-organizer \
   -p 1574:8080 \
-  -v /mnt/medias:/mnt/medias \
-  -e ALL="/mnt/medias" \
+  -v /mnt/medias/be_sorted:/be_sorted \
+  -v /mnt/medias/movies:/movies \
+  -v /mnt/medias/series:/series \
   -e REGEX_MOVIE="{name}-{resolution} ({year})" \
   -e REGEX_SERIE="{name}-s{season}e{episode}-{resolution} ({year})" \
   -e UID="0" \
@@ -88,10 +90,6 @@ docker run -d \
 
 | Variable      | Description                                                                                                                                                                                                                                                                                         | Valeur par Défaut                                    | Exemples de Valeurs / Formats Acceptés                                                                                                                                                                |
 |---------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `BE_SORTED`   | Chemin pour les fichiers multimédias à trier.                                                                                                                                                                                                                                                       | `/mnt/medias/be_sorted`                              | Chemin absolu vers le répertoire de tri.                                                                                                                                                              |
-| `MOVIES`      | Chemin pour le stockage organisé des films.                                                                                                                                                                                                                                                         | `/mnt/medias/movies`                                 | Chemin absolu vers le répertoire des films.                                                                                                                                                           |
-| `SERIES`      | Chemin pour le stockage organisé des séries télévisées.                                                                                                                                                                                                                                             | `/mnt/medias/series`                                 | Chemin absolu vers le répertoire des séries.                                                                                                                                                          |
-| `ALL`         | Chemin du répertoire contenant tous les médias. Si celui-ci est rempli alors `BE_SORTED`, `MOVIES` et `SERIES` seront ignorés.<br/>Ce chemin englobe les 3 dossiers `be_sorted`, `movies`,`series`.<br/>Cela facilite le déplacement du fichiers plutôt que la copie. Donc déplacement plus rapide. | aucune                                               | `/mnt/medias`, `/path/to/media`                                                                                                                                                                       |
 | `REGEX_MOVIE` | Expression régulière pour le formatage des noms de films.                                                                                                                                                                                                                                           | `"{name}-{resolution} ({year})"`                     | `"{name}-{resolution} ({year})"`, `"{year}-{name}"` <br/>- nom du fichier : `{name}`<br/>- résolution: `{resolution}`<br/>- année de sortie(si présente): `{year}`<br/>- langage: {language}          |
 | `REGEX_SERIE` | Expression régulière pour le formatage des noms de séries.                                                                                                                                                                                                                                          | `"{name}-s{season}e{episode}-{resolution} ({year})"` | `"{name}-s{season}e{episode}-{resolution} ({year})"`, `"{name} S{season}E{episode}"`<br/>- même que `REGEX_MOVIE` avec en plus:<br/>- saison(numérique): {season}<br/>- épisode(numérique): {episode} |
 | `UID`         | Identifiant utilisateur pour la gestion des permissions.                                                                                                                                                                                                                                            | `"0"` (root)                                         | `"0"`, `"1000"` (ou autre UID utilisateur)                                                                                                                                                            |

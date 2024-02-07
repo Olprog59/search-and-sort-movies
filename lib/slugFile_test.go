@@ -397,6 +397,19 @@ func Test_myFile_slugFile(t *testing.T) {
 			0,
 			"vostfr",
 		},
+		{
+			"slugFile", fields{
+				"Stargate Universe - 2X02 - Aftermath.mkv",
+			},
+			"stargate-universe-s02e02.mkv",
+			"stargate-universe-s02e02",
+			"stargate-universe",
+			"s02e02",
+			2,
+			2,
+			0,
+			"",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

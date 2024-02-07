@@ -11,7 +11,6 @@ import (
 	"strconv"
 	"strings"
 	"sync"
-	"syscall"
 )
 
 var (
@@ -128,6 +127,9 @@ func (m *myFile) formatageSerie() {
 		case "{episode}":
 			return fmt.Sprintf("%s", oneToNine(m.episode))
 		case "{resolution}":
+			if m.resolution == "" {
+				return ""
+			}
 			return m.resolution
 		case "{year}":
 			if m.year == 0 {
@@ -135,6 +137,9 @@ func (m *myFile) formatageSerie() {
 			}
 			return fmt.Sprintf("%d", m.year)
 		case "{language}":
+			if m.language == "" {
+				return ""
+			}
 			return m.language
 		default:
 			return serie
@@ -145,6 +150,7 @@ func (m *myFile) formatageSerie() {
 	result = strings.ReplaceAll(result, "- ", " ")
 	result = strings.ReplaceAll(result, "()", "")
 	result = strings.TrimSpace(result)
+	result = strings.TrimSuffix(result, "-")
 
 	m.complete = result + m.ext
 	m.name = result
@@ -167,6 +173,9 @@ func (m *myFile) formatageMovie() {
 		case "{name}":
 			return m.name
 		case "{resolution}":
+			if m.resolution == "" {
+				return ""
+			}
 			return m.resolution
 		case "{year}":
 			if m.year == 0 {
@@ -174,6 +183,9 @@ func (m *myFile) formatageMovie() {
 			}
 			return fmt.Sprintf("%d", m.year)
 		case "{language}":
+			if m.language == "" {
+				return ""
+			}
 			return m.language
 		default:
 			return movie
@@ -209,17 +221,17 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 	mu.Lock()
 	filePathOld = filepath.Clean(filePathOld)
 	filePathNew = filepath.Clean(filePathNew)
-	err := syscall.Chown(filePathOld, constants.UID, constants.GID)
+	err := os.Chown(filePathOld, constants.UID, constants.GID)
 	if err != nil {
 		logger.L(logger.Red, "Failed Chown file => %s", filePathOld)
 	}
-	err = syscall.Chmod(filePathOld, constants.CHMOD)
+	err = os.Chmod(filePathOld, os.FileMode(constants.CHMOD))
 	if err != nil {
 		logger.L(logger.Red, "Failed Chmod file => %s", filePathOld)
 	}
-	err = syscall.Rename(filePathOld, strings.ToLower(filePathNew))
+	err = os.Rename(filePathOld, strings.ToLower(filePathNew))
 	if err != nil {
-		logger.L(logger.Red, "Failed Rename file => %s", filePathOld)
+		logger.L(logger.Red, "Failed Rename file. Test mv => %s", filePathOld)
 		cmd := exec.Command("/bin/sh", "-c", "mv \""+filePathOld+"\" "+filePathNew)
 		logger.L(logger.Yellow, "mv \""+filePathOld+"\" "+filePathNew)
 		err = cmd.Run()

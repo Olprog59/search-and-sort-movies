@@ -36,13 +36,9 @@ COPY --from=builder /app/main /app/main
 # Copie les certificats CA (si nécessaire)
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-VOLUME ["/mnt/medias/be_sorted", "/mnt/medias/movies", "/mnt/medias/series", "/mnt/medias"]
+VOLUME ["/be_sorted", "/movies", "/series"]
 
-ENV BE_SORTED="/mnt/medias/be_sorted" \
-    MOVIES="/mnt/medias/movies" \
-    SERIES="/mnt/medias/series" \
-    ALL="" \
-    REGEX_MOVIE="{name}-{resolution} ({year})" \
+ENV REGEX_MOVIE="{name}-{resolution} ({year})" \
     REGEX_SERIE="{name}-s{season}e{episode}-{resolution} ({year})" \
     UID=0 \
     GID=0 \

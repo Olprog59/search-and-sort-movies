@@ -11,7 +11,6 @@ import (
 	"log"
 	"net/http"
 	"os"
-	"path/filepath"
 	"runtime"
 )
 
@@ -26,13 +25,6 @@ func init() {
 	//log.SetFlags(0)
 	log.SetFlags(log.Ldate | log.Ltime | log.Lmicroseconds | log.Lshortfile)
 
-	//fmt.Println("path: " + constants.BE_SORTED)
-	if constants.ALL != "" {
-		checkIfFolderExistAndCreate(constants.ALL)
-		constants.BE_SORTED = filepath.Clean(constants.ALL + "/be_sorted")
-		constants.MOVIES = filepath.Clean(constants.ALL + "/movies")
-		constants.SERIES = filepath.Clean(constants.ALL + "/series")
-	}
 	checkIfFolderExistAndCreate(constants.BE_SORTED)
 	checkIfFolderExistAndCreate(constants.MOVIES)
 	checkIfFolderExistAndCreate(constants.SERIES)

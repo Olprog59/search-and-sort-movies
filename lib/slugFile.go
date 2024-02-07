@@ -39,7 +39,7 @@ func (m *myFile) slugFile() error {
 	m.extractYear(m.name)
 	m.extractResolution()
 
-	serie := regexp.MustCompile(`(?mi)((s\d{1,2})(?:\W+)?(e?\d{1,4}))|e\d{1,4}|(episode-(\d{2,4})-?)|((\d{1,2})-(\d{2,4}))|((saison|season)-(\d{1,2})-episode-(\d{1,4}))`)
+	serie := regexp.MustCompile(`(?mi)((s\d{1,2})(?:\W+)?(e?\d{1,4}))|e\d{1,4}|(episode-(\d{2,4})-?)|((\d{1,2})-(\d{2,4}))|((saison|season)-(\d{1,2})-episode-(\d{1,4}))|((\d{1,2})x(\d{1,4}))`)
 	match := serie.FindAllStringSubmatch(m.name, -1)
 
 	// len(match) > 0 => serie
@@ -61,6 +61,10 @@ func (m *myFile) slugFile() error {
 			} else if v[2] != "" && v[3] != "" {
 				m.season = formatSaisonNumberOuEpisode(v[2])
 				m.episode = formatSaisonNumberOuEpisode(v[3])
+				m.name = strings.Replace(m.name, v[0], "", -1)
+			} else if v[14] != "" && v[15] != "" {
+				m.season = formatSaisonNumberOuEpisode(v[14])
+				m.episode = formatSaisonNumberOuEpisode(v[15])
 				m.name = strings.Replace(m.name, v[0], "", -1)
 			} else {
 				m.episode = formatSaisonNumberOuEpisode(v[0])
