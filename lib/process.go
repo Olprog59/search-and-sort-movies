@@ -282,7 +282,7 @@ func getAbsolutePathWithRelative(folder string) string {
 }
 
 func CleanFolder(str string) {
-	filepath.Walk(str, func(path string, info os.FileInfo, err error) error {
+	err := filepath.Walk(str, func(path string, info os.FileInfo, err error) error {
 		if info.IsDir() {
 			if path != str {
 				err := os.Remove(path)
@@ -301,4 +301,7 @@ func CleanFolder(str string) {
 		}
 		return nil
 	})
+	if err != nil {
+		return
+	}
 }

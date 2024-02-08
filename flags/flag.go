@@ -2,6 +2,7 @@ package flags
 
 import (
 	"flag"
+	"github.com/sam-docker/media-organizer/constants"
 	"github.com/sam-docker/media-organizer/lib"
 )
 
@@ -10,6 +11,6 @@ func Flags() {
 	flag.Parse()
 
 	if *scan {
-		lib.StartScan()
+		lib.StartScan(constants.ObsSlice)
 	}
 }

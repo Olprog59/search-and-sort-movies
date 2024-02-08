@@ -21,6 +21,22 @@ document.addEventListener("DOMContentLoaded", function () {
                             fileDiv.closest('.file').remove();
                         }
                     }
+                    if (node.textContent.includes("inconsistency between file name and duration")) {
+                        const reload = document.getElementById('reload');
+                        reload.classList.add('start');
+                        reload.innerHTML = 'La page va être rechargée dans&nbsp;<span class="secondes">10</span>&nbsp;secondes. Terminer ce que vous étiez en train de faire.';
+                        setInterval(function () {
+                            const secondesElement = reload.querySelector('.secondes');
+                            let secondes = parseInt(secondesElement.textContent);
+                            if (secondes > 0) {
+                                secondesElement.innerHTML = `${secondes - 1}`;
+                            }
+                        }, 1000);
+                        setTimeout(function () {
+                            location.reload();
+                        }, 10000);
+                    }
+
                 });
             });
 

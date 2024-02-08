@@ -104,7 +104,30 @@ body
         &.blue
           color: blue
 
-    div#logs
+      & span[id^=message-]
+        display: block
+        margin-top: 1rem
+        color: red
+        font-style: italic
+        font-size: 0.9rem
+
+        button
+          background-color: transparent
+          border: 1px solid red
+          outline: none
+          cursor: pointer
+          box-shadow: 0 0 5px rgba(0,0,0,0.3)
+          color: red
+          border-radius: 5px
+          padding: 5px
+          text-transform: capitalize
+          text-decoration: underline
+          transition: all 0.3s ease
+          &:hover
+            background-color: red
+            color: white
+
+  & div#logs
       border-top: 1px solid #ddd
       height: 250px
       overflow-y: auto
@@ -113,22 +136,38 @@ body
       bottom: 0
       left: 0
       right: 0
-      background-color: #c3c3c3
+      background-color: #f0f0f0
 
       .red
-        color: red
+        color: #e57373 // Rouge plus doux
       .green
-        color: green
+        color: #81c784 // Vert plus doux
       .yellow
-        color: yellow
+        color: #f9b179 // Orange, bon contraste sans être agressif
       .purple
-        color: purple
+        color: #ba68c8 // Pourpre clair
       .magenta
-        color: magenta
+        color: #f48fb1 // Magenta plus clair
       .teal
-        color: teal
+        color: #4db6ac // Teal (bleu-vert) clair
       .black
-        color: black
+        color: #424242 // Gris foncé au lieu de noir pour adoucir le contraste
+
+  & div#reload
+    position: fixed
+    bottom: 0
+    left: 0
+    right: 0
+    padding: 10px
+    height: 250px
+    color: white
+    font-size: 2rem
+    display: flex
+    justify-content: center
+    align-items: center
+    &.start
+      z-index: 100
+      background-color: rgba(0, 0, 0, 0.6)
 
 
 @keyframes rotation

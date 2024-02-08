@@ -79,7 +79,12 @@ func MyWatcher(location string, obsSlice *model.ObservableSlice) {
 	if err != nil {
 		logger.L(logger.Red, "%s", err)
 	}
-	defer watch.Close()
+	defer func(watch *fsnotify.Watcher) {
+		err := watch.Close()
+		if err != nil {
+			logger.L(logger.Red, "Error closing watcher: %s", err)
+		}
+	}(watch)
 
 	done := make(chan bool)
 
