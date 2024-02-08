@@ -1,20 +1,17 @@
 version: "3.8"
 services:
   media-organizer:
+    container_name: media-organizer
     image: olprog/media-organizer:latest
     ports:
       - 1574:8080
     volumes:
-      - /Users/olprog/GolandProjects/media-organizer/medias:/mnt/medias
+      - - /Users/olprog/GolandProjects/media-organizer/medias:/medias
     environment:
-      BE_SORTED: "be_sorted"
-      MOVIES: "medias"
-      SERIES: "series"
-      ALL: /mnt/medias
       REGEX_MOVIE: "{name}-{resolution} ({year})"
       REGEX_SERIE: "{name}-s{season}e{episode}-{resolution} ({year})"
       UID: "0"
       GID: "0"
-      CHMOD: "0755"
+      CHMOD: "755"
     restart: always
 networks: {}

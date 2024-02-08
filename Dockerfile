@@ -1,5 +1,5 @@
 # Étape de build
-FROM golang:alpine AS builder
+FROM golang:1.22-alpine3.19 AS builder
 
 LABEL maintainer="Samuel MICHAUX <samuel.michaux@olprog.fr>"
 
@@ -36,7 +36,7 @@ COPY --from=builder /app/main /app/main
 # Copie les certificats CA (si nécessaire)
 COPY --from=builder /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
 
-VOLUME ["/be_sorted", "/movies", "/series"]
+VOLUME ["/medias"]
 
 ENV REGEX_MOVIE="{name}-{resolution} ({year})" \
     REGEX_SERIE="{name}-s{season}e{episode}-{resolution} ({year})" \

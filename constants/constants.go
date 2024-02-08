@@ -12,14 +12,14 @@ const (
 
 var (
 	ObsSlice    = model.NewObservableSlice()
-	BE_SORTED   = GetEnv("BE_SORTED", "/be_sorted")
-	MOVIES      = GetEnv("MOVIES", "/medias")
-	SERIES      = GetEnv("SERIES", "/series")
+	BE_SORTED   = GetEnv("BE_SORTED", "/medias/be_sorted")
+	MOVIES      = GetEnv("MOVIES", "/medias/movies")
+	SERIES      = GetEnv("SERIES", "/medias/series")
 	REGEX_MOVIE = GetEnv("REGEX_MOVIE", "")
 	REGEX_SERIE = GetEnv("REGEX_SERIE", "")
 	UID         = GetEnvInt("UID", "0")
 	GID         = GetEnvInt("GID", "0")
-	CHMOD       = GetEnvUInt32("CHMOD", "0755")
+	CHMOD       = GetEnv("CHMOD", "0755")
 )
 
 func GetEnv(key, fallback string) string {
@@ -37,18 +37,6 @@ func GetEnvInt(key, fallback string) int {
 	}
 	if i, err := strconv.Atoi(fallback); err == nil {
 		return i
-	}
-	return 0
-}
-
-func GetEnvUInt32(key, fallback string) uint32 {
-	if value, ok := os.LookupEnv(key); ok {
-		if i, err := strconv.ParseUint(value, 10, 32); err == nil {
-			return uint32(i)
-		}
-	}
-	if i, err := strconv.ParseUint(fallback, 10, 32); err == nil {
-		return uint32(i)
 	}
 	return 0
 }

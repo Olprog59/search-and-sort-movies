@@ -1,9 +1,11 @@
 package lib
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/sam-docker/media-organizer/constants"
 	"github.com/sam-docker/media-organizer/logger"
+	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -229,26 +231,35 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 
 	filePathOld = filepath.Clean(filePathOld)
 	filePathNew = filepath.Clean(filePathNew)
+
+	defer constants.ObsSlice.Remove(filePathOld)
+
 	err := os.Chown(filePathOld, constants.UID, constants.GID)
 	if err != nil {
 		logger.L(logger.Red, "Failed Chown file => %s", filePathOld)
 	}
-	err = os.Chmod(filePathOld, os.FileMode(constants.CHMOD))
+	// Convertir la chaîne octale en int64
+	chmodInt, err := strconv.ParseInt(constants.CHMOD, 8, 64)
+	if err != nil {
+		log.Fatalf("Erreur lors de la conversion des permissions : %v", err)
+	}
+	err = os.Chmod(filePathOld, os.FileMode(chmodInt))
 	if err != nil {
 		logger.L(logger.Red, "Failed Chmod file => %s", filePathOld)
 	}
 	err = os.Rename(filePathOld, strings.ToLower(filePathNew))
 	if err != nil {
-		logger.L(logger.Red, "Failed Rename file. Test mv => %s", filePathOld)
-		cmd := exec.Command("/bin/sh", "-c", "mv \""+filePathOld+"\" "+filePathNew)
-		logger.L(logger.Yellow, "mv \""+filePathOld+"\" "+filePathNew)
+		logger.L(logger.Red, "Error os.Rename. Test mv => %s", "mv \""+filePathOld+"\" \""+filePathNew+"\"")
+		cmd := exec.Command("/bin/sh", "-c", "mv \""+filePathOld+"\" \""+filePathNew+"\"")
+		var stderr bytes.Buffer
+		cmd.Stderr = &stderr
 		err = cmd.Run()
 		if err != nil {
-			logger.L(logger.Red, "Move Or Rename file : %s", err)
+			logger.L(logger.Red, "Move Or Rename file: %s, Error: %s", err, stderr.String())
 			return false
 		}
 	}
-	logger.L(logger.Yellow, "Rename file => %s", filePathOld)
+	logger.L(logger.Yellow, "File Rename => %s", filePathOld)
 
 	folder := filepath.Dir(filePathOld)
 
@@ -269,7 +280,7 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 			}
 		}
 	}
-	constants.ObsSlice.Remove(filePathOld)
+
 	return true
 }
 
