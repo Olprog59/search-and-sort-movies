@@ -39,12 +39,11 @@ type myFile struct {
 	year           int
 	episode        int
 	episodeRaw     string
-	count          int
 	language       string
+	duration       int
 }
 
 func (m *myFile) Process() {
-	m.count = 0
 	_, m.complete = filepath.Split(m.file)
 	m.fileWithoutDir = m.complete
 	err := m.start(NOTHING)

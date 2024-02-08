@@ -51,7 +51,7 @@ services:
       - 1574:8080
     volumes:
       - /mnt/medias/be_sorted:/be_sorted
-      - /mnt/medias/movies:/movies
+      - /mnt/medias/medias:/medias
       - /mnt/medias/series:/series
     environment:
       REGEX_MOVIE: "{name}-{resolution} ({year})"
@@ -77,7 +77,7 @@ docker run -d \
   --name media-organizer \
   -p 1574:8080 \
   -v /mnt/medias/be_sorted:/be_sorted \
-  -v /mnt/medias/movies:/movies \
+  -v /mnt/medias/medias:/medias \
   -v /mnt/medias/series:/series \
   -e REGEX_MOVIE="{name}-{resolution} ({year})" \
   -e REGEX_SERIE="{name}-s{season}e{episode}-{resolution} ({year})" \

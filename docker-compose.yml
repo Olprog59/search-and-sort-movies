@@ -5,10 +5,10 @@ services:
     ports:
       - 1574:8080
     volumes:
-      - /Users/olprog/GolandProjects/media-organizer/movies:/mnt/medias
+      - /Users/olprog/GolandProjects/media-organizer/medias:/mnt/medias
     environment:
       BE_SORTED: "be_sorted"
-      MOVIES: "movies"
+      MOVIES: "medias"
       SERIES: "series"
       ALL: /mnt/medias
       REGEX_MOVIE: "{name}-{resolution} ({year})"

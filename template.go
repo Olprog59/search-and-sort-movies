@@ -39,7 +39,7 @@ func listFiles(w http.ResponseWriter, dir string) {
 
 func classifyFiles(dir string) ([]fileInfo, []fileInfo) {
 	var movieFiles, otherFiles []fileInfo
-	re := regexp.MustCompile(constants.RegexFile)
+	re := regexp.MustCompile(constants.RegexFileExtension)
 
 	err := filepath.Walk(dir, func(path string, info os.FileInfo, err error) error {
 		if err != nil || info.IsDir() {

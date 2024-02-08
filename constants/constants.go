@@ -6,13 +6,13 @@ import (
 )
 
 const (
-	RegexFile = `(?i)(.mkv|.mp4|.avi|.flv|.mov)`
+	RegexFileExtension = `(?i)(.mkv|.mp4|.avi|.flv|.mov)`
 )
 
 var (
-	BE_SORTED   = "/be_sorted"
-	MOVIES      = "/movies"
-	SERIES      = "/series"
+	BE_SORTED   = GetEnv("BE_SORTED", "/be_sorted")
+	MOVIES      = GetEnv("MOVIES", "/medias")
+	SERIES      = GetEnv("SERIES", "/series")
 	REGEX_MOVIE = GetEnv("REGEX_MOVIE", "")
 	REGEX_SERIE = GetEnv("REGEX_SERIE", "")
 	UID         = GetEnvInt("UID", "0")

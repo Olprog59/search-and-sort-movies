@@ -1,17 +1,13 @@
 package lib
 
 import (
-	"bytes"
-	"context"
 	"errors"
 	"github.com/Machiel/slugify"
 	"github.com/sam-docker/media-organizer/logger"
-	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
-	"time"
 )
 
 func (m *myFile) slugFile() error {
@@ -108,12 +104,12 @@ func (m *myFile) formatageFinal() error {
 		}
 		return nil
 	}
-	duration, err := getDurationMovie(m.file)
+
 	if err != nil {
 		logger.L(logger.Red, "%s", err)
 		return err
 	}
-	sec := duration / 60
+	sec := m.duration / 60
 	if m.episode > 0 && sec < 70 {
 		m.formatageSerie()
 	} else if m.episode > 0 && sec >= 70 {
@@ -127,25 +123,6 @@ func (m *myFile) formatageFinal() error {
 		}
 	}
 	return nil
-}
-
-func getDurationMovie(fileName string) (float64, error) {
-	ctx, cancelFn := context.WithTimeout(context.Background(), 20*time.Second)
-	defer cancelFn()
-
-	var outputBuf bytes.Buffer
-	var errorBuf bytes.Buffer
-
-	cmd := exec.CommandContext(ctx, "ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", fileName)
-	cmd.Stdout = &outputBuf
-	cmd.Stderr = &errorBuf
-	//logger.L(logger.Yellow, "cmd : %v", cmd.String())
-	err := cmd.Run()
-	if err != nil {
-		logger.L(logger.Red, "error : %s", errorBuf.String())
-		return 0, err
-	}
-	return strconv.ParseFloat(strings.TrimSpace(outputBuf.String()), 64)
 }
 
 func (m *myFile) extractResolution() {

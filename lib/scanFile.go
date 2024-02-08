@@ -18,11 +18,12 @@ func StartScan() {
 func fileInFolder() (int, []string) {
 	var files []string
 	var count int
+	logger.L(logger.Purple, "%s", constants.BE_SORTED)
 	err := filepath.Walk(constants.BE_SORTED+"/", func(path string, info os.FileInfo, err error) error {
 		if info.IsDir() {
 			return nil
 		}
-		re := regexp.MustCompile(constants.RegexFile)
+		re := regexp.MustCompile(constants.RegexFileExtension)
 		if re.MatchString(filepath.Ext(path)) {
 			files = append(files, path)
 			count++
