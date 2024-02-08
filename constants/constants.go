@@ -1,6 +1,7 @@
 package constants
 
 import (
+	"github.com/sam-docker/media-organizer/model"
 	"os"
 	"strconv"
 )
@@ -10,6 +11,7 @@ const (
 )
 
 var (
+	ObsSlice    = model.NewObservableSlice()
 	BE_SORTED   = GetEnv("BE_SORTED", "/be_sorted")
 	MOVIES      = GetEnv("MOVIES", "/medias")
 	SERIES      = GetEnv("SERIES", "/series")

@@ -3,6 +3,7 @@ package lib
 import (
 	"errors"
 	"github.com/Machiel/slugify"
+	"github.com/sam-docker/media-organizer/constants"
 	"github.com/sam-docker/media-organizer/logger"
 	"path/filepath"
 	"regexp"
@@ -109,16 +110,26 @@ func (m *myFile) formatageFinal() error {
 		logger.L(logger.Red, "%s", err)
 		return err
 	}
+
+	if m.ForceType == "serie" {
+		m.formatageSerie()
+		return nil
+	} else if m.ForceType == "movie" {
+		m.formatageMovie()
+		return nil
+	}
+
 	sec := m.duration / 60
 	if m.episode > 0 && sec < 70 {
 		m.formatageSerie()
 	} else if m.episode > 0 && sec >= 70 {
+		constants.ObsSlice.SetTypeMedia(m.file, "movie")
 		return errors.New("inconsistency between file name and duration")
 	} else if m.episode == 0 {
 		if sec > 60 {
 			m.formatageMovie()
 		} else {
-			// TODO : formatage si il y a une incohérence entre le nom du fichier et la durée
+			constants.ObsSlice.SetTypeMedia(m.file, "serie")
 			return errors.New("inconsistency between file name and duration")
 		}
 	}
@@ -136,6 +147,7 @@ func (m *myFile) extractResolution() {
 			return tabResolution[0]
 		}
 		m.resolution = m.completeSlug[isSeparator():tabResolution[1]]
+		m.name = strings.Replace(m.name, m.resolution, "", -1)
 		switch m.resolution {
 		case "1920x1080":
 			m.name = strings.Replace(m.name, m.resolution, "", -1)

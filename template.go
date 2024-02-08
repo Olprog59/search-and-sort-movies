@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"github.com/google/uuid"
 	"github.com/sam-docker/media-organizer/constants"
+	"github.com/sam-docker/media-organizer/lib"
 	"github.com/sam-docker/media-organizer/logger"
+	"github.com/sam-docker/media-organizer/model"
 	"html/template"
 	"net/http"
 	"os"
@@ -14,8 +16,8 @@ import (
 )
 
 type fileInfo struct {
-	Name, Path, UniqueID, ErrorMessage, Action string
-	Disabled                                   bool
+	Name, Path, UniqueID, ErrorMessage, Action, Message string
+	Disabled                                            bool
 }
 
 func listFiles(w http.ResponseWriter, dir string) {
@@ -61,11 +63,6 @@ func classifyFiles(dir string) ([]fileInfo, []fileInfo) {
 }
 
 func changeHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Failed to parse form: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -92,6 +89,12 @@ func changeHandler(w http.ResponseWriter, r *http.Request) {
 			data.ErrorMessage = fmt.Sprintf("Un problème est survenu lors du renommage (%s)", err.Error())
 		} else {
 			data.ErrorMessage = "Le fichier a bien été renommé. Il va être traité d'ici quelques instants."
+			constants.ObsSlice.Remove(origin)
+			duration, err := lib.GetMediaDuration(data.Path)
+			if err != nil {
+				logger.L(logger.Red, "Error checking media file: %s", err)
+			}
+			constants.ObsSlice.Add(model.SliceFile{File: data.Path, Working: false, Duration: duration})
 		}
 	}
 
@@ -109,11 +112,6 @@ func changeHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func removeHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
-		http.Error(w, "Only POST method is allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
 	if err := r.ParseForm(); err != nil {
 		http.Error(w, "Failed to parse form: "+err.Error(), http.StatusInternalServerError)
 		return
@@ -152,12 +150,36 @@ func removeHandler(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func forceHandler(writer http.ResponseWriter, request *http.Request) {
+	if err := request.ParseForm(); err != nil {
+		http.Error(writer, "Failed to parse form: "+err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	path := request.FormValue("path")
+	typeMedia := request.FormValue("type_media")
+
+	logger.L(logger.Magenta, "Force media type for %s to %s", path, typeMedia)
+	newFileSlice := constants.ObsSlice.SetForce(path, true)
+	newFileSlice.Working = false
+	newFileSlice.TypeMedia = typeMedia
+	if newFileSlice != nil {
+		constants.ObsSlice.Remove(path)
+		constants.ObsSlice.Add(*newFileSlice)
+	}
+	// Envoie une réponse vide si la suppression a réussi
+	http.StatusText(http.StatusOK)
+}
+
 func generateHTML(files []fileInfo, action, temp string, disable bool) (string, error) {
 	// Prépare les données pour le template
 	for i := range files {
 		files[i].UniqueID = uuid.New().String()
 		files[i].Action = action
 		files[i].Disabled = disable
+		if constants.ObsSlice.GetByName(files[i].Path) != nil {
+			files[i].Message = constants.ObsSlice.GetByName(files[i].Path).TypeMedia
+		}
 	}
 
 	// Parse et exécute le template
@@ -188,6 +210,12 @@ const fileTemplate = `
         <span id="loading-{{.UniqueID}}" class="htmx-indicator"></span>
     </form>
 	<div id='error-message-{{.UniqueID}}'>{{.ErrorMessage}}</div>
+	{{if .Message}}
+	<span id="message-{{.UniqueID}}">
+		Ce fichier est identifié comme {{if eq .Message "movie"}}un <b>film</b>{{else}}une <b>série</b>{{end}}. Si cette classification vous convient, vous avez la possibilité de renommer le fichier pour qu'il soit clairement reconnu comme tel. Si vous préférez, vous pouvez également spécifier explicitement qu'il s'agit {{if eq .Message "movie"}}d'une <b>série</b>{{else}}d'un <b>film</b>{{end}} en cliquant sur ce bouton.
+		<button hx-post="/force" hx-target="#message-{{.UniqueID}}" hx-swap="outerHTML" hx-vals='{"path": "{{.Path}}", "type_media": "{{if eq .Message "movie"}}serie{{else}}film{{end}}"}'>Forcer en tant que {{if eq .Message "movie"}}<b>série</b>{{else}}<b>film</b>{{end}}</button>
+	</span>
+	{{end}}
 </div>
 {{end}}
 `
@@ -202,6 +230,12 @@ const changeTemplate = `
         <span id="loading-{{.UniqueID}}" class="htmx-indicator"></span>
     </form>
     <div id='error-message-{{.UniqueID}}'>{{.ErrorMessage}}</div>
+	{{if .Message}}
+	<span id="message-{{.UniqueID}}">
+		Ce fichier est identifié comme {{if eq .Message "movie"}}un <b>film</b>{{else}}une <b>série</b>{{end}}. Si cette classification vous convient, vous avez la possibilité de renommer le fichier pour qu'il soit clairement reconnu comme tel. Si vous préférez, vous pouvez également spécifier explicitement qu'il s'agit {{if eq .Message "movie"}}d'une <b>série</b>{{else}}d'un <b>film</b>{{end}} en cliquant sur ce bouton.
+		<button hx-post="/force" hx-target="#message-{{.UniqueID}}" hx-swap="outerHTML" hx-vals='{"path": "{{.Path}}", "type_media": "{{if eq .Message "movie"}}serie{{else}}film{{end}}"}'>Forcer en tant que {{if eq .Message "movie"}}<b>série</b>{{else}}<b>film</b>{{end}}</button>
+	</span>
+	{{end}}
 </div>
 `
 

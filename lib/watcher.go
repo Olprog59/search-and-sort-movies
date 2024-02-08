@@ -5,12 +5,13 @@ import (
 	"github.com/fsnotify/fsnotify"
 	"github.com/sam-docker/media-organizer/constants"
 	"github.com/sam-docker/media-organizer/logger"
-	"log"
+	"github.com/sam-docker/media-organizer/model"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"regexp"
 	"slices"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -73,8 +74,8 @@ var err error
 //	logger.L(logger.Purple, "Watcher finished")
 //}
 
-func MyWatcher(location string, obsSlice *ObservableSlice) {
-	watch, err := fsnotify.NewWatcher()
+func MyWatcher(location string, obsSlice *model.ObservableSlice) {
+	watch, err = fsnotify.NewWatcher()
 	if err != nil {
 		logger.L(logger.Red, "%s", err)
 	}
@@ -90,13 +91,9 @@ func MyWatcher(location string, obsSlice *ObservableSlice) {
 				if !ok {
 					return
 				}
-				if event.Op&fsnotify.Write == fsnotify.Write || event.Op&fsnotify.Create == fsnotify.Create {
+				if event.Op&fsnotify.Write == fsnotify.Write || event.Op&fsnotify.Create == fsnotify.Create || event.Op&fsnotify.Rename == fsnotify.Rename {
 					if isWriteComplete(event.Name) {
-						duration, err := getMediaDuration(event.Name)
-						if err != nil {
-							logger.L(logger.Red, "Error checking media file: %s", err)
-							continue
-						}
+
 						if obsSlice.SameItem(event.Name) {
 							continue first
 						}
@@ -109,13 +106,14 @@ func MyWatcher(location string, obsSlice *ObservableSlice) {
 						if !isDir {
 							re := regexp.MustCompile(constants.RegexFileExtension)
 							if re.MatchString(filepath.Ext(event.Name)) {
-								file := sliceFile{file: event.Name, duration: duration, working: false}
+								duration, err := GetMediaDuration(event.Name)
+								if err != nil {
+									logger.L(logger.Red, "Error checking media file: %s", err)
+									continue
+								}
+								file := model.SliceFile{File: event.Name, Duration: duration, Working: false}
 								obsSlice.Add(file)
 								//logger.L(logger.Purple, "File write complete: %s duration: %s", event.Name, duration)
-							}
-						} else if len(event.Name) > 0 {
-							if err := watch.Add(event.Name); err != nil {
-								logger.L(logger.Red, "Error adding watcher: %s %s", event.Name, err)
 							}
 						}
 					}
@@ -132,8 +130,8 @@ func MyWatcher(location string, obsSlice *ObservableSlice) {
 		}
 	}()
 
-	log.Println("Add watcher to folder:", location)
-	if len(location) > 0 {
+	logger.L(logger.Purple, "Add watcher to folder: %s", location)
+	if len(location) > 0 && strings.Contains(location, constants.BE_SORTED) {
 		if err := watch.Add(location); err != nil {
 			logger.L(logger.Red, "location: %s %s", location, err)
 		}
@@ -152,7 +150,7 @@ func _stat(event fsnotify.Event) (os.FileInfo, fsnotify.Event) {
 
 func _checkIfDir(event fsnotify.Event) (isDir bool, isNil bool) {
 	f, e := _stat(event)
-	//log.Printf("f: %v, e: %v", f, e)
+	//log.Printf("f: %#+v, e: %#+v", f, e)
 	//Ajout d'une sécurité si le fichier a déjà été déplacé
 	if f == nil {
 		return false, true
@@ -175,7 +173,6 @@ func isWriteComplete(filePath string) bool {
 	for i := 0; i < checks; i++ {
 		fileInfo, err := os.Stat(filePath)
 		if err != nil {
-			logger.L(logger.Red, "%s", err)
 			return false
 		}
 		currentSize := fileInfo.Size()
@@ -188,8 +185,8 @@ func isWriteComplete(filePath string) bool {
 	return false
 }
 
-// getMediaDuration utilise ffprobe pour récupérer la durée d'un fichier média et la retourne sous forme de chaîne de caractères.
-func getMediaDuration(filePath string) (string, error) {
+// GetMediaDuration utilise ffprobe pour récupérer la durée d'un fichier média et la retourne sous forme de chaîne de caractères.
+func GetMediaDuration(filePath string) (string, error) {
 	cmd := exec.Command("ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "default=noprint_wrappers=1:nokey=1", filePath)
 	var out bytes.Buffer
 	cmd.Stdout = &out
@@ -201,31 +198,38 @@ func getMediaDuration(filePath string) (string, error) {
 	return duration, nil
 }
 
-func StartProcessing(slice []sliceFile, obsSlice *ObservableSlice) {
+func StartProcessing(slice []model.SliceFile, obsSlice *model.ObservableSlice) {
 	for k, v := range slice {
-		if !v.working {
-			obsSlice.lock.Lock()
-			obsSlice.slice[k].working = true
-			obsSlice.lock.Unlock()
+		if !v.Working {
+			obsSlice.Lock.Lock()
+			obsSlice.Slice[k].Working = true
+			obsSlice.Lock.Unlock()
 			go ProcessFile(v, obsSlice)
 		}
 	}
 }
 
-func ProcessFile(k sliceFile, obsSlice *ObservableSlice) {
+func ProcessFile(k model.SliceFile, obsSlice *model.ObservableSlice) {
 	time.Sleep(10 * time.Second)
-	logger.L(logger.Purple, "Processing file: %s", k)
+	//logger.L(logger.Purple, "Processing file: %s", k)
 	var m myFile
-	m.file = k.file
-	m.duration = k.duration
+	m.file = k.File
+	duration, err := strconv.ParseFloat(k.Duration, 10)
+	if err != nil {
+		logger.L(logger.Red, "Error parsing duration: %s", err)
+		duration = 0
+	}
+	m.duration = duration
+	if k.Force {
+		m.ForceType = k.TypeMedia
+	}
 	m.Process()
-	obsSlice.lock.Lock()
-	if len(obsSlice.slice) > 0 {
-		if i := slices.Index(obsSlice.slice, k); i != -1 {
-			slices.Delete(obsSlice.slice, i, i+1)
+	obsSlice.Lock.Lock()
+	if len(obsSlice.Slice) > 0 {
+		if i := slices.Index(obsSlice.Slice, k); i != -1 {
+			slices.Delete(obsSlice.Slice, i, i+1)
 		}
 	}
-	//obsSlice.slice = append(obsSlice.slice[:0], obsSlice.slice[1:]...)
-	obsSlice.lock.Unlock()
-	logger.L(logger.Purple, "File processed: %s", k)
+	obsSlice.Lock.Unlock()
+	//logger.L(logger.Purple, "File processed: %s", k)
 }

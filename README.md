@@ -113,6 +113,5 @@ docker run -d \
 ## A venir
 - [ ] Ajout de la traduction.
 - [ ] Ajout de la suppression des dossiers en plus des fichiers autres comme maintenant.
-- [ ] Variables d'environnement pour les dossiers principaux.
 - [ ] Ajout de possibilités de connecter un discord webhooks pour les notifications en cas de problèmes.
 

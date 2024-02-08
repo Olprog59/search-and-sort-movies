@@ -11,6 +11,7 @@ import (
 	"strconv"
 	"strings"
 	"sync"
+	"time"
 )
 
 var (
@@ -40,7 +41,8 @@ type myFile struct {
 	episode        int
 	episodeRaw     string
 	language       string
-	duration       int
+	duration       float64
+	ForceType      string
 }
 
 func (m *myFile) Process() {
@@ -51,7 +53,7 @@ func (m *myFile) Process() {
 		logger.L(logger.Red, "%s => %s", m.fileWithoutDir, err)
 		return
 	}
-	logger.L(logger.Yellow, "complete: %s", m.complete)
+	//logger.L(logger.Yellow, "complete: %s", m.complete)
 }
 
 func (m *myFile) start(serieOrMovieOrBoth typeSerieOrMovie) error {
@@ -78,8 +80,10 @@ func (m *myFile) isMovie() {
 	m.complete = m.name + extension
 	path1 = movies + string(os.PathSeparator) + m.complete
 
+	start := time.Now()
 	if moveOrRenameFile(m.file, path1) {
-		logger.L(logger.Yellow, m.fileWithoutDir+", has been moved to: "+path1)
+		duration := time.Now().Sub(start)
+		logger.L(logger.Green, "Movie: %s has been moved to: %s - %s", m.fileWithoutDir, path1, duration)
 	}
 }
 
@@ -108,9 +112,12 @@ func (m *myFile) checkFolderSerie() (string, string) {
 	}
 
 	finalFilePath := series + newFolder + string(os.PathSeparator) + m.complete
+	start := time.Now()
 	if moveOrRenameFile(m.file, finalFilePath) {
-		logger.L(logger.Yellow, m.fileWithoutDir+", has been moved to: "+finalFilePath)
+		duration := time.Now().Sub(start)
+		logger.L(logger.Green, "Episode: %s has been moved to: %s - %s", m.fileWithoutDir, finalFilePath, duration)
 	}
+
 	return m.complete, finalFilePath
 }
 
@@ -218,6 +225,8 @@ var mu sync.Mutex
 
 func moveOrRenameFile(filePathOld, filePathNew string) bool {
 	mu.Lock()
+	defer mu.Unlock()
+
 	filePathOld = filepath.Clean(filePathOld)
 	filePathNew = filepath.Clean(filePathNew)
 	err := os.Chown(filePathOld, constants.UID, constants.GID)
@@ -236,7 +245,6 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 		err = cmd.Run()
 		if err != nil {
 			logger.L(logger.Red, "Move Or Rename file : %s", err)
-			mu.Unlock()
 			return false
 		}
 	}
@@ -261,7 +269,7 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 			}
 		}
 	}
-	mu.Unlock()
+	constants.ObsSlice.Remove(filePathOld)
 	return true
 }
 
@@ -271,4 +279,26 @@ func getAbsolutePathWithRelative(folder string) string {
 		return abs
 	}
 	return ""
+}
+
+func CleanFolder(str string) {
+	filepath.Walk(str, func(path string, info os.FileInfo, err error) error {
+		if info.IsDir() {
+			if path != str {
+				err := os.Remove(path)
+				if err != nil {
+					logger.L(logger.Red, "Remove folder isn't possible because a file(s) is inside : %s", path)
+				}
+			}
+		} else {
+			re := regexp.MustCompile(constants.RegexFileExtension)
+			if !re.MatchString(filepath.Ext(path)) {
+				err := os.Remove(path)
+				if err != nil {
+					logger.L(logger.Red, "Error to remove file: %s", path)
+				}
+			}
+		}
+		return nil
+	})
 }
