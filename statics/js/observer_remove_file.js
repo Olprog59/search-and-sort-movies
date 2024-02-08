@@ -23,25 +23,23 @@ document.addEventListener("DOMContentLoaded", function () {
                     }
                     if (node.textContent.includes("inconsistency between file name and duration")) {
                         const reload = document.getElementById('reload');
+                        let secondes = 10;
                         reload.classList.add('start');
-                        reload.innerHTML = 'La page va être rechargée dans&nbsp;<span class="secondes">10</span>&nbsp;secondes. Terminer ce que vous étiez en train de faire.';
-                        setInterval(function () {
+                        reload.innerHTML = `La page va être rechargée dans&nbsp;<span class="secondes">${secondes}</span>&nbsp;secondes. Termine ce que vous étiez en train de faire.`;
+                        const interval = setInterval(function () {
                             const secondesElement = reload.querySelector('.secondes');
-                            let secondes = parseInt(secondesElement.textContent);
                             if (secondes > 0) {
-                                secondesElement.innerHTML = `${secondes - 1}`;
+                                secondesElement.innerHTML = `${--secondes}`;
                             }
                         }, 1000);
                         setTimeout(function () {
+                            clearInterval(interval);
                             location.reload();
                         }, 10000);
                     }
-
                 });
             });
-
         }
     });
-
     observer.observe(logsNode, {childList: true});
 });

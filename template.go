@@ -18,6 +18,7 @@ import (
 type fileInfo struct {
 	Name, Path, UniqueID, ErrorMessage, Action, Message string
 	Disabled                                            bool
+	IsDir                                               bool
 }
 
 func listFiles(w http.ResponseWriter, dir string) {
@@ -140,6 +141,20 @@ func removeHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to execute template: "+err.Error(), http.StatusInternalServerError)
 		}
 		return
+	}
+
+	// suppression du dossier parent si vide
+	if filepath.Dir(origin) != constants.BE_SORTED {
+		dir, err := os.ReadDir(filepath.Dir(origin))
+		if err != nil {
+			logger.L(logger.Red, "Error reading directory: %s", err)
+		}
+		if len(dir) == 0 {
+			err := os.Remove(filepath.Dir(origin))
+			if err != nil {
+				logger.L(logger.Red, "Error removing directory: %s", err)
+			}
+		}
 	}
 
 	// Envoie une réponse vide si la suppression a réussi

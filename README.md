@@ -2,6 +2,14 @@
 
 **Media Organizer** est une application robuste conçue pour l'organisation et le renommage automatisés de collections de fichiers multimédias, tels que les films et les séries télévisées.
 
+- [Fonctionnalités Principales](#fonctionnalités-principales)
+- [Interface Web pour la Gestion des Fichiers](#interface-web-pour-la-gestion-des-fichiers)
+- [Technologies](#technologies)
+- [Architecture Docker](#architecture-docker)
+- [Exemple d'utilisation avec Docker Run](#exemple-dutilisation-avec-docker-run)
+- [Notes](#notes)
+- [A venir](#a-venir)
+
 ## Fonctionnalités Principales
 - **Tri Automatique** : Classe les fichiers multimédias dans des répertoires appropriés basés sur leur type.
 - **Renommage Intuitif** : Applique des conventions de nommage personnalisables aux fichiers.
@@ -182,9 +190,10 @@ docker run -d \
 > <br><br>
 > Si vous souhaitez tester ces expressions régulières, vous pouvez utiliser [regex101.com](https://regex101.com/).
 
+---
 
 ## A venir
 - [ ] Ajout de la traduction.
-- [ ] Ajout de la suppression des dossiers en plus des fichiers autres comme maintenant.
+- [x] Ajout de la suppression automatique des dossiers lorsque l'on supprime un fichier (non-multimédia) seul dans un
+  répertoire.
 - [ ] Ajout de possibilités de connecter un discord webhooks pour les notifications en cas de problèmes.
-
