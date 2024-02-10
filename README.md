@@ -1,5 +1,7 @@
 # Media Organizer
 
+![logo](/statics/images/logo.webp)
+
 **Media Organizer** est une application robuste conçue pour l'organisation et le renommage automatisés de collections de fichiers multimédias, tels que les films et les séries télévisées.
 
 - [Fonctionnalités Principales](#fonctionnalités-principales)
