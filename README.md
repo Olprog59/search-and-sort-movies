@@ -1,6 +1,12 @@
 # Media Organizer
 
-![logo](/statics/images/logo.webp)
+![logo](/statics/images/logo_256x256.webp)
+
+[![Go Report Card](https://goreportcard.com/badge/github.com/olprog/media-organizer)](https://goreportcard.com/report/github.com/olprog/media-organizer)
+[![Docker Pulls](https://img.shields.io/docker/pulls/olprog/media-organizer)](https://hub.docker.com/r/olprog/media-organizer)
+[![Docker Image Size (latest by date)](https://img.shields.io/docker/image-size/olprog/media-organizer)](https://hub.docker.com/r/olprog/media-organizer)
+[![Docker Image Version (latest by date)](https://img.shields.io/docker/v/olprog/media-organizer)](https://hub.docker.com/r/olprog/media-organizer)
+[![Docker Cloud Automated build](https://img.shields.io/docker/cloud/automated/olprog/media-organizer)](https://hub.docker.com/r/olprog/media-organizer)
 
 **Media Organizer** est une application robuste conçue pour l'organisation et le renommage automatisés de collections de fichiers multimédias, tels que les films et les séries télévisées.
 
