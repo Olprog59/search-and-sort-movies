@@ -62,9 +62,6 @@ func (m *myFile) start(serieOrMovieOrBoth typeSerieOrMovie) error {
 	if err != nil {
 		return err
 	}
-	if err != nil {
-		return err
-	}
 	if m.serieName == "" || serieOrMovieOrBoth == MOVIE {
 		m.isMovie()
 	} else {
@@ -248,13 +245,13 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 	}
 	err = os.Rename(filePathOld, strings.ToLower(filePathNew))
 	if err != nil {
-		logger.L(logger.Red, "Error os.Rename. Test mv => %s", "mv \""+filePathOld+"\" \""+filePathNew+"\"")
+		logger.L(logger.Red, "Error rename with os.Rename => %s", "mv \""+filePathOld+"\" \""+filePathNew+"\"")
 		cmd := exec.Command("/bin/sh", "-c", "mv \""+filePathOld+"\" \""+filePathNew+"\"")
 		var stderr bytes.Buffer
 		cmd.Stderr = &stderr
 		err = cmd.Run()
 		if err != nil {
-			logger.L(logger.Red, "Move Or Rename file: %s, Error: %s", err, stderr.String())
+			logger.L(logger.Red, "Error rename with linux 'mv' : %s, Error: %s", err, stderr.String())
 			return false
 		}
 	}

@@ -98,9 +98,14 @@ func MyWatcher(location string, obsSlice *model.ObservableSlice) {
 					return
 				}
 				sem <- struct{}{}
+				if obsSlice.SameItem(event.Name) {
+					<-sem
+					logger.L(logger.Purple, "File already in slice: %s", event.Name)
+					continue
+				}
 				go func(e fsnotify.Event) {
 					defer func() { <-sem }()
-					logger.L(logger.Purple, "Event: %s", e)
+					//logger.L(logger.Purple, "Event: %s", e)
 					handleEvent(e, obsSlice)
 				}(event)
 
@@ -128,14 +133,14 @@ func handleEvent(e fsnotify.Event, obsSlice *model.ObservableSlice) {
 	if e.Op&fsnotify.Write == fsnotify.Write || e.Op&fsnotify.Create == fsnotify.Create || e.Op&fsnotify.Rename == fsnotify.Rename {
 		if isWriteComplete(e.Name) {
 
-			if obsSlice.SameItem(e.Name) {
-				logger.L(logger.Purple, "File already in slice: %s", e.Name)
-				return
-			}
+			//if obsSlice.SameItem(e.Name) {
+			//	//logger.L(logger.Purple, "File already in slice: %s", e.Name)
+			//	return
+			//}
 
 			isDir, isNil := _checkIfDir(e)
 			if isNil {
-				logger.L(logger.Purple, "File is nil: %s", e.Name)
+				//logger.L(logger.Purple, "File is nil: %s", e.Name)
 				return
 			}
 
