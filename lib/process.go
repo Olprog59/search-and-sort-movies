@@ -51,10 +51,10 @@ func (m *myFile) Process() {
 	m.fileWithoutDir = m.complete
 	err := m.start(NOTHING)
 	if err != nil {
-		logger.L(logger.Red, "%s => %s", m.fileWithoutDir, err)
+		logger.Err("%s => %s", m.fileWithoutDir, err)
 		return
 	}
-	//logger.L(logger.Yellow, "complete: %s", m.complete)
+	//logger.L(logger.Warn, "complete: %s", m.complete)
 }
 
 func (m *myFile) start(serieOrMovieOrBoth typeSerieOrMovie) error {
@@ -72,7 +72,7 @@ func (m *myFile) start(serieOrMovieOrBoth typeSerieOrMovie) error {
 
 func (m *myFile) isMovie() {
 	extension := filepath.Ext(m.file)
-	// logger.L(logger.Yellow, "name: %s", m.name)
+	// logger.L(logger.Warn, "name: %s", m.name)
 
 	var path1 string
 	m.complete = m.name + extension
@@ -81,7 +81,7 @@ func (m *myFile) isMovie() {
 	start := time.Now()
 	if moveOrRenameFile(m.file, path1) {
 		duration := time.Now().Sub(start)
-		logger.L(logger.Green, "Movie: %s has been moved to: %s - %s", m.fileWithoutDir, path1, duration)
+		logger.Success("Movie: %s has been moved to: %s - %s", m.fileWithoutDir, path1, duration)
 	}
 }
 
@@ -101,11 +101,11 @@ func (m *myFile) checkFolderSerie() (string, string) {
 	newFolder := string(os.PathSeparator) + m.serieName + string(os.PathSeparator) + "season-" + ss
 	folderOk := series + string(os.PathSeparator) + m.serieName
 	if _, err := os.Stat(folderOk); os.IsNotExist(err) {
-		logger.L(logger.Yellow, "Create folder: "+m.serieName)
+		logger.Warn("Create folder: " + m.serieName)
 		createFolder(folderOk)
 	}
 	if _, err := os.Stat(series + newFolder); os.IsNotExist(err) {
-		logger.L(logger.Yellow, "Create folder : "+newFolder)
+		logger.Warn("Create folder : " + newFolder)
 		createFolder(series + newFolder)
 	}
 
@@ -113,7 +113,7 @@ func (m *myFile) checkFolderSerie() (string, string) {
 	start := time.Now()
 	if moveOrRenameFile(m.file, finalFilePath) {
 		duration := time.Now().Sub(start)
-		logger.L(logger.Green, "Episode: %s has been moved to: %s - %s", m.fileWithoutDir, finalFilePath, duration)
+		logger.Success("Episode: %s has been moved to: %s - %s", m.fileWithoutDir, finalFilePath, duration)
 	}
 
 	return m.complete, finalFilePath
@@ -215,7 +215,7 @@ func (m *myFile) removeFirstBrackets() {
 func createFolder(folder string) {
 	err := os.MkdirAll(folder, os.ModePerm)
 	if err != nil {
-		logger.L(logger.Red, "%s", err)
+		logger.Err("%s", err)
 	}
 }
 
@@ -232,30 +232,30 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 
 	err := os.Chown(filePathOld, constants.UID, constants.GID)
 	if err != nil {
-		logger.L(logger.Red, "Failed Chown file => %s", filePathOld)
+		logger.Err("Failed Chown file => %s", filePathOld)
 	}
 	// Convertir la chaîne octale en int64
 	chmodInt, err := strconv.ParseInt(constants.CHMOD, 8, 64)
 	if err != nil {
-		logger.L(logger.Red, "Failed to convert octal string to int64")
+		logger.Err("Failed to convert octal string to int64")
 	}
 	err = os.Chmod(filePathOld, os.FileMode(chmodInt))
 	if err != nil {
-		logger.L(logger.Red, "Failed Chmod file => %s", filePathOld)
+		logger.Err("Failed Chmod file => %s", filePathOld)
 	}
 	err = os.Rename(filePathOld, strings.ToLower(filePathNew))
 	if err != nil {
-		logger.L(logger.Red, "Error rename with os.Rename => %s", "mv \""+filePathOld+"\" \""+filePathNew+"\"")
+		logger.Err("Error rename with os.Rename => %s", "mv \""+filePathOld+"\" \""+filePathNew+"\"")
 		cmd := exec.Command("/bin/sh", "-c", "mv \""+filePathOld+"\" \""+filePathNew+"\"")
 		var stderr bytes.Buffer
 		cmd.Stderr = &stderr
 		err = cmd.Run()
 		if err != nil {
-			logger.L(logger.Red, "Error rename with linux 'mv' : %s, Error: %s", err, stderr.String())
+			logger.Err("Error rename with linux 'mv' : %s, Error: %s", err, stderr.String())
 			return false
 		}
 	}
-	logger.L(logger.Yellow, "File Rename => %s", filePathOld)
+	logger.Warn("File Rename => %s", filePathOld)
 
 	folder := filepath.Dir(filePathOld)
 
@@ -267,12 +267,12 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 		if len(file) == 0 {
 			err = watch.Remove(folder)
 			if err != nil {
-				logger.L(logger.Red, "Error. Can't delete watcher to folder: %s", folder)
+				logger.Err("Error. Can't delete watcher to folder: %s", folder)
 			}
-			logger.L(logger.Yellow, "Delete watcher to folder: %s", folder)
+			logger.Warn("Delete watcher to folder: %s", folder)
 			err := os.Remove(folder)
 			if err != nil {
-				logger.L(logger.Red, "Error to delete folder: %s", folder)
+				logger.Err("Error to delete folder: %s", folder)
 			}
 		}
 	}
@@ -294,7 +294,7 @@ func CleanFolder(str string) {
 			if path != str {
 				err := os.Remove(path)
 				if err != nil {
-					logger.L(logger.Red, "Remove folder isn't possible because a file(s) is inside : %s", path)
+					logger.Err("Remove folder isn't possible because a file(s) is inside : %s", path)
 				}
 			}
 		} else {
@@ -302,7 +302,7 @@ func CleanFolder(str string) {
 			if !re.MatchString(filepath.Ext(path)) {
 				err := os.Remove(path)
 				if err != nil {
-					logger.L(logger.Red, "Error to remove file: %s", path)
+					logger.Err("Error to remove file: %s", path)
 				}
 			}
 		}

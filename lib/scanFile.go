@@ -10,7 +10,7 @@ import (
 )
 
 func StartScan(obsSlice *model.ObservableSlice) {
-	logger.L(logger.Purple, "Scan files in folder(s) : %s", constants.BE_SORTED)
+	logger.Debug("Scan files in folder(s) : %s", constants.BE_SORTED)
 	err := filepath.Walk(constants.BE_SORTED+"/", func(path string, info os.FileInfo, err error) error {
 		if info.IsDir() {
 			return nil
@@ -19,7 +19,7 @@ func StartScan(obsSlice *model.ObservableSlice) {
 		if re.MatchString(filepath.Ext(path)) {
 			duration, err := GetMediaDuration(path)
 			if err != nil {
-				logger.L(logger.Red, "Error checking media file: %s", err)
+				logger.Err("Error checking media file: %s", err)
 				return nil
 			}
 			file := model.SliceFile{File: path, Working: false, Duration: duration}
@@ -28,6 +28,6 @@ func StartScan(obsSlice *model.ObservableSlice) {
 		return nil
 	})
 	if err != nil {
-		logger.L(logger.Red, "walk error %s", err)
+		logger.Err("walk error %s", err)
 	}
 }

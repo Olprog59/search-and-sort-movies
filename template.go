@@ -23,21 +23,24 @@ type fileInfo struct {
 
 func listFiles(w http.ResponseWriter, dir string) {
 	movieFiles, otherFiles := classifyFiles(dir)
-	logger.L(logger.Magenta, "movieFiles: %d, otherFiles: %d", len(movieFiles), len(otherFiles))
+	logger.Info("movieFiles: %d, otherFiles: %d", len(movieFiles), len(otherFiles))
 	m, err := generateHTML(movieFiles, "/change", fileTemplate, false)
 	if err != nil {
-		logger.L(logger.Red, "Error generating change HTML: %s", err)
+		logger.Err("Error generating change HTML: %s", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	o, err := generateHTML(otherFiles, "/remove", fileTemplate, true)
 	if err != nil {
-		logger.L(logger.Red, "Error generating remove HTML: %s", err)
+		logger.Err("Error generating remove HTML: %s", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(fmt.Sprintf(`<div class="files" id="files">%s</div><div class="files other">%s</div>`, m, o)))
+	_, err = w.Write([]byte(fmt.Sprintf(`<div class="files" id="files">%s</div><div class="files other">%s</div>`, m, o)))
+	if err != nil {
+		return
+	}
 }
 
 func classifyFiles(dir string) ([]fileInfo, []fileInfo) {
@@ -85,7 +88,7 @@ func changeHandler(w http.ResponseWriter, r *http.Request) {
 	if filepath.Base(origin) == newValue {
 		data.ErrorMessage = "Aucun changement détecté"
 	} else {
-		logger.L(logger.Yellow, "Tu as renommé : %s en %s", origin, data.Path)
+		logger.Warn("Tu as renommé : %s en %s", origin, data.Path)
 		if err := os.Rename(origin, data.Path); err != nil {
 			data.ErrorMessage = fmt.Sprintf("Un problème est survenu lors du renommage (%s)", err.Error())
 		} else {
@@ -93,7 +96,7 @@ func changeHandler(w http.ResponseWriter, r *http.Request) {
 			constants.ObsSlice.Remove(origin)
 			duration, err := lib.GetMediaDuration(data.Path)
 			if err != nil {
-				logger.L(logger.Red, "Error checking media file: %s", err)
+				logger.Err("Error checking media file: %s", err)
 			}
 			constants.ObsSlice.Add(model.SliceFile{File: data.Path, Working: false, Duration: duration})
 		}
@@ -143,7 +146,7 @@ func removeHandler(w http.ResponseWriter, r *http.Request) {
 			http.Error(w, "Failed to execute template: "+err.Error(), http.StatusInternalServerError)
 			return
 		}
-		http.Error(w, "Failed to remove file: "+err.Error(), http.StatusInternalServerError)
+		http.Error(w, "Failed to remove file: "+origin, http.StatusInternalServerError)
 		return
 	}
 
@@ -151,19 +154,22 @@ func removeHandler(w http.ResponseWriter, r *http.Request) {
 	if filepath.Dir(origin) != constants.BE_SORTED {
 		dir, err := os.ReadDir(filepath.Dir(origin))
 		if err != nil {
-			logger.L(logger.Red, "Error reading directory: %s", err)
+			logger.Err("Error reading directory: %s", err)
 		}
 		if len(dir) == 0 {
 			err := os.Remove(filepath.Dir(origin))
 			if err != nil {
-				logger.L(logger.Red, "Error removing directory: %s", err)
+				logger.Err("Error removing directory: %s", err)
 			}
 		}
 	}
 
 	// Envoie une réponse vide si la suppression a réussi
 	w.Header().Set("Content-Type", "text/html")
-	w.Write([]byte(""))
+	_, err := w.Write([]byte(""))
+	if err != nil {
+		return
+	}
 }
 
 func forceHandler(writer http.ResponseWriter, request *http.Request) {
@@ -175,7 +181,7 @@ func forceHandler(writer http.ResponseWriter, request *http.Request) {
 	path := request.FormValue("path")
 	typeMedia := request.FormValue("type_media")
 
-	logger.L(logger.Magenta, "Force media type for %s to %s", path, typeMedia)
+	logger.Info("Force media type for %s to %s", path, typeMedia)
 	newFileSlice := constants.ObsSlice.SetForce(path, true)
 	newFileSlice.Working = false
 	newFileSlice.TypeMedia = typeMedia

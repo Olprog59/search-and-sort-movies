@@ -1,8 +1,6 @@
 package logger
 
 import (
-	"log"
-	"runtime"
 	"sync"
 )
 
@@ -21,49 +19,25 @@ func NewCircularBuffer(size int) *CircularBuffer {
 	}
 }
 
-func (cb *CircularBuffer) Append(logs string) {
+func (cb *CircularBuffer) Append(l string) {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
 
-	// Gestionnaire de panique
-	defer func() {
-		if r := recover(); r != nil {
-			log.Println("Recovered in GetAll:", r)
-			// Imprimer la pile d'exécution pour le débogage
-			buf := make([]byte, 1024)
-			runtime.Stack(buf, false)
-			log.Println(string(buf))
-		}
-	}()
-
-	cb.logs[cb.index] = logs            // Insère le log à l'index actuel
+	cb.logs[cb.index] = l               // Insère le log à l'index actuel
 	cb.index = (cb.index + 1) % cb.size // Incrémente l'index et le remet à 0 si on dépasse la taille
 }
 
-func (cb *CircularBuffer) GetAll() (logs []string) {
+func (cb *CircularBuffer) GetAll() []string {
 	cb.mu.Lock()
 	defer cb.mu.Unlock()
 
-	// Gestionnaire de panique
-	defer func() {
-		if r := recover(); r != nil {
-			log.Println("Recovered in GetAll:", r)
-			// Imprimer la pile d'exécution pour le débogage
-			buf := make([]byte, 1024)
-			runtime.Stack(buf, false)
-			log.Println(string(buf))
-		}
-	}()
-
-	L(Magenta, "GetAll - Debut")
+	var logs []string
 
 	if cb.logs[cb.index] == "" {
 		logs = cb.logs[:cb.index]
 	} else {
 		logs = append(cb.logs[cb.index:], cb.logs[:cb.index]...)
 	}
-
-	L(Magenta, "GetAll - Fin")
 
 	return logs
 }

@@ -35,13 +35,13 @@ func init() {
 func main() {
 
 	// Activation du serveur de profilage
-	go func() {
-		log.Println(http.ListenAndServe("localhost:6060", nil))
-	}()
+	//go func() {
+	//	log.Println(http.ListenAndServe("localhost:6060", nil))
+	//}()
 
 	go logger.ManageClients()
 
-	logger.L(logger.Magenta, "Start :-D")
+	logger.Info("Start :-D")
 
 	// Nettoyer le dossier de be_sorted
 	lib.CleanFolder(constants.BE_SORTED)
@@ -51,7 +51,6 @@ func main() {
 	go func() {
 		for slice := range constants.ObsSlice.Watch() {
 			lib.StartProcessing(slice, constants.ObsSlice)
-			//logger.L(logger.Magenta, "%#+v", slice)
 		}
 	}()
 
@@ -75,9 +74,9 @@ func main() {
 	// Route pour les logs SSE
 	mux.HandleFunc("GET /logs", logger.ServeLogs)
 
-	logger.L(logger.Magenta, "Start server on localhost:8080")
+	logger.Info("Start server on http://localhost:8080")
 	err = http.ListenAndServe("localhost:8080", mid)
-	logger.L(logger.Yellow, "L'application a été arrêtée: %s", err)
+	logger.Warn("L'application a été arrêtée: %s", err)
 }
 
 func scanHandler(w http.ResponseWriter, _ *http.Request) {
@@ -101,7 +100,7 @@ func logMiddleware(mux *http.ServeMux) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// force UTF-8 for all requests
 		if !strings.HasPrefix(r.URL.Path, "/statics/") {
-			logger.L(logger.Teal, "%s %s %s", r.RemoteAddr, r.Method, r.URL)
+			logger.Notice("%s %s %s", r.RemoteAddr, r.Method, r.URL)
 		}
 		mux.ServeHTTP(w, r)
 	})

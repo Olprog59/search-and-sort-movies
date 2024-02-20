@@ -106,10 +106,10 @@ func (m *myFile) formatageFinal() error {
 		return nil
 	}
 
-	if err != nil {
-		logger.L(logger.Red, "%s", err)
-		return err
-	}
+	//if err != nil {
+	//	logger.L(logger.Err, "%s", err)
+	//	return err
+	//}
 
 	if m.ForceType == "serie" {
 		m.formatageSerie()
@@ -118,7 +118,7 @@ func (m *myFile) formatageFinal() error {
 		m.formatageMovie()
 		return nil
 	}
-
+	// forcer le type de fichier si dans obsSlice le force est à True
 	sec := m.duration / 60
 	if m.episode > 0 && sec < 70 {
 		m.formatageSerie()
@@ -163,13 +163,13 @@ func (m *myFile) extractYear(str string) {
 
 	if startAndEnd != nil && len(startAndEnd) > 0 {
 		year := str[startAndEnd[0]:startAndEnd[1]]
-		// logger.L(logger.Yellow, "year : %s", year)
+		// logger.L(logger.Warn, "year : %s", year)
 		year = strings.Replace(year, " ", "", -1)
 		year = strings.Replace(year, "-", "", -1)
 		m.year, err = strconv.Atoi(year)
 
 		if err != nil {
-			logger.L(logger.Red, "%s", err)
+			logger.Err("%s", err)
 		}
 		if len(yearReg.FindStringIndex(m.name)) > 0 {
 			m.name = strings.Replace(m.name, year, "", -1)

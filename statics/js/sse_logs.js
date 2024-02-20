@@ -7,6 +7,7 @@ if (!!window.EventSource) {
         const colorCode = e.data.substring(0, 7);
         newMsg.textContent = e.data.substring(7, e.data.length - 4);
         newMsg.classList.add(color(colorCode));
+        -
         logDiv.prepend(newMsg); // Ajouter le nouveau message au conteneur
     }, false);
 } else {
