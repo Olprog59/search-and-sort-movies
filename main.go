@@ -51,6 +51,7 @@ func main() {
 	go func() {
 		for slice := range constants.ObsSlice.Watch() {
 			lib.StartProcessing(slice, constants.ObsSlice)
+			logger.Warn("%v", constants.ObsSlice.Get())
 		}
 	}()
 

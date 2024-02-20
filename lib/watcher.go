@@ -71,11 +71,11 @@ func MyWatcher(location string, obsSlice *model.ObservableSlice) {
 
 func handleEvent(e fsnotify.Event, obsSlice *model.ObservableSlice) {
 	if e.Op&fsnotify.Write == fsnotify.Write || e.Op&fsnotify.Create == fsnotify.Create || e.Op&fsnotify.Rename == fsnotify.Rename {
-		if obsSlice.SameItem(e.Name) {
-			//logger.Debug("File already in slice: %s", e.Name)
-			return
-		}
 		if isWriteComplete(e.Name) {
+			if obsSlice.SameItem(e.Name) {
+				//logger.Debug("File already in slice: %s", e.Name)
+				return
+			}
 			isDir, isNil := _checkIfDir(e)
 			if isNil {
 				//logger.Debug("File is nil: %s", e.Name)
