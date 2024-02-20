@@ -6,7 +6,7 @@ services:
     ports:
       - 1574:8080
     volumes:
-      - - /Users/olprog/GolandProjects/media-organizer/medias:/medias
+      - ./medias:/medias
     environment:
       REGEX_MOVIE: "{name}-{resolution} ({year})"
       REGEX_SERIE: "{name}-s{season}e{episode}-{resolution} ({year})"
