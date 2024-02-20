@@ -23,21 +23,21 @@ type fileInfo struct {
 
 func listFiles(w http.ResponseWriter, dir string) {
 	movieFiles, otherFiles := classifyFiles(dir)
+	logger.L(logger.Magenta, "movieFiles: %d, otherFiles: %d", len(movieFiles), len(otherFiles))
 	m, err := generateHTML(movieFiles, "/change", fileTemplate, false)
 	if err != nil {
+		logger.L(logger.Red, "Error generating change HTML: %s", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	o, err := generateHTML(otherFiles, "/remove", fileTemplate, true)
 	if err != nil {
+		logger.L(logger.Red, "Error generating remove HTML: %s", err)
 		http.Error(w, err.Error(), http.StatusInternalServerError)
 		return
 	}
 	w.Header().Set("Content-Type", "text/html")
-	_, err = w.Write([]byte(fmt.Sprintf(`<div class="files" id="files">%s</div><div class="files other">%s</div>`, m, o)))
-	if err != nil {
-		return
-	}
+	w.Write([]byte(fmt.Sprintf(`<div class="files" id="files">%s</div><div class="files other">%s</div>`, m, o)))
 }
 
 func classifyFiles(dir string) ([]fileInfo, []fileInfo) {
@@ -85,7 +85,7 @@ func changeHandler(w http.ResponseWriter, r *http.Request) {
 	if filepath.Base(origin) == newValue {
 		data.ErrorMessage = "Aucun changement détecté"
 	} else {
-		logger.L(logger.Magenta, "Rename file %s to %s", origin, data.Path)
+		logger.L(logger.Yellow, "Tu as renommé : %s en %s", origin, data.Path)
 		if err := os.Rename(origin, data.Path); err != nil {
 			data.ErrorMessage = fmt.Sprintf("Un problème est survenu lors du renommage (%s)", err.Error())
 		} else {
@@ -109,7 +109,9 @@ func changeHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "text/html")
 	if err := tmpl.Execute(w, data); err != nil {
 		http.Error(w, "Failed to execute template: "+err.Error(), http.StatusInternalServerError)
+		return
 	}
+	return
 }
 
 func removeHandler(w http.ResponseWriter, r *http.Request) {
@@ -139,7 +141,9 @@ func removeHandler(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("Content-Type", "text/html")
 		if err := tmpl.Execute(w, data); err != nil {
 			http.Error(w, "Failed to execute template: "+err.Error(), http.StatusInternalServerError)
+			return
 		}
+		http.Error(w, "Failed to remove file: "+err.Error(), http.StatusInternalServerError)
 		return
 	}
 
@@ -159,10 +163,7 @@ func removeHandler(w http.ResponseWriter, r *http.Request) {
 
 	// Envoie une réponse vide si la suppression a réussi
 	w.Header().Set("Content-Type", "text/html")
-	_, err := w.Write([]byte(""))
-	if err != nil {
-		return
-	}
+	w.Write([]byte(""))
 }
 
 func forceHandler(writer http.ResponseWriter, request *http.Request) {
@@ -184,6 +185,7 @@ func forceHandler(writer http.ResponseWriter, request *http.Request) {
 	}
 	// Envoie une réponse vide si la suppression a réussi
 	http.StatusText(http.StatusOK)
+	return
 }
 
 func generateHTML(files []fileInfo, action, temp string, disable bool) (string, error) {

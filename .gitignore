@@ -26,7 +26,7 @@ _testmain.go
 *.prof
 
 # Perso
-log*
+.log
 .config*
 searchAndSort
 debug

@@ -5,7 +5,6 @@ import (
 	"fmt"
 	"github.com/sam-docker/media-organizer/constants"
 	"github.com/sam-docker/media-organizer/logger"
-	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -241,7 +240,7 @@ func moveOrRenameFile(filePathOld, filePathNew string) bool {
 	// Convertir la chaîne octale en int64
 	chmodInt, err := strconv.ParseInt(constants.CHMOD, 8, 64)
 	if err != nil {
-		log.Fatalf("Erreur lors de la conversion des permissions : %v", err)
+		logger.L(logger.Red, "Failed to convert octal string to int64")
 	}
 	err = os.Chmod(filePathOld, os.FileMode(chmodInt))
 	if err != nil {

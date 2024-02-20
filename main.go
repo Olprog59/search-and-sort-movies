@@ -10,8 +10,10 @@ import (
 	"io/fs"
 	"log"
 	"net/http"
+	_ "net/http/pprof"
 	"os"
 	"runtime"
+	"strings"
 )
 
 //go:embed all:html
@@ -31,6 +33,12 @@ func init() {
 }
 
 func main() {
+
+	// Activation du serveur de profilage
+	go func() {
+		log.Println(http.ListenAndServe("localhost:6060", nil))
+	}()
+
 	go logger.ManageClients()
 
 	logger.L(logger.Magenta, "Start :-D")
@@ -43,7 +51,7 @@ func main() {
 	go func() {
 		for slice := range constants.ObsSlice.Watch() {
 			lib.StartProcessing(slice, constants.ObsSlice)
-			//logger.L(logger.Magenta, "%#+v", slice)
+			logger.L(logger.Magenta, "%#+v", slice)
 		}
 	}()
 
@@ -68,10 +76,8 @@ func main() {
 	mux.HandleFunc("GET /logs", logger.ServeLogs)
 
 	logger.L(logger.Magenta, "Start server on localhost:8080")
-	err = http.ListenAndServe(":8080", mid)
-	if err != nil {
-		return
-	}
+	err = http.ListenAndServe("localhost:8080", mid)
+	logger.L(logger.Yellow, "L'application a été arrêtée: %s", err)
 }
 
 func scanHandler(w http.ResponseWriter, _ *http.Request) {
@@ -94,7 +100,9 @@ func indexHandler(w http.ResponseWriter, r *http.Request) {
 func logMiddleware(mux *http.ServeMux) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		// force UTF-8 for all requests
-		logger.L(logger.Teal, "%s %s %s", r.RemoteAddr, r.Method, r.URL)
+		if !strings.HasPrefix(r.URL.Path, "/statics/") {
+			logger.L(logger.Teal, "%s %s %s", r.RemoteAddr, r.Method, r.URL)
+		}
 		mux.ServeHTTP(w, r)
 	})
 }

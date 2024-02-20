@@ -86,46 +86,24 @@ func MyWatcher(location string, obsSlice *model.ObservableSlice) {
 		}
 	}(watch)
 
+	sem := make(chan struct{}, 4) // Limite à 4 goroutines simultanées
+
 	done := make(chan bool)
 
 	go func() {
-	first:
 		for {
 			select {
 			case event, ok := <-watch.Events:
 				if !ok {
 					return
 				}
-				if event.Op&fsnotify.Write == fsnotify.Write || event.Op&fsnotify.Create == fsnotify.Create || event.Op&fsnotify.Rename == fsnotify.Rename {
-					if isWriteComplete(event.Name) {
+				sem <- struct{}{}
+				go func(e fsnotify.Event) {
+					defer func() { <-sem }()
+					logger.L(logger.Purple, "Event: %s", e)
+					handleEvent(e, obsSlice)
+				}(event)
 
-						if obsSlice.SameItem(event.Name) {
-							continue first
-						}
-
-						isDir, isNil := _checkIfDir(event)
-						if isNil {
-							continue
-						}
-
-						if !isDir {
-							re := regexp.MustCompile(constants.RegexFileExtension)
-							if re.MatchString(filepath.Ext(event.Name)) {
-								duration, err := GetMediaDuration(event.Name)
-								if err != nil {
-									logger.L(logger.Red, "Error checking media file: %s", err)
-									continue
-								}
-								file := model.SliceFile{File: event.Name, Duration: duration, Working: false}
-								obsSlice.Add(file)
-								//logger.L(logger.Purple, "File write complete: %s duration: %s", event.Name, duration)
-							}
-						}
-					}
-				} else if event.Op&fsnotify.Remove == fsnotify.Remove || event.Op&fsnotify.Rename == fsnotify.Rename {
-					obsSlice.Remove(event.Name)
-					//logger.L(logger.Purple, "File removed or rename: %s", event.Name)
-				}
 			case err, ok := <-watch.Errors:
 				if !ok {
 					return
@@ -145,6 +123,42 @@ func MyWatcher(location string, obsSlice *model.ObservableSlice) {
 	<-done
 	logger.L(logger.Purple, "Watcher finished")
 }
+
+func handleEvent(e fsnotify.Event, obsSlice *model.ObservableSlice) {
+	if e.Op&fsnotify.Write == fsnotify.Write || e.Op&fsnotify.Create == fsnotify.Create || e.Op&fsnotify.Rename == fsnotify.Rename {
+		if isWriteComplete(e.Name) {
+
+			if obsSlice.SameItem(e.Name) {
+				logger.L(logger.Purple, "File already in slice: %s", e.Name)
+				return
+			}
+
+			isDir, isNil := _checkIfDir(e)
+			if isNil {
+				logger.L(logger.Purple, "File is nil: %s", e.Name)
+				return
+			}
+
+			if !isDir {
+				re := regexp.MustCompile(constants.RegexFileExtension)
+				if re.MatchString(filepath.Ext(e.Name)) {
+					duration, err := GetMediaDuration(e.Name)
+					if err != nil {
+						logger.L(logger.Red, "Erreur lors de la vérification du fichier multimédia : %s", err)
+						return
+					}
+					file := model.SliceFile{File: e.Name, Duration: duration, Working: false}
+					obsSlice.Add(file)
+					logger.L(logger.Purple, "Le fichier a terminé de s'écrire : %s duration: %s", e.Name, duration)
+				}
+			}
+		}
+	} else if e.Op&fsnotify.Remove == fsnotify.Remove || e.Op&fsnotify.Rename == fsnotify.Rename {
+		obsSlice.Remove(e.Name)
+		logger.L(logger.Purple, "File removed or rename: %s", e.Name)
+	}
+}
+
 func _stat(event fsnotify.Event) (os.FileInfo, fsnotify.Event) {
 	f, err := os.Stat(event.Name)
 	if err != nil {

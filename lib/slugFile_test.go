@@ -410,6 +410,19 @@ func Test_myFile_slugFile(t *testing.T) {
 			0,
 			"",
 		},
+		{
+			"slugFile", fields{
+				"Gran.Turismo.2023.VFF.1080p.BluRay.mHD.x264.AC3-ROMKENT.mkv",
+			},
+			"gran-turismo-1080p (2023).mkv",
+			"gran-turismo-1080p (2023)",
+			"",
+			"",
+			0,
+			0,
+			2023,
+			"vff",
+		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -22,7 +22,7 @@ func (m *myFile) slugFile() error {
 	m.completeSlug = m.name
 
 	video := regexp.MustCompile(`(?mi)-(french|vf|dvdrip|multi|vostfr|subfrench|dvd-r|bluray|bdrip|brrip|cam|ts|tc|vcd|md|ld|r[0-9]|xvid|divx|scr|dvdscr|repack|hdlight|720p|480p|1080p|2160p|uhd|4k|1920x1080)`)
-	language := regexp.MustCompile(`(?mi)-(french|multi|vostfr|subfrench|vo)`)
+	language := regexp.MustCompile(`(?mi)-(french|multi|vostfr|subfrench|vo|vff)`)
 
 	cleanName := video.FindStringIndex(m.name)
 	if len(cleanName) > 0 {

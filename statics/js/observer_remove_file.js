@@ -25,7 +25,7 @@ document.addEventListener("DOMContentLoaded", function () {
                         const reload = document.getElementById('reload');
                         let secondes = 10;
                         reload.classList.add('start');
-                        reload.innerHTML = `La page va être rechargée dans&nbsp;<span class="secondes">${secondes}</span>&nbsp;secondes. Termine ce que vous étiez en train de faire.`;
+                        reload.innerHTML = `La page va être rechargée dans&nbsp;<span class="secondes">${secondes}</span>&nbsp;secondes. Termine ce que tu fais.`;
                         const interval = setInterval(function () {
                             const secondesElement = reload.querySelector('.secondes');
                             if (secondes > 0) {
