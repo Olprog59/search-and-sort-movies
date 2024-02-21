@@ -76,7 +76,7 @@ func main() {
 	mux.HandleFunc("GET /logs", logger.ServeLogs)
 
 	logger.Info("Start server on http://localhost:8080")
-	err = http.ListenAndServe("localhost:8080", mid)
+	err = http.ListenAndServe(":8080", mid)
 	logger.Warn("L'application a été arrêtée: %s", err)
 }
 
